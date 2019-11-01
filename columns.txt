@@ -1,0 +1,6 @@
+Time
+EventType
+PorLeftX
+PorLeftY
+PupilWidthLeft
+PupilHeightLeft
