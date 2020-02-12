@@ -1,4 +1,4 @@
-function results_fft = analyze_eeg_fft(cfg,data)
+function results_fft = process_fft_eeg(cfg,data)
 
 %% check config
 
