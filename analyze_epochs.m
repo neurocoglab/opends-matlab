@@ -94,7 +94,7 @@ for i = 1 : length(subjects)
 end
 
 tbl = table(Subject', double(DeltaPD)', Scores', PD_passing', PD_baseline', 'VariableNames', [{'Subject'},{'DeltaPD'},{'Scores'},{'PD_passing'},{'PD_baseline'}]);
-stats.passing_baseline_dscore.lm = fitlme(tbl,'DeltaPD~Scores+(1|Subject)+(Round-1|Subject)');
+stats.passing_baseline_dscore.lm = fitlme(tbl,'DeltaPD~Scores+(1|Subject)+(Scores-1|Subject)');
 stats.passing_baseline_dscore.data = tbl;
 
 % Score with Baseline/passing
@@ -127,7 +127,7 @@ for i = 1 : length(subjects)
 end
 
 tbl = table(Subject', double(PD)', IsBaseline', Scores', 'VariableNames', [{'Subject'},{'PD'},{'IsBaseline'},{'Scores'}]);
-stats.passing_baseline_score.lm = fitlm(tbl,'PD~IsBaseline+Scores+IsBaseline*Scores+(1|Subject)+(Round-1|Subject)');
+stats.passing_baseline_score.lm = fitlm(tbl,'PD~IsBaseline+Scores+IsBaseline*Scores'); %wtf +(1|Subject)');%+(Scores-1|Subject)');
 stats.passing_baseline_score.data = tbl;
 
 

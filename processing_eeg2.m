@@ -54,7 +54,7 @@ params.eeg.erp.min_trials = 5;
 
 %% Process all subjects
 
-% subjects = {'0739'};
+subjects = {'0739'};
 
 for i = 1 : length(subjects)
     
@@ -80,52 +80,10 @@ for i = 1 : length(subjects)
     %
     
     data_file = sprintf('%s/processing_results_eeg_artfrej.mat',outdir);
-    
-    if ~params.clobber && exist(data_file, 'file')
-        load(data_file);
-    else
-
-        flag_file = sprintf('%s/ica.done',outdir);
-        data = load_eeg_data( params, preproc, subject );
-
-        % If ICA has already been done, load that
-        if exist(flag_file, 'file')
-            results_file = sprintf('%s/processing_results_eeg_ica.mat',outdir);
-            fprintf('Loading ICA-filtered EEG data for subject %s.\n', subject);
-            T = load(results_file, 'data_flt');
-            % Ensure bad channels are removed
-            cfg2 = [];
-            cfg2.channel = data.eeg.ft.label;
-            data.eeg.ft = T.data_flt;
-            [~,data.eeg.ft] = evalc('ft_selectdata(cfg2, data.eeg.ft)');
-            clear T;
-        else
-    %         data = load_eeg_data( params, preproc, subject );
-            fprintf('No ICA found. Loading/saving raw EEG data for subject %s.\n', subject);
-            results_file = sprintf('%s/processing_results_eeg_noica.mat',outdir);
-            save(results_file, 'results', 'data_flt');
-        end
-        
-        t_last = data.eeg.events.Time(end);
-        idx_last = find(data.eeg.ft.time{1}>t_last,1,'first');
-        if ~isempty(idx_last)
-            % Trim end of time series (past last event)
-            data.eeg.ft.time = {data.eeg.ft.time{1}(1:idx_last)};
-            data.eeg.ft.trial = {data.eeg.ft.trial{1}(:,1:idx_last)};
-            data.eeg.ft.hdr.nSamples = length(data.eeg.ft.time{1});
-            data.eeg.ft.sampleinfo = [1 length(data.eeg.ft.time{1})];
-        end
-    
-        %% Load eye data and use it to remove ocular artifacts
-        if ~strcmp(params.eeg.artifacts.reject,'none')
-            data = remove_ocular_artifacts_eeg( data, preproc, subject, show_plots);
-        end
-        save(data_file, 'data', '-v7.3');
-    end
+    load( data_file );
     
     %% Load simulation events/epochs
     sim = get_simulation_events_eeg( outdir, preproc, proc, data );
-
 
     %% Define trials from simulation events
     

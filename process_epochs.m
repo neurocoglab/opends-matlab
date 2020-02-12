@@ -60,6 +60,7 @@ passing_outcomes = zeros(N,1);
 passing_cycles = zeros(N,1);
 
 max_interval = 30000; % Half a minute
+min_interval = 3000;  % Three seconds
         
 left = [preprocess.sim2track.left_change_times, ...
         true(length(preprocess.sim2track.left_change_times),1)];
@@ -83,7 +84,7 @@ for j = 1 : length(left_right)
    else
       % Is change to right
       this_right = left_right(j,1);
-      if this_left > 0 && this_right-this_left < max_interval
+      if this_left > 0 && this_right-this_left < max_interval && this_right-this_left > min_interval
           % Valid passing segment, add
           results.overtake_intervals(end+1,:) = [this_left this_right];
           
@@ -96,12 +97,13 @@ for j = 1 : length(left_right)
           if isempty(ii), ii = length(t_eye)-idx1; end
           idx2 = idx1 + ii;
           
-          if idx2 > idx1
+          % Exclude passing epochs overlapping with baseline epochs
+          if idx2 > idx1 && ~any(idx_baseline(idx1:idx2))
 
               % Only take window around initiation of pass
-              idx_s = max(1,idx1+window(1));
-              idx_e = min(idx2, idx1+window(2));
-              idx1 = idx_s; idx2 = idx_e;
+%               idx_s = max(1,idx1+window(1));
+%               idx_e = min(idx2, idx1+window(2));
+%               idx1 = idx_s; idx2 = idx_e;
               
               idx_passing(idx1:idx2) = true;
               passing_intervals(end+1,:) = [idx1 idx2];
@@ -140,6 +142,10 @@ end
 pdz = zscore(pd);
 
 sr = preprocess.saccades.saccade_rate;
+if length(sr) < length(idx_baseline)
+   % pad
+   sr = [sr;zeros(length(idx_baseline)-length(sr),1)];
+end
 
 results.diff_levels = diff_levels;
 

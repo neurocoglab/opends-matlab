@@ -55,8 +55,11 @@ data = {...
 h = plotlyfig('Visible','off'); % initalize an empty figure object
 h.data = data;
 h.layout = params.epochs.plots.layouts.boxplot;
-h.layout.title = 'Baseline v. Passing Onset';
-h.layout.yaxis.range = [min(min(y_baseline,y_passing)) max(max(y_baseline,y_passing))]*1.3;
+h.layout.title = 'Baseline v. Passing Epochs';
+yrange = [min(min(y_baseline,y_passing)) max(max(y_baseline,y_passing))];
+ypad = abs(diff(yrange))*0.3/2;
+yrange(1) = yrange(1)-ypad;yrange(2) = yrange(2)+ypad;
+h.layout.yaxis.range = yrange;
 
 h.PlotOptions.FileName = sprintf('%s/boxplots_pd_zscore_pass_baseline', outdir);
 plotlyoffline(h);
@@ -95,12 +98,15 @@ data = {...
 h = plotlyfig('Visible','off'); % initalize an empty figure object
 h.data = data;
 h.layout = params.epochs.plots.layouts.boxplot;
-h.layout.title = 'Passing Onset: Easy v. Difficult';
-h.layout.yaxis.range = [min(min(y_easy,y_diff)) max(max(y_easy,y_diff))]*1.3;
+h.layout.title = 'Passing Epochs: Easy v. Difficult';
+yrange = [min(min(y_easy,y_diff)) max(max(y_easy,y_diff))];
+ypad = abs(diff(yrange))*0.3/2;
+yrange(1) = yrange(1)-ypad;yrange(2) = yrange(2)+ypad;
+h.layout.yaxis.range = yrange;
 
-if out2file
+%if out2file
     h.PlotOptions.FileName = sprintf('%s/boxplots_pd_zscore_pass_difficulty', outdir);
-end
+%end
 plotlyoffline(h);
 
 if showplots
@@ -136,12 +142,15 @@ data = {...
 h = plotlyfig('Visible','off'); % initalize an empty figure object
 h.data = data;
 h.layout = params.epochs.plots.layouts.boxplot;
-h.layout.title = 'Passing Onset: Positive v. Negative Outcome';
-h.layout.yaxis.range = [min(min(y_pos,y_neg)) max(max(y_pos,y_neg))]*1.3;
+h.layout.title = 'Passing Epochs: Positive v. Negative Outcome';
+yrange = [min(min(y_pos,y_neg)) max(max(y_pos,y_neg))];
+ypad = abs(diff(yrange))*0.3/2;
+yrange(1) = yrange(1)-ypad;yrange(2) = yrange(2)+ypad;
+h.layout.yaxis.range = yrange;
 
-if out2file
+%if out2file
     h.PlotOptions.FileName = sprintf('%s/boxplots_pd_zscore_pass_outcome', outdir);
-end
+%end
 plotlyoffline(h);
 
 if showplots
@@ -189,7 +198,11 @@ if out2file || params.epochs.plot_scatter
     h.data = data;
     h.layout = params.epochs.plots.layouts.lines;
     h.layout.title = 'Baseline v. Passing By Subject';
-    h.layout.yaxis.range = [min(min(y_baseline,y_passing)) max(max(y_baseline,y_passing))]*1.3;
+    
+    yrange = [min(min(y_baseline,y_passing)) max(max(y_baseline,y_passing))];
+    ypad = abs(diff(yrange))*0.3/2;
+    yrange(1) = yrange(1)-ypad;yrange(2) = yrange(2)+ypad;
+    h.layout.yaxis.range = yrange;
     h.layout.xaxis.ticktext = [{'Baseline'},{'Passing'}];
     
     h.PlotOptions.FileName = sprintf('%s/lines_baseline_pass_subjects', outdir);
@@ -231,7 +244,10 @@ if out2file || params.epochs.plot_scatter
                     )};
                 
     % Add regression lines
-    yrange = [min(min(y_baseline,y_passing)) max(max(y_baseline,y_passing))]*1.3;
+    yrange = [min(min(y_baseline,y_passing)) max(max(y_baseline,y_passing))];
+    ypad = abs(diff(yrange))*0.3/2;
+    yrange(1) = yrange(1)-ypad;yrange(2) = yrange(2)+ypad;
+    h.layout.yaxis.range = yrange;
     xrange = [min(scores) max(scores)];
     lm1 = fitlm(scores,y_baseline);
     lm2 = fitlm(scores,y_passing);
@@ -251,7 +267,7 @@ if out2file || params.epochs.plot_scatter
                     'showlegend', false, ...
                     'x', xrange, ...
                     'y', y2, ...
-                    'name', 'Passing Onset', ...
+                    'name', 'Passing', ...
                     'visible', 1, ...
                     'mode', 'lines', ...
                     'line', struct('color', plotly_clrs{2}, ...
@@ -279,11 +295,11 @@ if out2file || params.epochs.plot_scatter
     end
     
     % Plot Difference PD (Overtake - Baseline) versus Score
-    if out2file
-        h = figure('visible','off');
-    else
-        h = figure;
-    end 
+%     if out2file
+%         h = figure('visible','off');
+%     else
+%         h = figure;
+%     end 
     
     lm1 = fitlm(scores,diff_bp);
     y1 = [lm1.predict(xrange(1)) lm1.predict(xrange(2))];
@@ -291,7 +307,7 @@ if out2file || params.epochs.plot_scatter
     data = {struct(...
                     'x', scores, ...
                     'y', diff_bp, ...
-                    'name', 'PassingOnset-Baseline', ...
+                    'name', 'Passing-Baseline', ...
                     'visible', 1, ...
                     'mode', 'markers', ...
                     'marker', struct(...
@@ -309,12 +325,14 @@ if out2file || params.epochs.plot_scatter
                                    'width', 5) ...
                     )};
     
-   
-    yrange = [min(diff_bp) max(diff_bp)]*1.3;
+    yrange = [min(diff_bp) max(diff_bp)];
+    ypad = abs(diff(yrange))*0.3/2;
+    yrange(1) = yrange(1)-ypad;yrange(2) = yrange(2)+ypad;
+    h.layout.yaxis.range = yrange;
     h = plotlyfig('Visible','off');
     h.data = [data];
     h.layout = params.epochs.plots.layouts.boxplot;
-    h.layout.title = 'PD (Passing Onset minus Baseline) v. Simulation Score';
+    h.layout.title = 'PD (Passing minus Baseline Epochs) v. Simulation Score';
     h.layout.yaxis.range = yrange;
     h.layout.xaxis.title = 'Simulation Score';
     h.layout.yaxis.title = 'Mean PD Difference (Z-score)';
@@ -384,11 +402,11 @@ for j = 1 : N_cycles
 end
 
                                     
-if out2file
-    h = figure('visible','off');
-else
-    h = figure;
-end
+% if out2file
+%     h = figure('visible','off');
+% else
+%     h = figure;
+% end
 
 scores = [1:N_cycles; 1:N_cycles]';
 y = [pd_bl_mean,pd_pass_mean];
@@ -397,12 +415,15 @@ upper = [pd_bl_ci(:,2),pd_pass_ci(:,2)];
 
 h = plotlyfig('Visible','off');
 [data_line,data_shade] = get_plotly_ci_data(scores, y, lower, upper, ...
-                                            plotly_clrs, [{'Baseline'},{'Passing Onset'}], ...
+                                            plotly_clrs, [{'Baseline'},{'Passing'}], ...
                                             0.1);
 h.data = [data_line;data_shade];
 h.layout = params.epochs.plots.layouts.boxplot;
 h.layout.title = 'PD Across Simulation Rounds';
-h.layout.yaxis.range = [min(y(:)) max(y(:))]*1.3;
+yrange = [min(lower(:)) max(upper(:))];
+ypad = abs(diff(yrange))*0.3/2;
+yrange(1) = yrange(1)-ypad;yrange(2) = yrange(2)+ypad;
+h.layout.yaxis.range = yrange;
 h.layout.xaxis.title = 'Simulation Round';
 h.layout.showlegend = true;
 h.layout.legend = struct('x', 0.75, 'y', 0.95);
@@ -417,6 +438,8 @@ end
 if out2file
     saveplotlyfig(h, sprintf('%s/lines_pdz_rounds.png', outdir));
 end
+
+% Score by round
 
 
 
@@ -457,7 +480,10 @@ h = plotlyfig('Visible','off');
 h.data = {data1,data2};
 h.layout = params.epochs.plots.layouts.boxplot;
 h.layout.boxmode = 'group';
-h.layout.yaxis.range = [min(y) max(y)] * 1.3;
+yrange = [min(y) max(y)];
+ypad = abs(diff(yrange))*0.3/2;
+yrange(1) = yrange(1)-ypad;yrange(2) = yrange(2)+ypad;
+h.layout.yaxis.range = yrange;
 h.layout.yaxis.zeroline = false;
 h.layout.boxgroupgap = 0.5;
 h.layout.boxgap = 0.2;

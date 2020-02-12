@@ -1,4 +1,4 @@
-function [ xy_line, xy_ci ] = get_plotly_ci_data( x, y, upper, lower, name, colours, alpha )
+function [ xy_line, xy_ci ] = get_plotly_ci_data( x, y, upper, lower, colours, name, alpha )
 %get_plotly_ci Returns two plotly dataset for rendering as a shaded
 %              confidence interval, defined by ci
 
