@@ -22,7 +22,7 @@ if ~isfield(cfg, 'fcor')
 end
 
 % time selection?
-if ~isfield(cfg,'toi')
+if ~isfield(cfg,'toi') || isempty(cfg.toi)
     warning('No toi specified, computing fft for whole trial')
     cfg.toi = [];
 end
@@ -51,7 +51,7 @@ for tr = 1:ntrials
         if ~isempty(cfg.toi)
             tlog = data.time{cfg.trials(tr)}>=cfg.toi(1) & data.time{cfg.trials(tr)}<=cfg.toi(2);
         else
-            tlog = ones(size(data.time));
+            tlog = ones(size(data.time{tr}));
         end
 
     for ch = 1:nchannels
