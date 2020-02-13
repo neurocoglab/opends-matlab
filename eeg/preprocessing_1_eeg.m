@@ -40,34 +40,42 @@ for i = 1 : length(subjects)
     
     subject = subjects{i};
     
-    outdir = sprintf('%s/%s', params.io.output_dir, subject);
-    figdir = sprintf('%s/figures', outdir);
+    outdir = sprintf( '%s/%s', params.io.output_dir, subject );
+    figdir = sprintf( '%s/figures', outdir );
     
-    flag_file = sprintf('%s/eeg_processing.done', outdir);
+    flag_file = sprintf( '%s/eeg_processing.done', outdir );
     
     if ~params.general.clobber && exist(flag_file, 'file')
-        fprintf('\n== Subject %s already processed. Skipping. ==\n\n', subject);
+        fprintf( '\n== Subject %s already processed. Skipping. ==\n\n', subject );
         continue;
     end
     
-    fprintf('\n== Starting pre-processing step 1 for subject %s ==\n\n', subject);
+    if exist(flag_file, 'file')
+       delete(flag_file); 
+    end
+    
+    fprintf( '\n== Starting pre-processing step 1 for subject %s ==\n\n', subject );
 
 
     %% 1. Load data, synchronize with simulation/eye data
     
     % Load raw EEG data
     data = load_data_eeg( params, subject );
+    if isempty(data)
+        fprintf( '\n== Data acould not be loaded for subject %s. Skipping. ==\n\n', subject );
+        continue;
+    end
     
     % Synchronize with simlog/eye time series
-    data = synchronise_data_eeg( params, data );
+    data = synchronize_data_eeg( params, data );
 
-    fprintf('\tDone loading data.\n');
+    fprintf( '\tDone loading data.\n' );
     
     
     %% 2. Remove bad channels
     data = remove_bad_channels_eeg( params, data );
     
-    fprintf('\tDone removing bad channels.\n');
+    fprintf( '\tDone removing bad channels.\n' );
     
     
     %% 3. Apply bandpass+notch filters
@@ -75,25 +83,33 @@ for i = 1 : length(subjects)
     %       b. Notch        [default=50Hz]
     
     data = apply_bandpass_eeg( params, data );
+    if isempty(data)
+        fprintf( '\n== Could not apply filters for subject %s. Skipping. ==\n\n', subject );
+        continue;
+    end
 
-    fprintf('\tDone filtering.\n');
+    fprintf( '\tDone filtering.\n' );
     
 
     %% 4. Run ICA on each participant
     data = run_ica( params, data );
+    if isempty(data)
+        fprintf( '\n== Could not run ICA for subject %s. Skipping. ==\n\n', subject );
+        continue;
+    end
     
-    fprintf('\tDone ICA.\n');
+    fprintf( '\tDone ICA.\n' );
    
 
     %% 5. Save result
-    output_file = sprintf('%s/results_ica.mat', subj_dir);
+    output_file = sprintf( '%s/results_ica.mat', subj_dir );
     save( output_file, '-v7.3' );
     
     
     %% 6. Finalise
-    flag_file = sprintf('%s/ica.done',outdir);
+    flag_file = sprintf( '%s/ica.done', outdir );
     
-    fprintf('\n== Finished pre-processing step 1 for subject %s ==\n\n', subject);
+    fprintf( '\n== Finished pre-processing step 1 for subject %s ==\n\n', subject );
     
 
 end
