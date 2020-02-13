@@ -72,13 +72,13 @@ for i = 1:length(subjects)
     cfg = [];
     cfg.trl = trials.left_change.trl(:,1:3);
     data_trials_left = ft_redefinetrial(cfg,data_int);
-    data_trials_left.event = num2cell(zeros(length(data_trials_left.time),1));
+    data_trials_left.event = num2cell(zeros(length(data_trials_left.time),1)); %s
     
     % - right
     cfg = [];
     cfg.trl = trials.right_change.trl(:,1:3);
     data_trials_right = ft_redefinetrial(cfg,data_int);
-    data_trials_right.event = num2cell(zeros(length(data_trials_right.time),1));
+    data_trials_right.event = num2cell(zeros(length(data_trials_right.time),1)); % s
     
     % - passing
     trl = sim.epochs.idx_passing;
@@ -86,7 +86,7 @@ for i = 1:length(subjects)
     cfg = [];
     cfg.trl = trl;
     data_trials_pass = ft_redefinetrial(cfg,data_int);
-    data_trials_pass.event = num2cell(zeros(length(data_trials_pass.time),1));
+    data_trials_pass.event = num2cell(zeros(length(data_trials_pass.time),1)); %s
     
     % - baseline
     trl = sim.epochs.idx_baseline;

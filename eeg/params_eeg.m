@@ -22,8 +22,8 @@ params.wav         = [];
 params.wav.wavelet     = 'cmor4-1';
 params.wav.foi         = [1:10,12:2:24,28:4:44];
 params.wav.dt          = 0.010;
-params.wav.events      = [1];
-params.wav.toi         = [-1,3];
+params.wav.events      = [1,2]; 
+params.wav.toi         = {[-1,3],[-2,2]};
 params.wav.blevents    = 1;
 
 params.wav.zscore      = 0;

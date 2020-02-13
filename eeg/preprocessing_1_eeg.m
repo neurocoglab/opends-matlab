@@ -10,38 +10,43 @@
 % this script.
 %
 % Steps:
-% 1. Apply filters
-%       a. Bandpass     [0.5-60Hz]
-%       b. Notch        [50Hz]
+% 1. Load data and synchronize with simulation/eye data
 % 2. Remove pre-defined bad channels
-% 3. Run ICA on each participant
-% 4. Save result as "eeg-{uid}-preproc1.mat"
+% 3. Apply filters
+%       a. Bandpass     [default=0.5-60Hz]
+%       b. Notch        [default=50Hz]
+% 4. Run ICA on each participant
+% 5. Save result as "eeg-{uid}-preproc1.mat"
 %
 
-
 %% 0. Read list of subjects and bad channel data
-
-clear;
 
 addpath('func');
 addpath('plot');
 addpath('../../lib/fieldtrip-20190419/');
 addpath('../../lib/textprogressbar');
 
-bad_channels = [];
+subjects = strsplit(fileread(sprintf('%s/%s/%s', params.io.input_dir, ...
+                                                 params.io.metadata_dir, ...
+                                                 params.general.subjects_file)));
 
-load(params.general.qc.file);
-qc_score = cell2mat(qc_eeg(:,1));
-idx = qc_score>1;
-subjects = qc_eeg(idx,2);
-
-
+fprintf('\nFound %d subjects.\n', length(subjects));
+                                 
 for i = 1 : length(subjects)
     
     subject = subjects{i};
     
     outdir = sprintf( '%s/%s', params.io.output_dir, subject );
     figdir = sprintf( '%s/figures', outdir );
+    
+    % Check if output directory exists; if not, create it
+    if ~exist(outdir, 'dir')
+       mkdir(outdir); 
+    end
+    
+    if ~exist(figdir, 'dir')
+       mkdir(figdir); 
+    end
     
     flag_file = sprintf( '%s/eeg_processing.done', outdir );
     
@@ -67,31 +72,37 @@ for i = 1 : length(subjects)
     end
     
     % Synchronize with simlog/eye time series
-    data = synchronize_data_eeg( params, data );
+    data = synchronize_data_eeg( params, data, subject );
 
-    fprintf( '\tDone loading data.\n' );
+    fprintf( '\tDone loading & synchronizing data.\n' );
     
     
     %% 2. Remove bad channels
-    data = remove_bad_channels_eeg( params, data );
+    data = remove_bad_channels_eeg( params, data, subject );
     
-    fprintf( '\tDone removing bad channels.\n' );
+    fprintf( '\tDone removing bad channels [%d found].\n', length(data.eeg.bad_channels) );
     
     
     %% 3. Apply bandpass+notch filters
     %       a. Bandpass     [default=0.5-60Hz]
     %       b. Notch        [default=50Hz]
     
-    data = apply_bandpass_eeg( params, data );
-    if isempty(data)
-        fprintf( '\n== Could not apply filters for subject %s. Skipping. ==\n\n', subject );
-        continue;
+    data = apply_filters_eeg( params, data );
+    ftype = ''; conj = '';
+    if params.eeg.bandpass.apply
+        ftype = 'low/high-pass ';
+        conj = 'and ';
+    end
+    if params.eeg.notch.apply
+        ftype = [ftype conj 'notch '];
     end
 
-    fprintf( '\tDone filtering.\n' );
+    fprintf( '\tDone applying %sfiltering.\n', ftype );
     
 
     %% 4. Run ICA on each participant
+    
+    fprintf( '\tRunning ICA for %s... (may take a while)\n', subject );
     data = run_ica( params, data );
     if isempty(data)
         fprintf( '\n== Could not run ICA for subject %s. Skipping. ==\n\n', subject );
@@ -102,7 +113,7 @@ for i = 1 : length(subjects)
    
 
     %% 5. Save result
-    output_file = sprintf( '%s/results_ica.mat', subj_dir );
+    output_file = sprintf( '%s/results_preproc_eeg_1.mat', outdir );
     save( output_file, '-v7.3' );
     
     

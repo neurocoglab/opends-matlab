@@ -1,0 +1,27 @@
+%% This script defines default EEG parameters for the opends processing 
+%  pipeline
+
+%% General stuff
+params.eeg.bad_channels_file = '';
+params.eeg.format = 'brainvision';
+params.eeg.sub_dir = 'eeg';
+
+%% Input stuff
+params.eeg.cfg = [];
+params.eeg.cfg.dataset = '';
+params.eeg.cfg.continuous = 'yes';
+
+%% Preprocessing stuff
+
+% Bandpass filter
+params.eeg.bandpass.cfg = [];
+channel: channels for which to apply filter (default='all')
+lpfilter: whether to apply a low-pass filter (default='yes')
+hpfilter: whether to apply a low-pass filter (default='yes')
+lpfreq: low-pass frequency (in Hz; default=60)
+hpfreq: high-pass frequency (in Hz; default=0.5)
+lpfiltord: low-pass filter order (default=6)
+hpfiltord: high-pass filter order (default=6)
+lpfilttype: low-pass filter type (default='but')
+hpfilttype: high-pass filter type (default='but')
+

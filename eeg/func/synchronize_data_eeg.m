@@ -1,8 +1,8 @@
-function [ data ] = synchronize_data_eeg( params, data )
+function [ data ] = synchronize_data_eeg( params, data, subject )
 
 % Get simulation time start for later synching
 outdir = sprintf('%s/%s', params.io.output_dir, subject);
-results_file = sprintf('%s/results_eye.mat',outdir);
+results_file = sprintf('%s/results_preproc_eye.mat',outdir);
 flag_file = sprintf('%s/sim_logs.done', outdir);
 
 if ~exist(flag_file, 'file')
