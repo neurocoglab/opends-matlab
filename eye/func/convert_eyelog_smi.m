@@ -3,21 +3,21 @@ function [ ok ] = convert_eyelog_smi( subject, params )
 %                   (or multiple logs) to CSV files
 %
 
-rdir = params.root_dir;
-if ~isempty(params.data_dir)
-  rdir = sprintf('%s/%s', rdir, params.data_dir);
-end
+ok = true;
 
-output_dir = sprintf('%s/%s/%s', rdir, ...
-                                   params.output_dir, ...
-                                   subject);
+subj_dir = sprintf('%s/%s/%s', params.io.input_dir, params.eye.sub_dir, subject);
+output_dir = sprintf('%s/%s/%s', params.io.output_dir, subject, params.eye.sub_dir);
+temp_dir = sprintf('%s/tmp', output_dir);
 
 if ~exist(output_dir, 'dir')
    mkdir(output_dir); 
 end
+
+if ~exist(temp_dir, 'dir')
+   mkdir(temp_dir); 
+end
                                
-log_file = sprintf('%s/%s_samples.txt', output_dir, ...
-                                       subject);
+log_file = sprintf('%s/%s_samples.txt', subj_dir, subject);
 
 log_files = [];
 parts = [];
@@ -37,33 +37,33 @@ end
 
 if isempty(log_files)
 
-  log_file = sprintf('%s/%s_samples.txt', output_dir, ...
+  log_file = sprintf('%s/%s_samples.txt', temp_dir, ...
                                           subject);
 
-  zip_file = sprintf('%s/%s%s.zip', output_dir, ...
-                                    params.convert.prefix, ...
+  zip_file = sprintf('%s/%s%s.zip', subj_dir, ...
+                                    params.eye.convert.prefix, ...
                                     subject);
 
   try
       if exist(zip_file, 'file')
          % Extract samples log from zip file
-         unzip(zip_file, output_dir);
+         unzip(zip_file, temp_dir);
 
          % Is is in the current directory?
-         lfile = dir(sprintf('%s/*Samples.txt', output_dir));
+         lfile = dir(sprintf('%s/*Samples.txt', temp_dir));
 
          if ~isempty(lfile)
              lfile = lfile(1);
-             movefile(sprintf('%s/%s', output_dir, lfile.name), ...
-                      sprintf('%s/tmp', output_dir));
-             delete(sprintf('%s/*.txt', output_dir));
-             movefile(sprintf('%s/tmp', output_dir), ...
+             movefile(sprintf('%s/%s', temp_dir, lfile.name), ...
+                      sprintf('%s/tmp', temp_dir));
+             delete(sprintf('%s/*.txt', temp_dir));
+             movefile(sprintf('%s/tmp', temp_dir), ...
                       log_file);
              log_files = {log_file};
          else
              % Otherwise, find subdirectory containing subject
              % ID (if this doesn't exist we have a problem)
-             subdirs = dir(output_dir);
+             subdirs = dir(temp_dir);
              subdirs = subdirs(3:end);
              subdirs = subdirs([subdirs.isdir]);
              subdir = [];
@@ -73,7 +73,7 @@ if isempty(log_files)
                 end
              end
              if ~isempty(subdir)
-                 lfiles = dir(sprintf('%s/%s/*Samples.txt', output_dir, subdir));
+                 lfiles = dir(sprintf('%s/%s/*Samples.txt', temp_dir, subdir));
 
                  for f = 1 : length(lfiles)
                      lfile = lfiles(f);
@@ -81,7 +81,7 @@ if isempty(log_files)
                      idx = strfind(fname,'part');
                      if idx > 0
                          k = fname(idx+4);
-                         lfile2 = sprintf('%s/%s/%s', output_dir, subdir, fname);
+                         lfile2 = sprintf('%s/%s/%s', temp_dir, subdir, fname);
                          out_file = log_file;
                          if length(lfiles) > 1
                              [a,fn,ext] = fileparts(out_file);
@@ -95,7 +95,7 @@ if isempty(log_files)
                         warning('No part in sample file name: %s', fname)
                      end
                  end
-                 rmdir(sprintf('%s/%s/%s', output_dir, subject),'s');
+                 rmdir(sprintf('%s/%s/%s', temp_dir, subject),'s');
              end
          end
       end
@@ -109,43 +109,45 @@ if isempty(log_files)
    fprintf('\nLog or zip file not found for %s; skipping subject.\n', subject);
    ok = false;
 else
-   prefix = subject;
+   prefix = params.eye.convert.prefix;
    for j = 1 : length(log_files)
        log_file = log_files{j};
        if length(log_files) > 1
            idx = strfind(log_file,'part');
-           %fprintf('%s\n',log_file);
            if idx > 0
                k = log_file(idx+4);
            end
-           prefix = sprintf('%s_part%s', subject, k);
+           prefix = sprintf('%spart%s', params.eye.convert.prefix, k);
        end
+       
+       exec = fullfile(params.general.matlab_dir, 'bin', params.eye.convert.exec_smi);
 
-       a = strfind(params.convert.exec,'/');
+       a = strfind(exec,'/');
        a = a(end);
-       cdir = params.convert.exec(1:a);
-       cfile = params.convert.exec(a+1:end);
-       cmd = sprintf('cd "%s"; ./%s "%s" -o "%s" -columns "%s" -prefix %s -clobber', ...
+       cdir = exec(1:a);
+       cfile = exec(a+1:end);
+       if ~ispc, cfile = ['./' cfile]; end
+       cmd = sprintf('cd "%s"; pwd; %s "%s" -o "%s" -columns "%s" -prefix %s -clobber', ...
                         cdir, ...
                         cfile, ...
                         log_file, ...
-                        outdir, ...
-                        params.convert.columns, ...
+                        output_dir, ...
+                        params.eye.convert.columns, ...
                         prefix);
 %                     fprintf('%s\n',cmd);
         [status,result] = system(cmd);
         if status ~= 0
             fprintf('\nError converting log for %s.\n%s', subject, result);
             ok = false;
-        else
-            fid = fopen(flag_file,'w');
-            fclose(fid);
         end
    end
+   
    if ok
-      fprintf('Done.\n');
+      % Clean up
+      rmdir(temp_dir, 's');
    else
-      fprintf('Done with errors.\n');
+       
+%       fprintf('Errors encountered.\n');
    end
 end
            

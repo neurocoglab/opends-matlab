@@ -239,31 +239,35 @@ for i = 1 : length(subjects)
             fprintf('\tProcessing luminance for %s...', subject);
             
             warning off;
-            data = process_luminance_eye( data, params );
-            warning on;
-
-            if ~isfield(data.eye, 'luminance')
-                warning(' No luminance data found... skipping!\n');
+            
+            lum_file = sprintf('%s/%s/%s/luminance.csv', params.io.input_dir, params.eye.luminance.sub_dir, subject);
+            if ~exist(lum_file, 'file')
+                warning on;
+                warning(' No luminance values found... skipping!\n');
             else
-
-                if data.eye.luminance.deficient
-                    warning(' Regression was rank-deficient... skipping!\n');
+            
+                data = process_luminance_eye( data, params );
+                warning on;
+                
+                if 
+                
+                if results.luminance.deficient
+                    warning(' Regression was rank-deficient... skipping!');
                     plot_luminance_eye ( data, params, true );
                 else
                     plot_luminance_eye ( data, params, true );
                 end
-
-                % Save results
-                save(results_file, 'data');
-                fclose( fopen(flag_file,'w') );
-                fprintf('done.\n');
-            
-                if params.general.show_plots
-                    plot_luminance_eye ( data, params, false );
-                end
                 
+                % Save results
+                save(results_file, 'data', 'results');
+                fid = fopen(flag_file,'w');
+                    fclose(fid);
+                fprintf('Done.\n');
             end
 
+    
+        if params.show_plots
+            plot_luminance ( results, data, params );
         end
         
     end

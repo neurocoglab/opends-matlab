@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema targetNamespace="ar/opends/analysis/smi/config"
+elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="ar/opends/analysis/smi/config">
+
+<xs:element name="config" type="config"></xs:element>
+
+<xs:complexType name="config">
+	<xs:all>
+		<xs:element name="begaze-version" minOccurs="1" maxOccurs="1" type="xs:string"></xs:element>
+		<xs:element name="event-types" minOccurs="1" maxOccurs="1" type="event-types"></xs:element>
+        <xs:element name="columns" minOccurs="1" maxOccurs="1" type="columns"></xs:element>
+    </xs:all>
+</xs:complexType>
+
+<xs:complexType name="columns">
+	<xs:sequence>
+        <xs:element name="column" minOccurs="1" maxOccurs="unbounded" type="column"></xs:element>
+    </xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="column">
+        <xs:attribute name="label" type="xs:string"></xs:attribute>
+        <xs:attribute name="description" type="xs:string"></xs:attribute>
+        <xs:attribute name="id" type="xs:string"></xs:attribute>
+        <xs:attribute name="unit" type="xs:string"></xs:attribute>
+        <xs:attribute name="datatype" type="xs:string"></xs:attribute>
+</xs:complexType>
+
+<xs:complexType name="event-types">
+	<xs:sequence>
+        <xs:element name="event-type" minOccurs="1" maxOccurs="unbounded" type="event-type"></xs:element>
+    </xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="event-type">
+        <xs:attribute name="code" type="xs:string"></xs:attribute>
+        <xs:attribute name="name" type="xs:string"></xs:attribute>
+</xs:complexType>
+
+
+</xs:schema>

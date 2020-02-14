@@ -1,78 +1,33 @@
-function [ results ] = remove_gaps( data, params )
+function [ data ] = remove_gaps_eye( data, params )
 %
 % Remove gaps of continuous segments below a threshold
 % as well as combining gaps separated by no more than a
 % certain interval.
 %
-%
-% Inputs:
-%   data:     A struct containing the pupil data, with fields:
-%                {criterion variable}: variable containing gap criterion
-%                                      information (typically this is pupil diameter)
-%                t: Time (ms) relative to start
-%                Fs: Sample frequency (Hz)
-%
-%   params:   A struct specifying parameters of the operation:
-%                criterion:     Variable name in data struct to act as the
-%                               criterion for determining gaps (typically this
-%                               the pupil diameter)
-%                variables:     Cell array of variable names from which to
-%                               remove gaps; gaps will also be removed from
-%                               data.t
-%                gapthres:      Maximal threshold (in units of the criterion
-%                               variable) at which to accept a gap (at
-%                               least 90% of the interval must be below
-%                               this value)
-%                gapmin:        Miminal width (in samples) of a gap
-%                gapmerge:      Maximal number of suprathreshold samples
-%                               between two gaps to determine whether these
-%                               gaps should be merged
-%                gapthresmax:   If this field exists and is not empty, a
-%                               values above this value will also be
-%                               treated as gaps
-% 
-% 
-% 
-% Outputs:
-%
-%    results: A struct that is a copy of "data" with gaps removed from each
-%             variable in params.variables. A new member called "tgap" will also be
-%             added. This is an Nx2 matrix, where N=number of removed gaps, the
-%             first row being the sample index of a gap and the second being its
-%             width (in samples).
-%                 
-%
 
-gapthresmax = Inf;
-if isfield(params, 'gapthresmax') && ~isempty(params.gapthresmax)
-   gapthresmax = params.gapthresmax;
-end
-
-results = data;
-
-N = length(results.t);
+N = length(data.eye.t);
 isgap = zeros(N,1);
 
-x = results.(params.criterion);
+x = data.eye.(params.eye.gaps.criterion);
 
-tstep = 1/results.Fs*1000;
+tstep = 1/data.eye.Fs*1000;
 
 i = 1;
 while i < N
    
-   if x(i) < params.gapthres || x(i) > gapthresmax
+   if x(i) < params.eye.gaps.gapthres
       
       i_start = i;
-      i_test = i + params.gapmin-1;
+      i_test = i + params.eye.gaps.gapmin-1;
       if i_test > N, i_test = N; end
       
-      if sum(x(i:i_test) < params.gapthres | x(i:i_test) > gapthresmax) > (i_test - i) * 0.9 % at least 90% below threshold
+      if sum(x(i:i_test)<params.eye.gaps.gapthres) > (i_test - i) * 0.9 % at least 90% below threshold
          
          i = i_test + 1;
          buffer = 0;
-         while (i < N && (x(i) < params.gapthres || x(i) > gapthresmax)) || buffer < 3
+         while (i < N && x(i) < params.eye.gaps.gapthres) || buffer < 3
              i = i + 1;
-             if (i < N && (x(i) < params.gapthres || x(i) > gapthresmax))
+             if (i < N && x(i) < params.eye.gaps.gapthres)
                  buffer = 0;
              else
                  buffer = buffer + 1;
@@ -81,7 +36,7 @@ while i < N
          if i > N+1, i = N+1; end
          
          i_start = max(1,i_start-buffer);
-%          i = min(N,i+buffer);
+         i = min(N,i+buffer);
          
          isgap(i_start : i) = 1;
          
@@ -94,9 +49,8 @@ end
 
 % Merge gaps
 
-dt = diff(results.t);
-% if dt(1)>0, dt(1) = tstep * params.gapmin + 1; end
-tgaps = dt > tstep * params.gapmin;
+dt = diff(data.eye.t);
+tgaps = dt > tstep * params.eye.gaps.gapmin;
 tgaps = [tgaps;0];
 
 i = 1;
@@ -123,7 +77,7 @@ while i <= N
                 i_restart = i;
             end
 
-            if count < params.gapmerge
+            if count < params.eye.gaps.gapmerge
                isgap(i_start:i) = true;
                i_restart = i;
             end
@@ -141,23 +95,53 @@ end
 x = x(~isgap);
 
 % Remove gaps from time series
-results.t = results.t(~isgap);
+data.eye.t = data.eye.t(~isgap);
+data.eye.pos_x = data.eye.pos_x(~isgap);
+data.eye.pos_y = data.eye.pos_y(~isgap);
+data.eye.diam = data.eye.diam(~isgap);
+  
 
-for i = 1 : length(params.variables)
-    variable = params.variables{i};
-    V = results.(variable);
-    results.(variable) = V(~isgap);
-end
+% dt = diff(data.eye.t);
+% idx = dt > tstep + 1;
+% dt = dt(idx);
+% tgap = find(idx);
+% 
+% isgap = zeros(length(x),1);
+% for i = 1 : length(tgap)
+%     idx = tgap(i) + 1;
+%     while idx < N && x(idx) < params.eye.gaps.gapthres
+%         isgap(idx) = 1;
+%         idx = idx + 1;
+%     end
+%     idx = tgap(i);
+%     while idx > 0 && x(idx) < params.eye.gaps.gapthres
+%         isgap(idx) = 1;
+%         idx = idx - 1;
+%     end
+% end
+% 
+% for i = 1 : length(tgap)
+%     idx = tgap(i) + 1;
+%     while idx < N && x(idx) > params.eye.gaps.gapmax
+%         isgap(idx) = 1;
+%         idx = idx + 1;
+%     end
+%     idx = tgap(i);
+%     while idx > 0 && x(idx) > params.eye.gaps.gapmax
+%         isgap(idx) = 1;
+%         idx = idx - 1;
+%     end
+% end
+% 
+% data.eye.t = data.eye.t(~isgap);
+% data.eye.pos_x = data.eye.pos_x(~isgap);
+% data.eye.pos_y = data.eye.pos_y(~isgap);
+% data.eye.diam = data.eye.diam(~isgap);
 
-% results.pos_left_x = results.pos_left_x(~isgap);
-% results.pos_left_y = results.pos_left_y(~isgap);
-% V = results.(params.criterion);
-% results.(params.criterion) = V(~isgap);
-
-dt = diff(results.t);
-idx = dt > tstep * params.gapmin;
+dt = diff(data.eye.t);
+idx = dt > tstep * params.eye.gaps.gapmin;
 dt = dt(idx);
-results.tgap = [find(idx), dt];
+data.eye.tgap = [find(idx), dt];
 
 end
 

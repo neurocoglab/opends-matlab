@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<SimulationLogger version='1.1.0' driving-task='HighwayTestV1|HighwayTest.xml' driver-id='4155' timestamp='2017-11-17 10:14:15.368'>
+
+<JmeSettings>
+	<Item name='DepthBits' class='Integer'>24</Item>
+	<Item name='UseInput' class='Boolean'>true</Item>
+	<Item name='FrameRate' class='Integer'>-1</Item>
+	<Item name='MinHeight' class='Integer'>0</Item>
+	<Item name='DisableJoysticks' class='Boolean'>false</Item>
+	<Item name='Title' class='String'>OpenDS</Item>
+	<Item name='GammaCorrection' class='Boolean'>true</Item>
+	<Item name='SwapBuffers' class='Boolean'>true</Item>
+	<Item name='AudioRenderer' class='String'>LWJGL</Item>
+	<Item name='Resizable' class='Boolean'>false</Item>
+	<Item name='MinWidth' class='Integer'>0</Item>
+	<Item name='VSync' class='Boolean'>true</Item>
+	<Item name='Samples' class='Integer'>16</Item>
+	<Item name='StencilBits' class='Integer'>0</Item>
+	<Item name='SettingsDialogImage' class='String'>OpenDS.png</Item>
+	<Item name='Renderer' class='String'>LWJGL-OpenGL2</Item>
+	<Item name='Frequency' class='Integer'>60</Item>
+	<Item name='Height' class='Integer'>1080</Item>
+	<Item name='Fullscreen' class='Boolean'>true</Item>
+	<Item name='BitsPerPixel' class='Integer'>32</Item>
+	<Item name='Width' class='Integer'>1920</Item>
+</JmeSettings>
+
+</SimulationLogger>

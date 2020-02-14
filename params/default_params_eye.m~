@@ -43,30 +43,5 @@ params.eye.blinks.plots.offset = 10;
 params.eye.saccades.apply = true;
 params.eye.saccades.xpos_variable = 'pos_x';
 params.eye.saccades.ypos_variable = 'pos_y';
-params.eye.saccades.monitor_dims = [530,300];
-params.eye.saccades.monitor_res = [1920,1080];
-params.eye.saccades.distance = 700;
-params.eye.saccades.nitr_smooth = 10;
-params.eye.saccades.velocity_thres = 40;
-params.eye.saccades.min_width = 0;
-params.eye.saccades.max_width = 1000;
-params.eye.saccades.sr_window = 12000;
-params.eye.saccades.peaks_file = 'saccade_peak.mat';
 
-% Plots
-params.eye.saccades.plots.save = true;
-params.eye.saccades.plots.show_lines = true;
-params.eye.saccades.plots.show_rate = true;
-
-
-%% Luminance correction
-params.eye.luminance.sub_dir = 'luminance';
-params.eye.luminance.downsample = 5;
-params.eye.luminance.smooth = 0;
-params.eye.luminance.use_offset = true;
-params.eye.luminance.offsets = -2:0.1:2;
-params.eye.luminance.screen_pct = 50;
-params.eye.luminance.outlier_lim = 6;
-
-% Plots
 

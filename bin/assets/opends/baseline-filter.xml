@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<filter xmlns="ar/opends/analysis/filter"
+		  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="ar/opends/analysis/filter filter.xsd">
+          
+	<types>
+		<type name="ToggleBaseline">
+			<parameter name="Source" />
+			<parameter name="IsBaseline" />
+			<parameter name="Sim:DriverCar:LaneDistance" />
+			<parameter name="Sim:DriverCar:TotalDistance" />
+			<parameter name="Sim:Game:Repeat" />
+			<parameter name="Sim:Game:Cycle" />
+		</type>
+		<type name="TriggerActuated">
+			<parameter name="Source" />
+			<parameter name="Action" />
+			<parameter name="Actuator" />
+			<parameter name="SimulationTime" />
+			<parameter name="Distance" />
+			<parameter name="ScoreAccumulator:Cycle" />
+			<parameter name="ScoreAccumulator:Repeat" />
+			<parameter name="Sim:Game:Cycle" />
+			<parameter name="Sim:Game:Repeat" />
+			<parameter name="Sim:DriverCar:LaneDistance" />
+		</type>
+		<type name="SimulatorResumed">
+			<parameter name="Source" />
+			<parameter name="Game:AccumulatedScore" />
+			<parameter name="Game:Cycle" />
+			<parameter name="Game:Repeat" />
+		</type>
+		<type name="LaneChange">
+			<parameter name="Source" />
+			<parameter name="Direction" />
+			<parameter name="LaneFrom" />
+			<parameter name="LaneTo" />
+			<parameter name="LaneState:Lane" />
+			<parameter name="SimulationTime" />
+			<parameter name="Sim:Game:Cycle" />
+			<parameter name="Sim:Game:Repeat" />
+			<parameter name="Sim:DriverCar:LaneDistance" />
+		</type>
+		
+	</types>
+          
+</filter>

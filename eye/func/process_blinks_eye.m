@@ -1,23 +1,23 @@
 %%
-% Finds and removes eye blinks in eye tracking data
+% Finds and removes eye blinks in eye tracking data.eye
 %
 % Author: Andrew Reid
 % Copyright (c) Andrew Reid, Univeristy of Nottingham, 2018
 %
 % Inputs:
-%   data:     A struct containing the pupil data, with fields:
-%                {variable-name}: A variable containing important eye data (e.g., 
+%   data.eye:     A struct containing the pupil data.eye, with fields:
+%                {variable-name}: A variable containing important eye data.eye (e.g., 
 %                                 gaze position, pupil diameter
 %                t: Time (ms) relative to start
 %                Fs: Sample frequency (Hz)
-%                tgap: Represents gaps in the data; tgap(1) is the index of the gap;
+%                tgap: Represents gaps in the data.eye; tgap(1) is the index of the gap;
 %                      tgap(2) is the duration of the gap in ms. Note, function will
 %                      process segments between gaps separately.
 %
-%   params:   A struct specifying parameters of the operation:
-%                criterion: Name of the 'data' field to be used as the criterion for 
+%   params.eye.blinks:   A struct specifying parameters of the operation:
+%                criterion: Name of the 'data.eye' field to be used as the criterion for 
 %                           eye-blink detection (typically this is pupil diameter)
-%                smooth_width: Determines how much to smooth the data. See the 'smooth'
+%                smooth_width: Determines how much to smooth the data.eye.blinks. See the 'smooth'
 %                              function for details.
 %                thres: Threshold for identifying a blink event; thres(1) identifies the
 %                       negative-going onset, and thres(2) identifies the positive-going
@@ -32,113 +32,116 @@
 % 
 % Outputs:
 %
-%    results: A struct containing the results of the blink removal:
+%    data: A updated data struct (new field "blinks") containing the results of the blink removal:
 %                 blinks: Logical array where 1 indicates the midpoint of a blink event
 %                 blink_ints: Actual blink intervals, where blink_ints(1) is the index of
 %                             the blink, and blink_ints(2) is its duration in time points
 %                 blink_rate: The blink rate computed as a moving average with time window
-%                             specified by params.window
+%                             specified by params.eye.blinks.window
 %                 d_x: The smoothed derivative of the criterion variable (i.e., velocity)
 %                 intervals: The intervals on which blinks were detected
+%                 diam, 
 %
 
 
-function [ results ] = process_eyeblinks (data, params )
+function [ data ] = process_blinks_eye (data, params )
        
-x = data.(params.criterion);  % Usually, pupil diameter
+x = data.eye.(params.eye.blinks.criterion);  % Usually, pupil diameter
 N = length(x);
 
-% Trim data
-delta_t = 1 / data.Fs * 1000; % data.t(2)-data.t(1);
+% Trim data.eye
+delta_t = 1 / data.eye.Fs * 1000; % data.eye.blinks.t(2)-data.eye.blinks.t(1);
 
-results.t = data.t; 
-results.t_start = data.t_start;
-results.tgap = data.tgap;
-
-results.blinks = zeros(N,1);
-results.blink_rate = zeros(N,1);
-results.intervals = cell(0);
-results.pct_fixed = cell(0);
-results.pos_left_x = data.pos_left_x; % nan(N,1);
-results.pos_left_y = data.pos_left_y; %nan(N,1);
-results.diam_left = data.diam_left; %nan(N,1);
-results.d_x = zeros(N,1);
-results.blink_ints = cell(0);
+data.eye.blinks = [];
+data.eye.blinks.blinks = zeros(N,1);
+data.eye.blinks.blink_rate = zeros(N,1);
+data.eye.blinks.intervals = cell(0);
+data.eye.blinks.pct_fixed = cell(0);
+data.eye.blinks.d_x = zeros(N,1);
+data.eye.blinks.blink_ints = cell(0);
+data.eye.blinks.params = params.eye.blinks;
 
 % Process each segment seperately
 idx = 1;
-for j = 1 : size(data.tgap,1) + 1
-   if j > size(data.tgap,1)
-      if idx >= N, break; end
+for j = 1 : size(data.eye.tgap,1) + 1
+   if j > size(data.eye.tgap,1)
+      if idx > N, break; end
       idx2 = N;
    else
-      idx2 = data.tgap(j,1);
+      idx2 = data.eye.tgap(j,1);
    end
 
    if idx ~= idx2
        xx = x(idx:idx2);
 
-       xx = smooth(xx,'moving',params.smooth_width);
-       data_seg = [{data.pos_left_x(idx:idx2)}, ...
-                   {data.pos_left_y(idx:idx2)}, ...
-                   {data.diam_left(idx:idx2)}];
+       if params.eye.blinks.smooth
+            xx = smooth(xx,'moving',params.eye.blinks.smooth_width);
+       end
+       data_seg = [{data.eye.pos_x(idx:idx2)}, ...
+                   {data.eye.pos_y(idx:idx2)}, ...
+                   {data.eye.diam(idx:idx2)}];
 
-       [results.blinks(idx:idx2), results.blink_rate(idx:idx2), ...
+       [data.eye.blinks.blinks(idx:idx2), data.eye.blinks.blink_rate(idx:idx2), ...
         blink_ints, intervals_j, pct_fixed_j, d_x, ...
         data_seg_out] = ...
            process_segment(xx, data_seg, [idx idx2]);
 
-       results.intervals(j) = {intervals_j};
-       results.pct_fixed(j) = {pct_fixed_j};
-       results.pos_left_x(idx:idx2) = data_seg_out{1};
-       results.pos_left_y(idx:idx2) = data_seg_out{2};
-       results.diam_left(idx:idx2) = data_seg_out{3};
-       results.d_x(idx:idx2) = d_x;
+       data.eye.blinks.intervals(j) = {intervals_j};
+       data.eye.blinks.pct_fixed(j) = {pct_fixed_j};
+       data.eye.blinks.pos_x(idx:idx2) = data_seg_out{1};
+       data.eye.blinks.pos_y(idx:idx2) = data_seg_out{2};
+       data.eye.blinks.diam(idx:idx2) = data_seg_out{3};
+       data.eye.blinks.d_x(idx:idx2) = d_x;
        if ~isempty(blink_ints)
-           results.blink_ints(end+1) = {blink_ints};
+           data.eye.blinks.blink_ints(end+1) = {blink_ints};
        end
+   else
+       % end case
+       data.eye.blinks.pos_x(idx) = data.eye.pos_x(idx);
+       data.eye.blinks.pos_y(idx) = data.eye.pos_y(idx);
+       data.eye.blinks.diam(idx) = data.eye.diam(idx);
    end
    
-   idx = idx2 + 1; % data.eye.tgap(i,2);
+   idx = idx2 + 1;
 end
 
 % Interpolate over gaps
-buffer = round(params.gapbuffer / data.Fs * 1000 / 2);
+buffer = round(params.eye.blinks.gapbuffer / data.eye.Fs * 1000 / 2);
 
-for j = 1 : size(data.tgap,1)
+for j = 1 : size(data.eye.tgap,1)
     try
-        idx = data.tgap(j,1);
+        idx = data.eye.tgap(j,1);
         idx0 = max(1,idx-buffer);
         idx1 = min(N,idx+buffer);
-        results.diam_left(idx0:idx1) = ...
-            linterp([idx0 idx1],[results.diam_left(idx0) results.diam_left(idx1)],idx0:idx1);
+        data.eye.blinks.diam(idx0:idx1) = ...
+            linterp([idx0 idx1],[data.eye.diam(idx0) data.eye.diam(idx1)],idx0:idx1);
     catch err
         fprintf('Error: %s', err)
     end
 end
 
 % patch up nans; TODO: why are these nans?
-idx = find(isnan(results.pos_left_x));
-results.pos_left_x(idx) = results.pos_left_x(idx-1);
-results.pos_left_y(idx) = results.pos_left_y(idx-1);
-results.diam_left(idx) = results.diam_left(idx-1);
+idx = find(isnan(data.eye.blinks.pos_x));
+data.eye.blinks.pos_x(idx) = data.eye.pos_x(idx-1);
+data.eye.blinks.pos_y(idx) = data.eye.pos_y(idx-1);
+data.eye.blinks.diam(idx) = data.eye.diam(idx-1);
 
 %TODO: Combine blink ints into one list
 
     function [ blinks, blink_rate, blink_ints, intervals, pct_fixed, d_x, data_seg_out ] = ...
                                                 process_segment( seg, data_seg, seg_idx )
         d_x = [0;diff(seg) / delta_t];
-        %results.diff = d_x;
+        %data.eye.blinks.diff = d_x;
         data_seg_out = data_seg;
 
-        window = ceil(params.window / delta_t);
+        window = ceil(params.eye.blinks.window / delta_t);
         if mod(window,2) == 0, window = window+1; end
 
         Ns = length(seg);
-        intervals = seg < params.absthres;
+        intervals = seg < params.eye.blinks.absthres;
         
-        int_left = ceil(params.interval(1) / delta_t);
-        int_right = ceil(params.interval(2) / delta_t);
+        int_left = ceil(params.eye.blinks.interval(1) / delta_t);
+        int_right = ceil(params.eye.blinks.interval(2) / delta_t);
 
         % Identify blink intervals
         % Overlapping intervals will be merged
@@ -149,15 +152,15 @@ results.diam_left(idx) = results.diam_left(idx-1);
         while i <= Ns
 
 %             try
-            if d_x(i) < params.thres(1)
+            if d_x(i) < params.eye.blinks.thres(1)
                 i_b0 = i;
                 i_s = i - int_left; if i_s < 1, i_s = 1; end
                 i = i + 1;
 
                 ismax = false;
-                while i <= Ns && d_x(i) < params.thres(2) && ~ismax
+                while i <= Ns && d_x(i) < params.eye.blinks.thres(2) && ~ismax
                     i = i + 1;
-                    ismax = (i - i_b0) > params.maxblink;
+                    ismax = (i - i_b0) > params.eye.blinks.maxblink;
                 end
 
 				if ~ismax
@@ -224,8 +227,8 @@ results.diam_left(idx) = results.diam_left(idx-1);
                    yy = linterp([i_s i_e],[ds(i_s) ds(i_e)], i_s:i_e);
                    
                    ds(i_s : i_e) = yy;
-%                    if ~isempty(params.smooth)
-%                       ds = smooth(ds,params.smooth,params.smooth_width); 
+%                    if ~isempty(params.eye.blinks.smooth)
+%                       ds = smooth(ds,params.eye.blinks.smooth,params.eye.blinks.smooth_width); 
 %                    end
                    data_seg_out(s) = {ds};
                end
@@ -239,8 +242,8 @@ results.diam_left(idx) = results.diam_left(idx-1);
        for itr = 1 : 1
            for s = 1 : 3
                ds = data_seg_out{s};
-               if ~isempty(params.smooth)
-                  ds = smooth(ds,'moving',params.smooth_width); 
+               if ~isempty(params.eye.blinks.smooth)
+                  ds = smooth(ds,'moving',params.eye.blinks.smooth_width); 
                end
                data_seg_out(s) = {ds};
            end

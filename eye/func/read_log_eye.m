@@ -1,18 +1,19 @@
-function [ data ] = read_eye_data( subject, params )
-%read_eye_data Reads convert eye data and saves in Matlab format
+function [ data ] = read_log_eye( params, subject )
+%read_log_eye Reads converted eye data and saves in Matlab format
 
-
+subj_dir = sprintf('%s/%s/%s', params.io.output_dir, subject, params.eye.sub_dir);
+prefix = params.eye.convert.prefix;
 input_files = [];
-input_file = sprintf('%s/%s/%s/%s/%s_samples.csv', params.root_dir, params.data_dir, params.output_dir, subject, subject);
+input_file = sprintf('%s/%s_samples.csv', subj_dir, prefix);
 
 if exist(input_file, 'file')
    input_files = {input_file};
 else
-   input_file = sprintf('%s/%s/%s/%s/%s_part1_samples.csv', params.root_dir, params.data_dir, params.output_dir, subject, subject);
+   input_file = sprintf('%s/%spart1_samples.csv', subj_dir, prefix);
    k = 2;
    while exist(input_file, 'file')
        input_files = [input_files {input_file}];
-       input_file = sprintf('%s/%s/%s/%s_part%d_samples.csv', params.root_dir, params.data_dir, params.output_dir, subject, subject, k);
+       input_file = sprintf('%s/%spart%d_samples.csv', subj_dir, prefix, k);
        k = k + 1;
    end
 end
@@ -25,26 +26,26 @@ data_i.subject = subject;
 for j = 1 : length(input_files)
 
     input_file = input_files{j};
-    T = import_samples(input_file);
+    T = import_samples_eye(input_file);
 
     data_i.eye.t = T{1}(2:end); % cell2mat(T{1}(2:end));
-    data_i.eye.pos_left_x = T{3}(2:end); % cell2mat(T(2:end,3));
-    data_i.eye.pos_left_y = T{4}(2:end); % cell2mat(T(2:end,4));
-    data_i.eye.diam_left = T{5}(2:end); % cell2mat(T(2:end,5));
+    data_i.eye.pos_x = T{3}(2:end); % cell2mat(T(2:end,3));
+    data_i.eye.pos_y = T{4}(2:end); % cell2mat(T(2:end,4));
+    data_i.eye.diam = T{5}(2:end); % cell2mat(T(2:end,5));
 
     clear T;
 
     % Convert double to single
-    data_i.eye.pos_left_x = single(data_i.eye.pos_left_x);
-    data_i.eye.pos_left_y = single(data_i.eye.pos_left_y);
-    data_i.eye.diam_left = single(data_i.eye.diam_left);
+    data_i.eye.pos_x = single(data_i.eye.pos_x);
+    data_i.eye.pos_y = single(data_i.eye.pos_y);
+    data_i.eye.diam = single(data_i.eye.diam);
 
     % Make data compatible
-    if strcmp(params.tracker_type, 'smi')
+    if strcmp(params.eye.tracker_type, 'smi')
         data_i.eye.t = data_i.eye.t / 1000;
     end
-    if strcmp(params.tracker_type, 'eyelink')
-        data_i.eye.diam_left = data_i.eye.diam_left / 10;
+    if strcmp(params.eye.tracker_type, 'eyelink')
+        data_i.eye.diam = data_i.eye.diam / 10;
     end
     
     % Convert time to ms relative to start
@@ -64,18 +65,18 @@ for j = 1 : length(input_files)
     else
        % Append to existing data
        data.eye.t = [data.eye.t;data_i.eye.t];
-       data.eye.pos_left_x = [data.eye.pos_left_x;data_i.eye.pos_left_x];
-       data.eye.pos_left_y = [data.eye.pos_left_y;data_i.eye.pos_left_y];
-       data.eye.diam_left = [data.eye.diam_left;data_i.eye.diam_left];
+       data.eye.pos_x = [data.eye.pos_x;data_i.eye.pos_x];
+       data.eye.pos_y = [data.eye.pos_y;data_i.eye.pos_y];
+       data.eye.diam = [data.eye.diam;data_i.eye.diam];
     end
 
 end
 
-data.eye.Fs = params.Fs;
+data.eye.Fs = params.eye.Fs;
 
 % Find gaps in sampling
-if params.remove_gaps
-    data.eye = remove_gaps( data.eye, params.blink );
+if params.eye.gaps.apply
+    data = remove_gaps_eye( data, params );
 end
 
 end

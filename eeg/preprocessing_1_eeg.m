@@ -21,15 +21,18 @@
 
 %% 0. Read list of subjects and bad channel data
 
-addpath('func');
-addpath('plot');
-addpath('../../lib/fieldtrip-20190419/');
-addpath('../../lib/textprogressbar');
+if ~exist('params','var')
+    error('No params variable set. Aborting preprocessing.') 
+end
+
+addpath(params.general.fieldtrip_lib);
 
 subjects = strsplit(fileread(sprintf('%s/%s/%s', params.io.input_dir, ...
                                                  params.io.metadata_dir, ...
                                                  params.general.subjects_file)));
 
+fprintf('\n\n==== START OF PROCESSING ===\n\n');
+                                             
 fprintf('\nFound %d subjects.\n', length(subjects));
                                  
 for i = 1 : length(subjects)
@@ -48,7 +51,7 @@ for i = 1 : length(subjects)
        mkdir(figdir); 
     end
     
-    flag_file = sprintf( '%s/eeg_processing.done', outdir );
+    flag_file = sprintf( '%s/eeg_preproc_1.done', outdir );
     
     if ~params.general.clobber && exist(flag_file, 'file')
         fprintf( '\n== Subject %s already processed. Skipping. ==\n\n', subject );
@@ -118,10 +121,12 @@ for i = 1 : length(subjects)
     
     
     %% 6. Finalise
-    flag_file = sprintf( '%s/ica.done', outdir );
+    fclose( fopen( flag_file, 'w' ) );
     
     fprintf( '\n== Finished pre-processing step 1 for subject %s ==\n\n', subject );
     
 
 end
+
+fprintf('\n\n==== END OF PROCESSING ===\n\n');
 

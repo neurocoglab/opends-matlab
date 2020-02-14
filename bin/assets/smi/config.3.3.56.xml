@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns="ar/opends/analysis/smi/config"
+		  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="ar/opends/analysis/smi/config config.xsd">
+    
+    <begaze-version>3.3.56</begaze-version>
+    
+    <event-types>
+    	<event-type code="SMP" name="Sample" />
+    	<event-type code="MSG" name="Message" />
+    </event-types>
+    
+	<columns>
+		<column label="Time" description="Event time" unit="microsecond" id="Time" datatype="Int64" />
+		<column label="Type" description="Event type" unit="" id="EventType" datatype="Text" />
+		<column label="Trial" description="Trial number" unit="" id="TrialNo" datatype="Int32" />
+		<column label="L Raw X [px]" description="Gaze position, horizontal, left eye" unit="px" id="GazeLeftX" datatype="Float32" />
+		<column label="L Raw Y [px]" description="Gaze position, vertical left eye" unit="px" id="GazeLeftY" datatype="Float32" />
+		<column label="R Raw X [px]" description="Gaze position, horizontal, right eye" unit="px" id="GazeRightX" datatype="Float32" />
+		<column label="R Raw Y [px]" description="Gaze position, vertical, right eye" unit="px" id="GazeRightY" datatype="Float32" />
+		<column label="L POR X [px]" description="Point-of-regard, horizontal, left eye" unit="px" id="PorLeftX" datatype="Float32" />
+		<column label="L POR Y [px]" description="Point-of-regard, vertical left eye" unit="px" id="PorLeftY" datatype="Float32" />
+		<column label="R POR X [px]" description="Point-of-regard, horizontal, right eye" unit="px" id="PorRightX" datatype="Float32" />
+		<column label="R POR Y [px]" description="Point-of-regard, vertical, right eye" unit="px" id="PorRightY" datatype="Float32" />
+		<column label="L Dia X [px]" description="Pupil width in pixels, left eye" unit="px" id="PupilWidthLeft" datatype="Float32" />
+		<column label="L Dia Y [px]" description="Pupil height in pixels, left eye" unit="px" id="PupilHeightLeft" datatype="Float32" />
+		<column label="R Dia X [px]" description="Pupil width in pixels, right eye" unit="px" id="PupilWidthRight" datatype="Float32" />
+		<column label="R Dia Y [px]" description="Pupil height in pixels, right eye" unit="px" id="PupilHeightRight" datatype="Float32" />
+		<column label="L Dia [px]" description="Pupil diameter in pixels, left eye" unit="px" id="PupilDiamLeft" datatype="Float32" />
+		<column label="R Dia [px]" description="Pupil diameter in pixels, right eye" unit="px" id="PupilDiamRight" datatype="Float32" />
+		<column label="L Pupil Diameter [mm]" description="Pupil diameter in mm, left eye" unit="mm" id="PupilDiamLeftmm" datatype="Float32" />
+		<column label="R Pupil Diameter [mm]" description="Pupil diameter in mm, right eye" unit="mm" id="PupilDiamRightmm" datatype="Float32" />
+		<column label="Trigger" description="Trigger state" unit="" id="Trigger" datatype="Int32" />
+		<column label="Frame" description="Frame counter" unit="" id="Frame" datatype="Int32" />
+		<column label="Aux1" description="Auxiliary data" unit="" id="Aux1" datatype="Int32" />
+	</columns>
+          
+          
+</config>

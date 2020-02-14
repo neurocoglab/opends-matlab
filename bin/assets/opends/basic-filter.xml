@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<filter xmlns="ar/opends/analysis/filter"
+		  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="ar/opends/analysis/filter filter.xsd">
+          
+	<types>
+		<type name="RewardAssessed">
+			<parameter name="Source" />
+			<parameter name="Type" />
+			<parameter name="Magnitude" />
+			<parameter name="Id" />
+			<parameter name="SimulationTime" />
+		</type>
+		<type name="RewardDisplayed">
+			<parameter name="Source" />
+			<parameter name="RewardType" />
+			<parameter name="RewardId" />
+			<parameter name="Message" />
+			<parameter name="SimulationTime" />
+		</type>
+		<type name="IncreaseSpeed">
+			<parameter name="Source" />
+			<parameter name="NewSpeed" />
+			<parameter name="OldSpeed" />
+			<parameter name="SimulationTime" />
+			<parameter name="LaneState:Lane" />
+			<parameter name="Sim:Game:Cycle" />
+			<parameter name="Sim:Game:Repeat" />
+			<parameter name="Sim:DriverCar:LaneDistance" />
+		</type>
+		<type name="TriggerActuated">
+			<parameter name="Source" />
+			<parameter name="Action" />
+			<parameter name="Actuator" />
+			<parameter name="SimulationTime" />
+			<parameter name="Distance" />
+			<parameter name="ScoreAccumulator:Cycle" />
+			<parameter name="ScoreAccumulator:Repeat" />
+			<parameter name="Sim:Game:Cycle" />
+			<parameter name="Sim:Game:Repeat" />
+			<parameter name="Sim:DriverCar:LaneDistance" />
+		</type>
+		<type name="SimulatorResumed">
+			<parameter name="Source" />
+			<parameter name="Game:AccumulatedScore" />
+			<parameter name="Game:Cycle" />
+			<parameter name="Game:Repeat" />
+		</type>
+		<type name="LaneChange">
+			<parameter name="Source" />
+			<parameter name="Direction" />
+			<parameter name="LaneFrom" />
+			<parameter name="LaneTo" />
+			<parameter name="LaneState:Lane" />
+			<parameter name="SimulationTime" />
+			<parameter name="Sim:Game:Cycle" />
+			<parameter name="Sim:Game:Repeat" />
+			<parameter name="Sim:DriverCar:LaneDistance" />
+		</type>
+		<type name="CarPositionReset">
+			<parameter name="Source" />
+			<parameter name="SimulationTime" />
+			<parameter name="CollisionStatus" />
+			<parameter name="LaneDistance" />
+		</type>
+		<type name="BrakeApplied">
+			<parameter name="Source" />
+			<parameter name="LaneState:Lane" />
+			<parameter name="SimulationTime" />
+			<parameter name="Sim:Game:Cycle" />
+			<parameter name="Sim:Game:Repeat" />
+			<parameter name="Sim:DriverCar:LaneDistance" />
+		</type>
+		<type name="BrakeReleased">
+			<parameter name="Source" />
+			<parameter name="LaneState:Lane" />
+			<parameter name="SimulationTime" />
+			<parameter name="Sim:Game:Cycle" />
+			<parameter name="Sim:Game:Repeat" />
+			<parameter name="Sim:DriverCar:LaneDistance" />
+		</type>
+		<type name="ConditionalTriggerActuated">
+			<parameter name="Source" />
+			<parameter name="LaneState:Lane" />
+			<parameter name="SimulationTime" />
+			<parameter name="Sim:Game:Cycle" />
+			<parameter name="Sim:Game:Repeat" />
+			<parameter name="ActionType" />
+			<parameter name="Actuator" />
+			<parameter name="Sim:DriverCar:LaneDistance" />
+		</type>
+		
+		
+	</types>
+          
+</filter>

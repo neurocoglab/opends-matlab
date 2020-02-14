@@ -3,28 +3,18 @@ function [ ok ] = convert_eyelog_eyelink( subject, params )
 %                       (or multiple logs) to CSV files
 %
 
-
-
-rdir = params.root_dir;
-if ~isempty(params.data_dir)
-  rdir = sprintf('%s/%s', rdir, params.data_dir);
-end
-
-input_dir = sprintf('%s/%s/%s', rdir, ...
-                                   params.convert.input_dir, ...
-                                   subject);
-
-output_dir = sprintf('%s/%s/%s', rdir, ...
-                                   params.output_dir, ...
-                                   subject);
+subj_dir = sprintf('%s/%s/%s', params.io.input_dir, params.eye.sub_dir, subject);
+output_dir = sprintf('%s/%s', params.io.output_dir, subject);
  
 if ~exist(output_dir, 'dir')
    mkdir(output_dir); 
 end
 
-if ~isempty(params.convert.edf2asc)
+if ~isempty(params.eye.convert.edf2asc)
    fprintf(' Converting from EDF to ASC...\n');
-   edf_files = dir(sprintf('%s/*.edf', input_dir));
+   edf_files = dir(sprintf('%s/*.edf', subj_dir));
+   
+   exec = fullfile(params.general.matlab_dir, 'bin', params.eye.convert.edf2asc);
    
    for i = 1 : length(edf_files)
       filei = sprintf('%s/%s', edf_files(i).folder, edf_files(i).name);
@@ -32,7 +22,7 @@ if ~isempty(params.convert.edf2asc)
       if exist(fileasc, 'file')
           fprintf(' already converted %s\n', edf_files(i).name);
       else
-          cmd = sprintf('"%s" -p "%s" "%s"', params.convert.edf2asc, edf_files(i).folder, filei);
+          cmd = sprintf('"%s" -p "%s" "%s"', exec, edf_files(i).folder, filei);
           [status, message] = system(cmd);
           if status ~= 255
               fprintf(' Problem converting %s: %s\n', filei, message);
@@ -46,9 +36,9 @@ end
 
 try
                                
-    log_file = sprintf('%s/%s%s.asc', input_dir, params.convert.prefix, subject);
+    log_file = sprintf('%s/%s%s.asc', subj_dir, params.eye.convert.prefix, subject);
     if ~exist(log_file, 'file')
-        zip_file = sprintf('%s/ods%s.zip', input_dir, subject);
+        zip_file = sprintf('%s/%s%s.zip', params.eye.convert.prefix, subj_dir, subject);
 
         if ~exist(zip_file, 'file')
             warning('No data found for %s! Skipping.', subject);
@@ -56,8 +46,8 @@ try
             return;
         end
 
-        unzip(zip_file, input_dir);
-        log_file = sprintf('%s/ods%s.asc', input_dir, subject);
+        unzip(zip_file, subj_dir);
+        log_file = sprintf('%s/%s%s.asc', params.eye.convert.prefix, subj_dir, subject);
 
         if ~exist(log_file, 'file')
             warning('No data found in zip file for %s! Skipping.', subject);
@@ -74,10 +64,11 @@ catch err
 end
 
 % Read Eyelink log and convert to CSV
+cfg=[];
 cfg.dataset = log_file;
 [~,data_eye] = evalc('ft_preprocessing(cfg);');
 
-samples_out = sprintf('%s/%s_samples.csv', output_dir, subject);
+samples_out = sprintf('%s/%ssamples.csv', output_dir, params.eye.convert.prefix);
 
 [fid_out, message] = fopen(samples_out, 'w+');
 if fid_out < 0
@@ -99,7 +90,7 @@ fclose(fid_out);
 
 [~,event_eye] = evalc('ft_read_header(cfg.dataset);');
 
-messages_out = sprintf('%s/%s_messages.csv', output_dir, subject);
+messages_out = sprintf('%s/%smessages.csv', output_dir, params.eye.convert.prefix);
 [fid_out, message] = fopen(messages_out, 'w+');
 if fid_out < 0
     warning('Could not open CSV output file %s, with error: %s', messages_out, message);

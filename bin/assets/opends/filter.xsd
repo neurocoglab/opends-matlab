@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema targetNamespace="ar/opends/analysis/filter"
+elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="ar/opends/analysis/filter">
+
+<xs:element name="filter" type="filter"></xs:element>
+
+<xs:complexType name="filter">
+	<xs:all>
+		<xs:element name="types" minOccurs="1" maxOccurs="1" type="types"></xs:element>
+	</xs:all>
+</xs:complexType>
+
+<xs:complexType name="types">
+	<xs:sequence>
+        <xs:element name="type" minOccurs="1" maxOccurs="unbounded" type="type"></xs:element>
+    </xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="type">
+	<xs:sequence>
+        <xs:element name="parameter" minOccurs="1" maxOccurs="unbounded" type="parameter"></xs:element>
+    </xs:sequence>
+	<xs:attribute name="name" type="xs:string"></xs:attribute>
+</xs:complexType>
+
+<xs:complexType name="parameter">
+	<xs:attribute name="name" type="xs:string"></xs:attribute>
+</xs:complexType>
+
+</xs:schema>
