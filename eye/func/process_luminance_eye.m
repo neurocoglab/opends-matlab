@@ -57,8 +57,8 @@ function [ data ] = process_luminance_eye( data, params )
     ts_lum = resample(ts_lum_orig, ts_eye.Time);
     
     % Compute regression & residual error
-    X = ts_lum.Data; %(idx_keep & idx_center);
-    y = ts_eye.Data; %(idx_keep & idx_center);
+    X = ts_lum.Data;
+    y = ts_eye.Data;
     
     % Deal with NaNs
     idx_nan = isnan(X);
@@ -107,12 +107,10 @@ function [ data ] = process_luminance_eye( data, params )
             data.eye.luminance.deficient = true;
         end
         
-%         coefs = [ones(length(Xi),1),Xi]\yi;
         data.eye.luminance.lm(i) = {lm};
         diam = datain.diam;
         idx_lum = max(-offset+1,1):min(length(ts_lum.Data)-offset,length(ts_lum.Data));
         ypred = lm.Coefficients.Estimate(1) + lm.Coefficients.Estimate(2) * ts_lum.Data(idx_lum);
-%         ypred = coefs(1) + coefs(2) * ts_lum.Data(idx_keep);
         
         idx_eye = max(offset+1,1):min(length(ts_eye.Data)+offset,length(ts_eye.Data));
         resids = ts_eye.Data(idx_eye) - ypred;

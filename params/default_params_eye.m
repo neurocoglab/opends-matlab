@@ -60,6 +60,7 @@ params.eye.saccades.plots.show_rate = true;
 
 
 %% Luminance correction
+params.eye.luminance.apply = true;
 params.eye.luminance.sub_dir = 'luminance';
 params.eye.luminance.downsample = 5;
 params.eye.luminance.smooth = 0;

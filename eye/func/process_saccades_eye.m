@@ -22,10 +22,8 @@ data.eye.saccades.saccade_rate = [];
 peaks = load(params.eye.saccades.peaks_file);
 idxi = 1;
 
-% tgaps = find(diff(data.eye.t) > 1/data.eye.Fs*1000);
-
 for ii = 1 : size(data.eye.tgap,1)
-%     idx1 = tgaps(ii); % data.tgap(ii,1);
+    
     idx1 = data.eye.tgap(ii,1);
     
     xxi = xx(idxi:idx1);
@@ -56,9 +54,6 @@ end
 
         x = smooth(x,50,'sgolay');
         y = smooth(y,50,'sgolay');
-
-        % Interpolate around large artifacts & eyeblinks
-%         buffer = round(params.eye.saccades.artifact_buffer / data.Fs * 1000 / 2);
 
         % Convert to visual angle
         w_cm = params.eye.saccades.monitor_dims(1)/10;

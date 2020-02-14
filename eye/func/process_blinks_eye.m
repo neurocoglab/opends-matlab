@@ -44,13 +44,12 @@
 %
 
 
-function [ data ] = process_blinks_eye (data, params )
+function [ data ] = process_blinks_eye ( data, params )
        
 x = data.eye.(params.eye.blinks.criterion);  % Usually, pupil diameter
 N = length(x);
 
-% Trim data.eye
-delta_t = 1 / data.eye.Fs * 1000; % data.eye.blinks.t(2)-data.eye.blinks.t(1);
+delta_t = 1 / data.eye.Fs * 1000;
 
 data.eye.blinks = [];
 data.eye.blinks.blinks = zeros(N,1);
@@ -120,18 +119,15 @@ for j = 1 : size(data.eye.tgap,1)
     end
 end
 
-% patch up nans; TODO: why are these nans?
+% patch up nans if necessary
 idx = find(isnan(data.eye.blinks.pos_x));
 data.eye.blinks.pos_x(idx) = data.eye.pos_x(idx-1);
 data.eye.blinks.pos_y(idx) = data.eye.pos_y(idx-1);
 data.eye.blinks.diam(idx) = data.eye.diam(idx-1);
 
-%TODO: Combine blink ints into one list
-
     function [ blinks, blink_rate, blink_ints, intervals, pct_fixed, d_x, data_seg_out ] = ...
                                                 process_segment( seg, data_seg, seg_idx )
         d_x = [0;diff(seg) / delta_t];
-        %data.eye.blinks.diff = d_x;
         data_seg_out = data_seg;
 
         window = ceil(params.eye.blinks.window / delta_t);
@@ -151,7 +147,6 @@ data.eye.blinks.diam(idx) = data.eye.diam(idx-1);
         jj = 1;
         while i <= Ns
 
-%             try
             if d_x(i) < params.eye.blinks.thres(1)
                 i_b0 = i;
                 i_s = i - int_left; if i_s < 1, i_s = 1; end
@@ -167,7 +162,7 @@ data.eye.blinks.diam(idx) = data.eye.diam(idx-1);
 					i = i + int_right;
 					if i > Ns, i = Ns; end
 					i_b1 = i;
-					i_e = i;  %+ int_right; if i_e > Ns, i_e = Ns; end 
+					i_e = i;
 
 					intervals(i_s:i_e) = true;
 
@@ -176,9 +171,7 @@ data.eye.blinks.diam(idx) = data.eye.diam(idx-1);
 					jj = jj + 1;
 				end
             end
-%             catch err
-%                a = 0; 
-%             end
+            
             i = i + 1;
         end
         
@@ -225,11 +218,7 @@ data.eye.blinks.diam(idx) = data.eye.diam(idx-1);
                for s = 1 : 3
                    ds = data_seg_out{s};
                    yy = linterp([i_s i_e],[ds(i_s) ds(i_e)], i_s:i_e);
-                   
                    ds(i_s : i_e) = yy;
-%                    if ~isempty(params.eye.blinks.smooth)
-%                       ds = smooth(ds,params.eye.blinks.smooth,params.eye.blinks.smooth_width); 
-%                    end
                    data_seg_out(s) = {ds};
                end
 
