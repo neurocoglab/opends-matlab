@@ -1,4 +1,4 @@
-function [ times ] = interpolate_log_times( M, hdr, sim_times, extrapolate )
+function [ times ] = interpolate_log_times_sim( M, sim_times, extrapolate )
 %%%%%%%%%%%%%
 % interpolate_log_times Converts simulation times to eye tracker times by 
 % interpolating based on
@@ -11,11 +11,14 @@ if nargin < 4
    extrapolate = false; 
 end
 
-idx_ttime = find(strcmp(hdr, 'TrackerTime'));
-idx_stime = find(strcmp(hdr, 'SimTime'));
+% idx_ttime = find(strcmp(hdr, 'TrackerTime'));
+% idx_stime = find(strcmp(hdr, 'SimTime'));
 
-ttimes = double(cell2mat(M(:,idx_ttime)));
-stimes = cell2mat(M(:,idx_stime));
+ttimes = M.TrackerTime;
+stimes = M.SimTime;
+
+% ttimes = double(cell2mat(M(:,idx_ttime)));
+% stimes = cell2mat(M(:,idx_stime));
 
 outcount = 0;
 times = nan(length(sim_times),1);
@@ -43,7 +46,7 @@ end
 
 if outcount > 0
    warning(['%d time points could not be extrapolated.' ...
-            ' These entries will have nan values.'],outcount);
+            ' These entries will have nan values.'], outcount);
 end
 
 end

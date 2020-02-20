@@ -1,10 +1,10 @@
-function [ h ] = plot_events( results, params, data, events, out2file )
+function [ h ] = plot_events_sim( params, data, events, out2file )
 
-    if nargin < 5
+    if nargin < 4
         out2file = false;
     end
 
-    time_sec = results.t / 60000;
+    time_sec = data.eye.t / 60000;
             
     gap_clr = [0.95 0.9 0.9];
     round_clr = [0.8 0.8 0.9];
@@ -53,7 +53,7 @@ function [ h ] = plot_events( results, params, data, events, out2file )
     % Plot baseline periods
     if any(strcmp(events,'Baseline'))
         
-       intervals = results.sim2track.baseline;
+       intervals = data.sim.sim2track.baseline;
        
        for j = 1 : size(intervals,1)
           x1 = intervals(j,1) / 60000;
@@ -74,10 +74,10 @@ function [ h ] = plot_events( results, params, data, events, out2file )
         
         max_interval = 30000; % Half a minute
         
-        left = [results.sim2track.left_change_times, ...
-                true(length(results.sim2track.left_change_times),1)];
-        right = [results.sim2track.right_change_times, ...
-                 false(length(results.sim2track.right_change_times),1)];
+        left = [data.sim.sim2track.left_change_times, ...
+                true(length(data.sim.sim2track.left_change_times),1)];
+        right = [data.sim.sim2track.right_change_times, ...
+                 false(length(data.sim.sim2track.right_change_times),1)];
              
         left_right = [left;right];
         [~,idx] = sort(left_right(:,1));
@@ -128,9 +128,9 @@ function [ h ] = plot_events( results, params, data, events, out2file )
     end
     
     % Plot gaps
-    for j = 1 : size(results.tgap,1)
-       x1 = time_sec(results.tgap(j,1));
-       x2 = x1 + results.tgap(j,2) / 60000;
+    for j = 1 : size(data.eye.tgap,1)
+       x1 = time_sec(data.eye.tgap(j,1));
+       x2 = x1 + data.eye.tgap(j,2) / 60000;
        if x2 > x1
        rectangle('Position',[x1 -500 x2-x1 1000], ...
                  'EdgeColor','w', ...
@@ -142,12 +142,16 @@ function [ h ] = plot_events( results, params, data, events, out2file )
     hold on;
     
     % Plot diameter
-    plot(time_sec, results.diam_left, 'Color', noisy_colour);
-    xsm = smooth(results.diam_left,250,'sgolay');
+    pdiam = data.eye.diam;
+    if isfield(data.eye, 'blinks')
+       pdiam = data.eye.blinks.diam; 
+    end
+    plot(time_sec, pdiam, 'Color', noisy_colour);
+    xsm = smooth(pdiam,250,'sgolay');
     plot(time_sec, xsm, 'b');
     
     % Really smooth
-    xxsm = smooth(results.diam_left,20000,'moving');
+    xxsm = smooth(pdiam,20000,'moving');
     plot(time_sec, xxsm, 'Color', [.3 .3 .3], 'LineWidth', 1.5);
     
     minx = min(xsm); maxx = max(xsm);
@@ -157,11 +161,11 @@ function [ h ] = plot_events( results, params, data, events, out2file )
     
      % Plot saccade rate
     if any(strcmp(events,'SaccadeRate'))
-        sr = zscore(results.saccades.saccade_rate) + mean(results.diam_left);
-        plot(results.saccades.t / 60000, ...
+        sr = zscore(data.eye.saccades.saccade_rate) + mean(pdiam);
+        plot(data.eye.t / 60000, ...
              sr, ...
-                       'Color', saccade_rate_clr, ...
-                       'LineWidth', 1.5);
+             'Color', saccade_rate_clr, ...
+             'LineWidth', 1.5);
     end
     
     % Plot round lines
@@ -173,8 +177,8 @@ function [ h ] = plot_events( results, params, data, events, out2file )
             set(hh,'FontWeight', 'bold');
         
         % Cycles
-        for j = 1 : length(results.sim2track.cycle_times)
-            x1 = results.sim2track.cycle_times(j);
+        for j = 1 : length(data.sim.sim2track.cycle_times)
+            x1 = data.sim.sim2track.cycle_times(j);
             x1 = x1 / 60000;
            
             line([x1 x1], [-500 500], ...
@@ -189,11 +193,11 @@ function [ h ] = plot_events( results, params, data, events, out2file )
         
         % Repeats
         cycle = 1; repeat = 2;
-        for j = 1 : length(results.sim2track.repeat_times)
-           x1 = results.sim2track.repeat_times(j);
+        for j = 1 : length(data.sim.sim2track.repeat_times)
+           x1 = data.sim.sim2track.repeat_times(j);
            
-           while cycle <= length(results.sim2track.cycle_times) && ...
-                 results.sim2track.cycle_times(cycle) < x1
+           while cycle <= length(data.sim.sim2track.cycle_times) && ...
+                 data.sim.sim2track.cycle_times(cycle) < x1
                cycle = cycle + 1;
                repeat = 2;
            end
@@ -217,8 +221,8 @@ function [ h ] = plot_events( results, params, data, events, out2file )
     % Plot overtake events
     if any(strcmp(events,'Overtakes'))
         
-        for j = 1 : length(results.sim2track.overtake_times)
-            x1 = results.sim2track.overtake_times(j);
+        for j = 1 : length(data.sim.sim2track.overtake_times)
+            x1 = data.sim.sim2track.overtake_times(j);
             x1 = x1 / 60000;
            line([x1 x1], [-500 500], ...
                  'Color',overtake_color);
@@ -230,8 +234,8 @@ function [ h ] = plot_events( results, params, data, events, out2file )
     
     % Plot saccades
     if any(strcmp(events,'Saccades'))
-        for i = 1 : size(results.saccades.saccades,1)
-           i_m = results.saccades.saccades(i,2);
+        for i = 1 : size(data.eye.saccades.saccades,1)
+           i_m = data.eye.saccades.saccades(i,2);
            x1 = time_sec(i_m);
            line([x1 x1], [-500 500], ...
                  'Color', saccade_line_color, ...
@@ -255,13 +259,13 @@ function [ h ] = plot_events( results, params, data, events, out2file )
 %     resize_window(h, [1500 500], [400 400]);
     
     if out2file
-        outdir = sprintf('%s/%s/%s/%s/figures', params.root_dir, params.data_dir, params.output_dir, data.subject);
+        outdir = sprintf('%s/%s/figures', params.io.output_dir, data.subject);
         if ~exist(outdir,'dir')
            mkdir(outdir); 
         end
-        saveas(h, sprintf('%s/events.fig', outdir));
+        saveas(h, sprintf('%s/events_sim.fig', outdir));
         xlim([0 3]);
-        saveas(h, sprintf('%s/events.png', outdir));
+        saveas(h, sprintf('%s/events_sim.png', outdir));
         close(h);
     end
 

@@ -12,7 +12,6 @@ params.sim.convert.exec = 'simlog2csv';
 
 %% Pre-process rounds
 params.sim.rounds.plots.save = true;
-params.sim.rounds.fix_repeats = true;
 
 params.sim.log.trigger_format = '%d64 %f %d %q %q %q %q %f %f %d %d %d %d';
 params.sim.log.lanechange_format = '%d64 %f %d %q %q %q %q %q %d %f %d %d %f %d %d';
@@ -24,9 +23,6 @@ params.sim.log.events_format = '%d64 %f %d %q %d';
 params.sim.log.simended_format = '%d64 %f %d %q %f %d %d';
 params.sim.log.rewarddisp_format = '%d64 %f %d %q %q %q %d %d %f %d %d';
 
-% Fix for distances (bug in early versions)
-if exist('fixdist.mat', 'file')
-    params.sim.rounds.fixdist = load('fixdist.mat');
-end
 
-params.sim.baseline.intervals_file = 'baseline_intervals.csv';
+
+

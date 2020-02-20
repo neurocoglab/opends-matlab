@@ -27,12 +27,12 @@ params.eye.blinks.apply = true;
 params.eye.blinks.criterion = 'diam';
 params.eye.blinks.smooth = true;
 params.eye.blinks.smooth_width = 1000;
-params.eye.blinks.gapbuffer = 100;
+params.eye.blinks.gapbuffer = 50;
 params.eye.blinks.window = 10000;
 params.eye.blinks.absthres = 10;
-params.eye.blinks.interval = [75,150];
+params.eye.blinks.interval = [70,120];
 params.eye.blinks.thres = [-0.5 0.1];
-params.eye.blinks.maxblink = 10;
+params.eye.blinks.maxblink = 100;
 
 % Plots
 params.eye.blinks.plots.save = true;
@@ -64,7 +64,7 @@ params.eye.luminance.apply = true;
 params.eye.luminance.sub_dir = 'luminance';
 params.eye.luminance.downsample = 5;
 params.eye.luminance.smooth = 0;
-params.eye.luminance.use_offset = true;
+params.eye.luminance.use_offset = 0;
 params.eye.luminance.offsets = -2:0.1:2;
 params.eye.luminance.screen_pct = 50;
 params.eye.luminance.outlier_lim = 6;

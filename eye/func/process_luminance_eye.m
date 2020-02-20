@@ -46,7 +46,8 @@ function [ data ] = process_luminance_eye( data, params )
     idx_keep = abs(zscore(datain.diam))<params.eye.luminance.outlier_lim;
     
     % Resample and match time series
-    ts_eye = timeseries(datain.diam(idx_keep & idx_center)', ...
+    F = datain.diam(idx_keep & idx_center); % Fun fact: this transposes the vector
+    ts_eye = timeseries(F(:), ...
                         double(data.eye.t_start) + data.eye.t(idx_keep & idx_center));
     if params.eye.luminance.downsample > 1
         % Downsample by factor (prevents rank deficiency)
@@ -81,7 +82,7 @@ function [ data ] = process_luminance_eye( data, params )
     
     data.eye.luminance.deficient = false;
     
-    ts_eye = timeseries(datain.diam', double(data.eye.t_start) + data.eye.t);
+    ts_eye = timeseries(datain.diam(:), double(data.eye.t_start) + data.eye.t);
     ts_lum = resample(ts_lum_orig, ts_eye.Time);
     idx_nan = find(isnan(ts_lum.Data));
     data.eye.luminance.idx = ~isnan(ts_lum.Data);

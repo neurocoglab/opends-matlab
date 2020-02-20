@@ -125,9 +125,7 @@ for i = 1 : length(subjects)
             flag_file = sprintf('%s/sim_logs_converted.done', flagdir);
             
             if exist(flag_file, 'file') && ~clobber
-
                 fprintf('\tSim log for %s already converted; skipping.\n', subject);
-
             else
                 
                 clobber = true;  % If this is redone, the rest must also be redone
@@ -138,6 +136,7 @@ for i = 1 : length(subjects)
                 ok = convert_log_sim( params, subject );
                 
                 if ok
+                    fclose( fopen(flag_file,'w') );
                     fprintf('done.\n');
                 else
                     ok = false;
@@ -224,6 +223,8 @@ for i = 1 : length(subjects)
             plot_saccades_eye ( data, params, false );
         end
 
+        clear data;
+        
     end                           
 
     %% 6. Regress out estimated relative screen luminance signal
@@ -236,7 +237,10 @@ for i = 1 : length(subjects)
             fprintf('\tLuminance correction for %s already done; skipping.\n', subject);
         else
             
+            clobber = true;
             fprintf('\tProcessing luminance for %s...', subject);
+            
+            load(results_file);
             
             warning off;
             data = process_luminance_eye( data, params );
@@ -262,6 +266,8 @@ for i = 1 : length(subjects)
                     plot_luminance_eye ( data, params, false );
                 end
                 
+                clear data;
+                
             end
 
         end
@@ -271,19 +277,12 @@ for i = 1 : length(subjects)
     
     %% 7. Identify round and repeat intervals
 
-    % TODO: use SimulationStart and SimulationEnd events in new version of
-    % ar.OpenDS
-
     if ok
 
-        %output_file = sprintf('%s/%s/sim2track.mat', params.data_dir, subject);
-        flag_file = sprintf('%s/%s/%s/sim2track.done', params.root_dir, params.output_dir, subject);
+        flag_file = sprintf('%s/sim_rounds.done', flagdir);
 
         if exist(flag_file, 'file') && ~clobber
-
-            fprintf('Rounds + baseline for %s already processed; skipping.\n', subject);
-%             load(results_file);
-
+            fprintf('\tRounds + baseline for %s already processed; skipping.\n', subject);
         else
 
             if exist(flag_file, 'file'), delete(flag_file); end
@@ -292,21 +291,25 @@ for i = 1 : length(subjects)
 
             load(results_file);
 
-            fprintf('Processing rounds for %s...', subject);
-            [data, results] = process_rounds( data, results, params, subject );
+            fprintf('\tProcessing rounds for %s...', subject);
+            data = process_rounds_sim( data, params );
 
             % Save results and delete previous
-            save(results_file, 'data', 'results');
-            plot_events( results, params, data, [{'Rounds'},{'LaneChanges'},{'Baseline'},{'SaccadeRate'},{'Overtakes'}], true );
+            save(results_file, 'data');
+            
+            if params.sim.rounds.plots.save
+                plot_events_sim( params, data, [{'Rounds'},{'LaneChanges'},{'Baseline'},{'SaccadeRate'},{'Overtakes'}], true );
+            end
 
-            fid = fopen(flag_file,'w');
-            fclose(fid);
-            fprintf('Done.\n');
+            fclose( fopen(flag_file,'w') );
+            fprintf('done.\n');
 
             % Plot rounds 
-            if params.show_plots
-                h = plot_events( results, params, data, [{'Rounds'},{'LaneChanges'},{'Baseline'},{'SaccadeRate'},{'Overtakes'}] );
+            if params.general.show_plots
+                h = plot_events( params, data, [{'Rounds'},{'LaneChanges'},{'Baseline'},{'SaccadeRate'},{'Overtakes'}] );
             end
+            
+            clear data;
 
         end
 

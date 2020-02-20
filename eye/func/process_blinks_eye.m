@@ -159,10 +159,10 @@ data.eye.blinks.diam(idx) = data.eye.diam(idx-1);
                 end
 
 				if ~ismax
-					i = i + int_right;
-					if i > Ns, i = Ns; end
-					i_b1 = i;
-					i_e = i;
+					i2 = i + int_right;
+					if i2 > Ns, i2 = Ns; end
+					i_b1 = i2;
+					i_e = i2;
 
 					intervals(i_s:i_e) = true;
 

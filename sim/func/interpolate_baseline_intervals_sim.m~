@@ -29,9 +29,9 @@ while cycle <= N_cycles
     repeat = 1;
     while repeat <= N_repeats
         S2 = S(repeats==repeat,:);
-        logtime = S2.TrackerTime; % cell2mat(S2(:,idx_logtime));
-        d_end = S2.LaneDist(end);
-        dists = S2.LaneDist; %    cell2mat(S2(:,idx_dist));
+        logtime = cell2mat(S2(:,idx_logtime));
+        d_end = S2{end,idx_dist};
+        dists = cell2mat(S2(:,idx_dist));
         t0 = logtime(1);
         tm = logtime(end);
         
@@ -39,8 +39,8 @@ while cycle <= N_cycles
         tgap = tgaps(find(tgaps(:,1)>=t0 & tgaps(:,1)<tm),:);
         
         % Assign interval distances to fractions of round
-        for i = 1 : height(R)
-           d_start = R.Start(i);
+        for i = 1 : size(R,1)
+           d_start = R(i,1);
            
            if d_start > max(dists) % The round ended prematurely
                break;
@@ -67,7 +67,7 @@ while cycle <= N_cycles
                   a=0; 
                end
 
-               d_end = R.End(i);
+               d_end = R(i,2);
                if d_end > max(dists) % The interval exceeds the round
                    ratio = 1;
                else

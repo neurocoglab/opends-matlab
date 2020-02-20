@@ -43,11 +43,29 @@ elseif idxi == length(data.eye.t)
     % Degenerate case
     data.eye.saccades.x_fixed(end+1) = data.eye.saccades.x_fixed(end);
     data.eye.saccades.y_fixed(end+1) = data.eye.saccades.y_fixed(end);
-    data.eye.saccades.saccade_rate(end+1) = data.eye.saccades.saccade_rate(end);
     data.eye.saccades.dx(end+1) = data.eye.saccades.dx(end);
     data.eye.saccades.dy(end+1) = data.eye.saccades.dy(end);
     data.eye.saccades.velocity(end+1) = data.eye.saccades.velocity(end);
 end
+
+% Saccade rate in Hz
+% Note: sr_window is specified in ms
+to_Hz = 1000 / params.eye.saccades.sr_window;
+Fs_ms = data.eye.Fs / 1000;
+hw = round(Fs_ms * params.eye.saccades.sr_window / 2);
+saccade_rate = zeros(length(data.eye.t),1);
+sacc = data.eye.saccades.saccades(:,3);
+
+for ii = 1 : length(data.eye.t)
+   t0 = max(1, ii-hw);
+   t1 = min(length(data.eye.t), ii+hw);
+   saccade_rate(ii) = sum(sacc >= t0 & sacc <= t1);
+end
+
+saccade_rate = saccade_rate * to_Hz;
+saccade_rate = smooth(saccade_rate, 500);
+
+data.eye.saccades.saccade_rate = saccade_rate;
 
 
     function [ sresults ] = process_segment(idxi, x, y, peaks, sresults)
@@ -129,25 +147,6 @@ end
         saccades(:,1:3) = saccades(:,1:3) + idxi - 1;
         sresults.saccades = [sresults.saccades;saccades];
 
-        % Saccade rate in Hz
-        % Note: sr_window is specified in ms
-        to_Hz = 1000 / params.eye.saccades.sr_window;
-        Fs_ms = data.eye.Fs / 1000;
-        hw = round(Fs_ms * params.eye.saccades.sr_window / 2);
-        saccade_rate = zeros(Nv,1);
-        sacc = saccades(:,3);
-        
-        for i = 1 : Nv
-           t0 = max(1, i-hw);
-           t1 = min(Nv, i+hw);
-           saccade_rate(i) = sum(sacc >= t0 & sacc <= t1);
-        end
-
-        saccade_rate = saccade_rate * to_Hz;
-        saccade_rate = smooth(saccade_rate, 500);
-        
-        sresults.saccade_rate = [sresults.saccade_rate;saccade_rate];
-    
     end
 
 end
