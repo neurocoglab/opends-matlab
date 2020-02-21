@@ -74,6 +74,7 @@ for i = 1 : length(subjects)
            delete(flag_file); 
         end
 
+        fprintf( '\n== Starting pre-processing step 1 for subject %s ==\n\n', subject );
         ok = true;
 
         %% 1. Load data, synchronize with simulation/eye data
@@ -139,17 +140,22 @@ for i = 1 : length(subjects)
         end
 
         %% 6. Finalise
-        fclose( fopen( flag_file, 'w' ) );
-        
         if ok
+            fclose( fopen( flag_file, 'w' ) );
             fprintf( '\n== Finished pre-processing step 1 for subject %s ==\n\n', subject );
         else
             fprintf( '\n== Errors encountered in pre-processing step 1 for subject %s ==\n\n', subject );
         end
-        
+    
     catch err
-        fprintf('\n== Errors encountered in pre-processing step 1 for subject %s: %s ==\n\n', subject, err.message);
+        fprintf('\n== Errors encountered in pre-processing step 1 for subject %s: ==\n\n', subject, err.message);
         ok = false;
+    end
+    
+    if ok
+        fprintf('\n-- Done subject %s --\n\n', subject);
+    else
+        fprintf('\n-- Failed for subject %s --\n\n', subject);
     end
 
     close all;

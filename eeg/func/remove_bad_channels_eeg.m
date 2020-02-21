@@ -1,4 +1,4 @@
-function [ data ] = remove_bad_channels_eeg( params, data, subject )
+function [ data ] = remove_bad_channels_eeg( params, data )
 
     % Find bad channels for this subject, if defined
     bad_channels = [];
@@ -18,7 +18,7 @@ function [ data ] = remove_bad_channels_eeg( params, data, subject )
 
     % Remove bad channels
     if ~isempty(bad_channels)
-        T = bad_channels{strcmp(bad_channels.Subject, subject),2};
+        T = bad_channels{strcmp(bad_channels.Subject, data.subject),2};
         data.eeg.bad_channels = T;
         if ~isempty(T)
             cfg = [];
