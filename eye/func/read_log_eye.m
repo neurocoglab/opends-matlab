@@ -83,7 +83,7 @@ end
 input_file = sprintf('%s/%s_messages.csv', subj_dir, prefix);
 
 if exist(input_file, 'file')
-   [data.eye.log.messages, data.eye.log.hdr] = import_messages_eye(input_file);
+   [messages, hdr] = import_messages_eye(input_file);
 else
    % There are probably multiple parts; need to glue these together
    input_file = sprintf('%s/%spart1_messages.csv', subj_dir, prefix);
@@ -108,13 +108,14 @@ else
        
    end
    
-   messages = [num2cell(messages{:,1}),num2cell(messages{:,2}), ...
-               num2cell(messages{:,3}),num2cell(messages{:,4})];
-   messages = cell2table(messages, 'VariableNames', hdr);
    
-   data.eye.log.messages = messages;
    
 end
+
+messages = [num2cell(messages{:,1}),num2cell(messages{:,2}), ...
+               num2cell(messages{:,3}),num2cell(messages{:,4})];
+messages = cell2table(messages, 'VariableNames', hdr);
+data.eye.log.messages = messages;
 
 
 end
