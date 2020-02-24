@@ -1,4 +1,4 @@
-function [ data ] = run_ica( params, data )
+function [ data ] = run_ica_eeg( params, data )
 % RUN_ICA Runs an ICA decomposition on the data and returns the result.
 % Creates a new field in the "data" struct for the result, "data.eeg.ica"
 

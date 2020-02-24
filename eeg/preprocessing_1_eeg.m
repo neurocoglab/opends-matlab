@@ -123,7 +123,7 @@ for i = 1 : length(subjects)
         %% 4. Run ICA on each participant
         if ok
             fprintf( '\tRunning ICA for %s... (may take a while)\n', subject );
-            data = run_ica( params, data );
+            data = run_ica_eeg( params, data );
             if isempty(data)
                 fprintf( '\n== Could not run ICA for subject %s. Skipping. ==\n\n', subject );
                 ok = false;
@@ -135,7 +135,7 @@ for i = 1 : length(subjects)
         %% 5. Save result
         if ok
             output_file = sprintf( '%s/results_preproc_eeg_1.mat', outdir );
-            save( output_file, '-v7.3' );
+            save( output_file, 'data', '-v7.3' );
         end
 
         %% 6. Finalise

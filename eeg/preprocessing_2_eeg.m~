@@ -30,9 +30,7 @@ subjects = strsplit(fileread(sprintf('%s/%s/%s', params.io.input_dir, ...
 fprintf('\n\n==== START OF PROCESSING ===\n\n');
                                              
 fprintf('\nFound %d subjects.\n', length(subjects));
-       
-%% Loop through subjects and queue for input
-
+                                 
 for i = 1 : length(subjects)
     
     subject = subjects{i};
@@ -58,43 +56,45 @@ for i = 1 : length(subjects)
         continue;
     end
     
-    fprintf('\n\tProcessing subject %s.\n', subject);
-    
     if exist(flag_file, 'file')
         delete( flag_file );
     end
     
     input_file = sprintf('%s/results_preproc_eeg_1.mat', outdir);
     results_file = sprintf('%s/results_preproc_eeg_2.mat', outdir);
-    load( input_file, 'data' );
+    load( input_file );
     
     cfg = params.eeg.ica.plots.cfg;
+%     cfg.colormap = 'jet';
+%     cfg.component = 1:20;       % specify the component(s) that should be plotted
+%     cfg.layout    = 'acticap-64ch-standard2.mat'; % specify the layout file that should be used for plotting
+%     cfg.comment   = 'no';
     h = figure;
     h.Color = 'w';
-    evalc('ft_topoplotIC(cfg, data.eeg.ica)');
+    ft_topoplotIC(cfg, data.eeg.ica);
     resize_window(h,[1000 1000]);
 
     cfg.viewmode = 'component';
     evalc('ft_databrowser(cfg, data.eeg.ica)');
-    pause(1);
     resize_window(gcf,[1500 900]);
 
     % Prompt for bad components
-    channels = input('\tSubject %s: Enter ICA components to remove (space delimited): ','s');
+    channels = input('\n\tSubject %s: Enter ICA components to remove (space delimited): ','s');
     to_rem = cellfun(@str2num, strsplit(channels, ' '));
 
     if ~isempty(to_rem)
-       fprintf('\n\tRemoving %d components...', length(to_rem));
+       fprintf('Removing %d components...\n', length(to_rem));
        cfg = [];
        cfg.component = to_rem;
-       [~,data.eeg.ft] = evalc('ft_rejectcomponent(cfg, data.eeg.ica, data.eeg.ft)');
+       [~,data.eeg.ft = ft_rejectcomponent(cfg, data.eeg.ica, data.eeg.ft);
        
     end
     
     data.eeg.ica = [];
     data.eeg.ica.removed = to_rem;
 
-    save(results_file, 'data', '-v7.3');
+    fprintf('\nDone. Saving results...\n');
+    save(results_file, 'results', 'data');
     if params.eeg.ica.plots.save
         saveas(gcf,sprintf('%s/ica_browser_eeg.fig',figdir));
         saveas(h,sprintf('%s/ica_topoplot_eeg.png',figdir));
@@ -103,6 +103,5 @@ for i = 1 : length(subjects)
     fclose( fopen(flag_file,'w+') );
 
     close all;
-    fprintf('done.\n');
 
 end

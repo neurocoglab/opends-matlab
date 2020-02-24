@@ -42,6 +42,10 @@ params.eeg.notch.cfg.bsfilttype = 'but';
 params.eeg.ica.apply = true;
 params.eeg.ica.cfg = [];
 params.eeg.ica.cfg.method = 'runica';
-
-
+params.eeg.ica.plots.save = true;
+params.eeg.ica.plots.cfg = [];
+params.eeg.ica.plots.cfg.colormap = 'jet';
+params.eeg.ica.plots.cfg.component = 1:20;
+params.eeg.ica.plots.cfg.layout    = 'acticap-64ch-standard2.mat'; 
+params.eeg.ica.plots.cfg.comment   = 'no';
 
