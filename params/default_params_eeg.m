@@ -48,4 +48,6 @@ params.eeg.ica.plots.cfg.colormap = 'jet';
 params.eeg.ica.plots.cfg.component = 1:20;
 params.eeg.ica.plots.cfg.layout    = 'acticap-64ch-standard2.mat'; 
 params.eeg.ica.plots.cfg.comment   = 'no';
+params.eeg.ica.plots.window_size_topo = [1000 1000];
+params.eeg.ica.plots.window_size_browser = [1500 900];
 
