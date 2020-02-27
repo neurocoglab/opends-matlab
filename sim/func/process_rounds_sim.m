@@ -240,11 +240,11 @@ if n_rounds > 0
     if length(idx) == n_rounds - 1
         % Don't remove last index; simulation was likely terminated
         % prematurely
-        warning('Using fixed number of rounds [%s] = %d', subject, n_rounds);
+        warning('Using fixed number of rounds [%s] = %d', data.subject, n_rounds);
     elseif length(idx) == n_rounds
         idx = idx(1:end-1);
     else
-        warning('Invalid number of rounds [%s] = %d, %d', subject, n_rounds, length(idx)-1)
+        warning('Invalid number of rounds [%s] = %d, %d', data.subject, n_rounds, length(idx)-1)
     end
 else
     idx = idx(1:end-1); % Last iteration is the end point
@@ -275,7 +275,7 @@ mtimes = zeros(length(dtimes),1);
 
 % map by times
 for i = 1 : length(dtimes)
-   idxt = find(times<dtimes(i));
+   idxt = find(times<=dtimes(i));
    mtimes(i) = times(idxt(end));
 end
 

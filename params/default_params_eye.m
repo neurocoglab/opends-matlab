@@ -71,3 +71,54 @@ params.eye.luminance.outlier_lim = 6;
 
 % Plots
 
+%% Processing - epochs
+params.eye.epochs.apply = true;
+params.eye.epochs.sub_dir = 'epochs';
+params.eye.epochs.overtake_window = [-10 10];
+params.eye.epochs.plots.save = true;
+params.eye.epochs.plots.zlims = [-4 4];
+params.eye.epochs.plots.scatter = false;
+params.eye.epochs.plots.show_webplots = true;
+
+
+
+%% Processing - events
+params.eye.events.zscore = true;
+params.eye.events.smooth = 500;
+
+params.eye.events.plots.save = true;
+params.eye.events.plots.ylims = [-1.5 1];
+params.eye.events.plots.show_webplots = true;
+
+params.eye.events.overtake.zscore = true;
+params.eye.events.overtake.prepost = [5000 5000];
+% params.eye.events.overtake.baseline = [2000 500];
+params.eye.events.overtake.plots.ylims = [-1 1.5];
+
+params.eye.events.left_change.zscore = true;
+params.eye.events.left_change.prepost = [7500 5000];
+% params.eye.events.left_change.baseline = [10000 8000];
+params.eye.events.left_change.plots.ylims = [-1 1.5];
+
+params.eye.events.right_change.zscore = true;
+params.eye.events.right_change.prepost = [5000 7500];
+% params.eye.events.right_change.baseline = [2000 500];
+params.eye.events.right_change.plots.ylims = [-1 1.5];
+
+params.eye.events.saccades.zscore = true;
+params.eye.events.saccades.vmin = 100;
+params.eye.events.saccades.prepost = [1500 1500];
+% params.eye.events.saccades.baseline = [2000 500];
+params.eye.events.saccades.plots.ylims = [-0.5 0.5];
+
+params.eye.events.blinks.zscore = true;
+params.eye.events.blinks.prepost = [1500 1500];
+% params.eye.events.blinks.baseline = [2000 500];
+params.eye.events.blinks.plots.ylims = [-0.5 0.5];
+
+params.eye.events.random.N = 10;
+
+params.eye.events.alpha = 0.05;
+params.eye.events.min_trials = 5;
+
+

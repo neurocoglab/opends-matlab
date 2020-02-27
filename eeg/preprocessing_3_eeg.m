@@ -9,13 +9,14 @@
 %
 % Note: you need to have loaded a variable named "params", with all the
 % required fields, for this pipeline to run properly. Use the
-% "set_preprocessing_params_eeg.m" script to set your parameters, then run
+% "default_params_X.m" scripts to set your parameters, then run
 % this script.
 %
 % Steps:
-% 1. Load ICA result
-% 2. Show ICA results
-% 3. Prompt for components to reject
-% 4. Remove components and save result as "eeg-{uid}_preproc3.mat"
+% 1. Load results of step 2 (ICA component removal)
+% 2. Synchronise time series
+% 3. Identify saccade intervals as artifacts
+% 4. Identify z-score outliers as artifacts
+% 5. Remove artifacts and save result
 %
 

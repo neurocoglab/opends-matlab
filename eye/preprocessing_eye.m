@@ -1,6 +1,21 @@
-%% Eye tracking data preprocessing steps
+%% Eye tracking / simulation log preprocessing steps
+%
+% This script performs pre-processing on eye and simulation log data. A
+% "params" variable must already have been set when this script is run. Use
+% "default_params_X.m" to set default parameters.
+%
+% 1. Convert eye tracking log from native/export format to CSV format
+% 2. Load converted time series and save as a Matlab struct
+% 3. Convert the simulation log (XML format) to CSV files
+% 4. Detect and interpolate over eye blinks
+% 5. Identify saccade and fixation intervals
+% 6. Regress out estimated relative screen luminance signal (requires
+%    gaze-related luminance to already have been estimated)
+% 7. Identify round and repeat intervals from simulation log and save as a
+%    Matlab struct
+%
 
-%% 1. Load parameters and subject list
+%% Load subject list
 
 if ~exist('params','var')
     error('No params variable set. Aborting preprocessing.') 
@@ -33,7 +48,7 @@ for i = 1 : length(subjects)
     
     try
         
-        %% Convert log to CSV
+        %% 1. Convert log to CSV
        
         % Check if output directory exists; if not, create it
         if ~exist(outdir, 'dir')
@@ -86,7 +101,7 @@ for i = 1 : length(subjects)
 
         
         
-        %% Load converted time series
+        %% 2. Load converted time series
         if ok
             
             flag_file = sprintf('%s/eye_logs_imported.done', flagdir);
@@ -119,7 +134,7 @@ for i = 1 : length(subjects)
        
         
         
-    %% Convert simulation event log to CSV files
+    %% 3. Convert simulation event log to CSV files
         if ok
             
             flag_file = sprintf('%s/sim_logs_converted.done', flagdir);
@@ -148,7 +163,7 @@ for i = 1 : length(subjects)
         end
         
 
-    %% 2. Eye blink removal
+    %% 4. Eye blink removal
 
         if ok
 
@@ -184,12 +199,7 @@ for i = 1 : length(subjects)
 
         end                           
 
-    %% 4. Correction for foreshortening effect
-    
-    
-    
-    
-        
+           
     %% 5. Identify saccade and fixation intervals
 
     if ok

@@ -3,6 +3,7 @@
 
 %% General
 params.sim.sub_dir = 'driving';
+params.sim.lane_dist = 7035.461;
 
 %% Convert log files
 params.sim.convert.prefix = 'simlog-';
@@ -30,3 +31,6 @@ if exist('fixdist.mat', 'file')
 end
 
 params.sim.baseline.intervals_file = 'baseline_intervals.csv';
+
+%% Process epochs
+params.sim.sequence_difficulty_file = 'sequence_difficulty.csv';

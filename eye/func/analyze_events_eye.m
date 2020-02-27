@@ -1,59 +1,66 @@
-function [ stats ] = analyze_events( summary, params )
-% Run statistical analyses on event-related data
+function [ summary ] = analyze_events_eye( params, summary )
+% Run statistical analyses on event-related eye data
 %
 
 %% Compare left-change, overtake, and right-change to zero
 %  Using cluster-based inference
-alpha = params.events.alpha/2;
-min_trials = params.events.min_trials;
 
-[result, timelock_ga] = cluster_ttest_baseline(summary.left_change, summary.subjects, alpha);
+[result, timelock_ga] = cluster_ttest_baseline(summary.left_change, summary.subjects, params);
 if isempty(result)
    warning('No result for Passing Onset v. Baseline!'); 
 end
-stats.left_change.timelockstats = result;
-stats.left_change.timelock_avr = timelock_ga;
-% stats.left_change.timelock_bl_avr = {timelock_bl_ga};
+summary.stats.left_change.subjects = result.subjects;
+summary.stats.left_change.excluded_subjects = result.excluded_subjects;
+summary.stats.left_change.timelockstats = result.stats;
+summary.stats.left_change.timelock_avr = timelock_ga;
 
-[result, timelock_ga] = cluster_ttest_baseline(summary.overtake, summary.subjects, alpha);
+[result, timelock_ga] = cluster_ttest_baseline(summary.overtake, summary.subjects, params);
 if isempty(result)
    warning('No result for Overtake v. Baseline!'); 
 end
-stats.overtake.timelockstats = result;
-stats.overtake.timelock_avr = timelock_ga;
-% stats.overtake.timelock_bl_avr = {timelock_bl_ga};
+summary.stats.overtake.subjects = result.subjects;
+summary.stats.overtake.excluded_subjects = result.excluded_subjects;
+summary.stats.overtake.timelockstats = result.stats;
+summary.stats.overtake.timelock_avr = timelock_ga;
 
-[result, timelock_ga] = cluster_ttest_baseline(summary.right_change, summary.subjects, alpha);
+[result, timelock_ga] = cluster_ttest_baseline(summary.right_change, summary.subjects, params);
 if isempty(result)
    warning('No result for Passing Offset v. Baseline!'); 
 end
-stats.right_change.timelockstats = result;
-stats.right_change.timelock_avr = timelock_ga;
-% stats.right_change.timelock_bl_avr = {timelock_bl_ga};
+summary.stats.right_change.subjects = result.subjects;
+summary.stats.right_change.excluded_subjects = result.excluded_subjects;
+summary.stats.right_change.timelockstats = result.stats;
+summary.stats.right_change.timelock_avr = timelock_ga;
 
 
 % %% Compare Easy v. Difficult
 
-[result, timelock_ga] = cluster_ttest_twosample(summary.left_change, summary.left_change.diffs, summary.subjects, alpha, min_trials);
+[result, timelock_ga] = cluster_ttest_twosample(summary.left_change, summary.left_change.diffs, summary.subjects, params);
 if isempty(result)
    warning('No result for Passing Onset x Difficulty!'); 
 end
-stats.left_change.diff.timelockstats = result;
-stats.left_change.diff.timelock_avr = timelock_ga;
+summary.stats.left_change.diff.subjects = result.subjects;
+summary.stats.left_change.diff.excluded_subjects = result.excluded_subjects;
+summary.stats.left_change.diff.timelockstats = result.stats;
+summary.stats.left_change.diff.timelock_avr = timelock_ga;
 
-[result, timelock_ga] = cluster_ttest_twosample(summary.right_change, summary.right_change.diffs, summary.subjects, alpha, min_trials);
+[result, timelock_ga] = cluster_ttest_twosample(summary.right_change, summary.right_change.diffs, summary.subjects, params);
 if isempty(result)
    warning('No result for Passing Offset x Difficulty!'); 
 end
-stats.right_change.diff.timelockstats = result;
-stats.right_change.diff.timelock_avr = timelock_ga;
+summary.stats.right_change.diff.subjects = result.subjects;
+summary.stats.right_change.diff.excluded_subjects = result.excluded_subjects;
+summary.stats.right_change.diff.timelockstats = result.stats;
+summary.stats.right_change.diff.timelock_avr = timelock_ga;
 
-[result, timelock_ga] = cluster_ttest_twosample(summary.overtake, summary.overtake.diffs, summary.subjects, alpha, min_trials);
+[result, timelock_ga] = cluster_ttest_twosample(summary.overtake, summary.overtake.diffs, summary.subjects, params);
 if isempty(result)
    warning('No result for Overtake x Difficulty!'); 
 end
-stats.overtake.diff.timelockstats = result;
-stats.overtake.diff.timelock_avr = timelock_ga;
+summary.stats.overtake.diff.subjects = result.subjects;
+summary.stats.overtake.diff.excluded_subjects = result.excluded_subjects;
+summary.stats.overtake.diff.timelockstats = result.stats;
+summary.stats.overtake.diff.timelock_avr = timelock_ga;
 
 
 
@@ -69,12 +76,14 @@ for i = 1 : N
     grpi(outcomesi>0) = 2;
     groups(i) = {grpi};
 end
-[result, timelock_ga] = cluster_ttest_twosample(summary.left_change, groups, summary.subjects, alpha, min_trials);
+[result, timelock_ga] = cluster_ttest_twosample(summary.left_change, groups, summary.subjects, params);
 if isempty(result)
    warning('No result for Passing Onset x Outcome!'); 
 end
-stats.left_change.outcomes.timelockstats = result;
-stats.left_change.outcomes.timelock_avr = timelock_ga;
+summary.stats.left_change.outcomes.subjects = result.subjects;
+summary.stats.left_change.outcomes.excluded_subjects = result.excluded_subjects;
+summary.stats.left_change.outcomes.timelockstats = result.stats;
+summary.stats.left_change.outcomes.timelock_avr = timelock_ga;
 
 N = length(summary.right_change.outcomes);
 groups = cell(N,1);
@@ -85,12 +94,14 @@ for i = 1 : N
     grpi(outcomesi>0) = 2;
     groups(i) = {grpi};
 end
-[result, timelock_ga] = cluster_ttest_twosample(summary.right_change, groups, summary.subjects, alpha, min_trials);
+[result, timelock_ga] = cluster_ttest_twosample(summary.right_change, groups, summary.subjects, params);
 if isempty(result)
    warning('No result for Passing Offset x Outcome!'); 
 end
-stats.right_change.outcomes.timelockstats = result;
-stats.right_change.outcomes.timelock_avr = timelock_ga;
+summary.stats.right_change.outcomes.subjects = result.subjects;
+summary.stats.right_change.outcomes.excluded_subjects = result.excluded_subjects;
+summary.stats.right_change.outcomes.timelockstats = result.stats;
+summary.stats.right_change.outcomes.timelock_avr = timelock_ga;
 
 N = length(summary.overtake.outcomes);
 groups = cell(N,1);
@@ -101,15 +112,20 @@ for i = 1 : N
     grpi(outcomesi>0) = 2;
     groups(i) = {grpi};
 end
-[result, timelock_ga] = cluster_ttest_twosample(summary.overtake, groups, summary.subjects, alpha, min_trials);
+[result, timelock_ga] = cluster_ttest_twosample(summary.overtake, groups, summary.subjects, params);
 if isempty(result)
    warning('No result for Overtake x Outcome!'); 
 end
-stats.overtake.outcomes.timelockstats = result;
-stats.overtake.outcomes.timelock_avr = timelock_ga;
+summary.stats.overtake.outcomes.subjects = result.subjects;
+summary.stats.overtake.outcomes.excluded_subjects = result.excluded_subjects;
+summary.stats.overtake.outcomes.timelockstats = result.stats;
+summary.stats.overtake.outcomes.timelock_avr = timelock_ga;
 
 
-    function [result, timelock_ga] = cluster_ttest_onesample( event, subjects, alpha )
+    function [result, timelock_ga] = cluster_ttest_onesample( event, subjects, params )
+        
+        alpha = params.eye.events.alpha/2;
+        min_trials = params.eye.events.min_trials;
         
         % Build Fieldtrip structure
         N_subj = length(subjects);
@@ -164,10 +180,15 @@ stats.overtake.outcomes.timelock_avr = timelock_ga;
 
 
 
-    function [result, timelock_ga] = cluster_ttest_baseline( event, subjects, alpha )
+    function [result, timelock_ga] = cluster_ttest_baseline( event, subjects, params )
+        
+        alpha = params.eye.events.alpha/2;
+        min_trials = params.eye.events.min_trials;
         
         % Build Fieldtrip structure
         N_subj = length(subjects);
+        result.subjects = {};
+        result.excluded_subjects = {};
         data = [];
         data.label = {'Event'};
         data.trial = {};
@@ -176,8 +197,8 @@ stats.overtake.outcomes.timelock_avr = timelock_ga;
         cfg = [];
         cfg.channel = 'all';
         cfg.vartrllength = 0;
-        timelock = cell(N_subj,1);
-        timelock_bl = cell(N_subj,1);
+        timelock = {}; % cell(N_subj,1);
+        timelock_bl = {}; % cell(N_subj,1);
         for ii = 1 : N_subj
             data.trial = {};
             data_bl.trial = {};
@@ -186,16 +207,21 @@ stats.overtake.outcomes.timelock_avr = timelock_ga;
             keeprows = sum(isnan(trial),2) == 0;
             trial = trial(keeprows,:);
             trial_bl = trial_bl(keeprows,:);
-            for jj = 1 : size(trial,1)
-                data.trial(end+1) = {squeeze(trial(jj,:))};
-                data_bl.trial(end+1) = {squeeze(trial_bl(jj,:))};
+            if size(trial,1) > min_trials
+                for jj = 1 : size(trial,1)
+                    data.trial(end+1) = {squeeze(trial(jj,:))};
+                    data_bl.trial(end+1) = {squeeze(trial_bl(jj,:))};
+                end
+                data.time = repmat({event.t},1,size(trial,1));
+                data_bl.time = data.time;
+                [~,X] = evalc('ft_timelockanalysis(cfg,data)');
+                timelock = [timelock {X}];
+                [~,X] = evalc('ft_timelockanalysis(cfg,data_bl)');
+                timelock_bl = [timelock_bl {X}];
+                result.subjects = [result.subjects subjects(ii)];
+            else
+                result.excluded_subjects = [result.excluded_subjects subjects(ii)];
             end
-            data.time = repmat({event.t},1,size(trial,1));
-            data_bl.time = data.time;
-            [~,X] = evalc('ft_timelockanalysis(cfg,data)');
-            timelock(ii) = {X};
-            [~,X] = evalc('ft_timelockanalysis(cfg,data_bl)');
-            timelock_bl(ii) = {X};
         end
 
         cfg = [];
@@ -220,19 +246,20 @@ stats.overtake.outcomes.timelock_avr = timelock_ga;
         cfg.latency = 'all';
         cfg.spmversion = 'spm12';
 
-        [~,result] = evalc('ft_timelockstatistics(cfg, timelock{:}, timelock_bl{:})');
+        [~,result.stats] = evalc('ft_timelockstatistics(cfg, timelock{:}, timelock_bl{:})');
   
     end
 
 
 
-    function [result, timelock_ga] = cluster_ttest_twosample( event, groups, subjects, alpha, min_trials )
+    function [result, timelock_ga] = cluster_ttest_twosample( event, groups, subjects, params )
         
-        if nargin < 5
-           min_trials = 0; 
-        end
+        alpha = params.eye.events.alpha/2;
+        min_trials = params.eye.events.min_trials;
         
         % Build Fieldtrip structure
+        result.subjects = {};
+        result.excluded_subjects = {};
         N_subj = length(subjects);
         data1 = [];
         data1.label = {'Event'};
@@ -275,7 +302,12 @@ stats.overtake.outcomes.timelock_avr = timelock_ga;
                     [~,X] = evalc('ft_timelockanalysis(cfg,data2)');
                     timelock2(ii) = {X};
                     tokeep(end+1) = ii;
+                    result.subjects = [result.subjects subjects(ii)];
+                else
+                    result.excluded_subjects = [result.excluded_subjects subjects(ii)];
                 end
+            else
+                result.excluded_subjects = [result.excluded_subjects subjects(ii)];
             end
         end
 
@@ -317,7 +349,7 @@ stats.overtake.outcomes.timelock_avr = timelock_ga;
         cfg.latency = 'all';
         cfg.spmversion = 'spm12';
 
-        [~,result] = evalc('ft_timelockstatistics(cfg, timelock1{:}, timelock2{:})');
+        [~,result.stats] = evalc('ft_timelockstatistics(cfg, timelock1{:}, timelock2{:})');
   
     end
 
