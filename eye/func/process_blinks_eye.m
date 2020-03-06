@@ -54,7 +54,8 @@ delta_t = 1 / data.eye.Fs * 1000;
 data.eye.blinks = [];
 data.eye.blinks.blinks = zeros(N,1);
 data.eye.blinks.blink_rate = zeros(N,1);
-data.eye.blinks.intervals = cell(0);
+% data.eye.blinks.intervals = cell(0);
+data.eye.blinks.intervals = zeros(N,1);
 data.eye.blinks.pct_fixed = cell(0);
 data.eye.blinks.d_x = zeros(N,1);
 data.eye.blinks.blink_ints = cell(0);
@@ -85,7 +86,7 @@ for j = 1 : size(data.eye.tgap,1) + 1
         data_seg_out] = ...
            process_segment(xx, data_seg, [idx idx2]);
 
-       data.eye.blinks.intervals(j) = {intervals_j};
+       data.eye.blinks.intervals(idx:idx2) = intervals_j;
        data.eye.blinks.pct_fixed(j) = {pct_fixed_j};
        data.eye.blinks.pos_x(idx:idx2) = data_seg_out{1};
        data.eye.blinks.pos_y(idx:idx2) = data_seg_out{2};
@@ -103,6 +104,8 @@ for j = 1 : size(data.eye.tgap,1) + 1
    
    idx = idx2 + 1;
 end
+
+data.eye.blinks.intervals = get_blink_intervals( data.eye.blinks.intervals );
 
 % Interpolate over gaps
 buffer = round(params.eye.blinks.gapbuffer / data.eye.Fs * 1000 / 2);
@@ -179,7 +182,7 @@ data.eye.blinks.diam(idx) = data.eye.diam(idx-1);
         if jj < 2
             blink_ints = [];
         end
-
+        
         % Compute weighted moving average blink rate
         blink_rate = zeros(Ns,1);
         w = normpdf(-4:8/(window-1):4,0,1);
@@ -238,6 +241,38 @@ data.eye.blinks.diam(idx) = data.eye.diam(idx-1);
            end
        end
         
+    end
+
+
+    function ints = get_blink_intervals( intervals )
+
+        dints = diff(double(intervals));
+        ints = zeros(sum(dints==1),2);
+        ii = 1; jj = 1; is_int = false;
+
+        while ii <= length(dints)
+           if is_int
+               if dints(ii) == -1
+                   ints(jj,:) = [i_s ii];
+                   jj = jj + 1;
+                   is_int = false;
+                   i_s = -1;
+               end
+           else
+               if dints(ii) == 1
+                   i_s = ii; 
+                   is_int = true;
+               else
+                   i_s = -1; 
+                   is_int = false;
+               end
+           end
+           ii = ii + 1;
+           if ii > length(dints) && is_int
+               ints(jj,:) = [i_s, length(intervals)];
+           end
+        end
+
     end
 
 end

@@ -48,7 +48,7 @@ for j = 1 : length(input_files)
         data_i.eye.diam = data_i.eye.diam / 10;
     end
     
-    % Convert time to ms relative to start
+    % Record start time
     if j == 1
         data.eye.t_start = data_i.eye.t(1);
         data_i.eye.t_start = data.eye.t_start;
@@ -56,7 +56,7 @@ for j = 1 : length(input_files)
         data_i.eye.t_start = data.eye.t_start + data_i.eye.t(1);
     end
 
-    data_i.eye.t = data_i.eye.t - data.eye.t_start;
+%     data_i.eye.t = data_i.eye.t - data.eye.t_start;
     data_i.eye.t = single(data_i.eye.t);
     data_i.eye.Fs = Fs;
 

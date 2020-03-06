@@ -25,7 +25,7 @@ if isempty(summary)
 end
 
 if ~isfield(data.eye, 'blinks')
-   warning( '\nNo eye blink correction has been performed; using raw data!' ); 
+   warning( 'No eye blink correction has been performed; using raw data!' ); 
 end
 
 summary.subjects = [summary.subjects {data.subject}];

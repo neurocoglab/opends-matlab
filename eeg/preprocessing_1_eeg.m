@@ -34,6 +34,8 @@ subjects = strsplit(strtrim(fileread(sprintf('%s/%s/%s', params.io.input_dir, ..
 fprintf('\n\n==== START OF PROCESSING ===\n\n');
                                              
 fprintf('\nFound %d subjects.\n', length(subjects));
+
+%%
                                  
 for i = 1 : length(subjects)
     
@@ -87,7 +89,7 @@ for i = 1 : length(subjects)
 
         % Synchronize with simlog/eye time series
         if ok
-            data = synchronize_data_eeg( params, data, subject );
+            data = synchronize_eeg_sim( params, data, subject );
             data.subject = subject;
             fprintf( '\tDone loading & synchronizing data.\n' );
         end
@@ -122,6 +124,7 @@ for i = 1 : length(subjects)
 
         %% 4. Run ICA on each participant
         if ok
+            
             fprintf( '\tRunning ICA for %s... (may take a while)\n', subject );
             data = run_ica_eeg( params, data );
             if isempty(data)

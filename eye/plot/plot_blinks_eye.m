@@ -17,21 +17,33 @@ end
 set(h, 'Color', 'w');
 
 % Blinks
-for j = 1 : length(data.eye.blinks.blink_ints)
-   int_j = data.eye.blinks.blink_ints{j};
-
-   for k = 1 : size(int_j,1)
-       x1 = time_sec(int_j(k,1));
-       try
-       x2 = time_sec(int_j(k,1)+int_j(k,2));
-       catch
-           a=0;
-       end
-       hr = rectangle('Position',[x1 -500 x2-x1 1000], ...
-                      'EdgeColor','w', ...
-                      'FaceColor', blink_clr); 
+for j = 1 : size(data.eye.blinks.intervals,1)
+   x1 = time_sec(data.eye.blinks.intervals(j,1));
+   try
+   x2 = time_sec(data.eye.blinks.intervals(j,2));
+   catch
+       a=0;
    end
+   hr = rectangle('Position',[x1 -500 x2-x1 1000], ...
+                  'EdgeColor','w', ...
+                  'FaceColor', blink_clr); 
 end
+
+% for j = 1 : length(data.eye.blinks.blink_ints)
+%    int_j = data.eye.blinks.blink_ints{j};
+% 
+%    for k = 1 : size(int_j,1)
+%        x1 = time_sec(int_j(k,1));
+%        try
+%        x2 = time_sec(int_j(k,1)+int_j(k,2));
+%        catch
+%            a=0;
+%        end
+%        hr = rectangle('Position',[x1 -500 x2-x1 1000], ...
+%                       'EdgeColor','w', ...
+%                       'FaceColor', blink_clr); 
+%    end
+% end
 
 % Gaps
 for j = 1 : size(data.eye.tgap,1)
@@ -64,7 +76,8 @@ hh = title('Pupil diameter blink corrected');
 set (hh, 'FontSize', 14);
 ylim([min(data.eye.diam),max(data.eye.diam)]);
 h.Position = [400 400 1500 500];
-% resize_window(h, [1500 500], [400 400]);
+
+xlabel('Time (min)');
 
 if out2file
     outdir = sprintf('%s/%s/figures', params.io.output_dir, data.subject);

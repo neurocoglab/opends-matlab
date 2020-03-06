@@ -1,10 +1,12 @@
 function [ times ] = interpolate_log_times_sim( M, sim_times, extrapolate )
 %%%%%%%%%%%%%
 % interpolate_log_times Converts simulation times to eye tracker times by 
-% interpolating based on
-% the matrix M, a row-sorted matrix mapping these times based on simulation
-% events. All simulation times to be mapped must lie within the time points
-% specified by M (i.e., the first and last rows).
+% interpolating based on the matrix M, a row-sorted matrix mapping these times 
+% based on simulation events. All simulation times to be mapped must lie 
+% within the time points specified by M (i.e., the first and last rows).
+%
+% Note: This is necessary because timers for both systems are not
+% synchronious (discrepancy of ~150 ms over 40 mins)
 %
 
 if nargin < 4
@@ -33,7 +35,7 @@ for i = 1 : length(sim_times)
        if isempty(idx), idx = length(stimes); end
        xs = stimes(idx-1);
        xe = stimes(idx);
-       di = (ti - xs) / (xe - xs);
+       di = double(ti - xs) / double(xe - xs);
        
        ys = ttimes(idx-1);
        ye = ttimes(idx);

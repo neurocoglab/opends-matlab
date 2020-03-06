@@ -66,8 +66,9 @@ function [ h ] = plot_saccades_eye ( data, params, out2file )
     
     ylim([-5 15]);
     h.Position = [400 400 1500 500];
-%     resize_window(h, [1500 500], [400 400]);
     
+    xlabel('Time (min)');
+  
     if out2file
         outdir = sprintf('%s/%s/figures', params.io.output_dir, data.subject);
         if ~exist(outdir,'dir')

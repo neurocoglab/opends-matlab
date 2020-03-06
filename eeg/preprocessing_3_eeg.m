@@ -20,3 +20,79 @@
 % 5. Remove artifacts and save result
 %
 
+%% 0. Load subject list
+
+if ~exist('params','var')
+    error('No params variable set. Aborting preprocessing.') 
+end
+
+addpath(params.general.fieldtrip_lib);
+
+subjects = strsplit(strtrim(fileread(sprintf('%s/%s/%s', params.io.input_dir, ...
+                                                         params.io.metadata_dir, ...
+                                                         params.general.subjects_file))));
+
+fprintf('\n\n==== START OF PROCESSING ===\n\n');
+                                             
+fprintf('\nFound %d subjects.\n', length(subjects));
+
+
+%% 1. For each subject, identify and remove artifacts
+
+for i = 1 : length(subjects)
+    
+    subject = subjects{i};
+    ok = true;
+    
+    clobber = params.general.clobber;
+
+    outdir = sprintf( '%s/%s', params.io.output_dir, subject );
+    figdir = sprintf( '%s/figures', outdir );
+    flagdir = sprintf( '%s/flags', outdir );
+
+    flag_done = sprintf( '%s/eeg_preproc_2.done', flagdir );
+
+    if ~exist(flag_done, 'file')
+        fprintf('\n\tPreprocessing step 2 has not been completed for subject %s! Skipping.\n', subject);
+        continue;
+    end
+
+    flag_file = sprintf( '%s/eeg_preproc_3.done', flagdir );
+
+    if exist(flag_file, 'file') && ~clobber
+        fprintf('\n\tPreprocessing step 3 already performed for subject %s! Skipping.\n', subject);
+        continue;
+    end
+
+    fprintf('\n\tProcessing subject %s...', subject);
+
+    if exist(flag_file, 'file')
+        delete( flag_file );
+    end
+
+    input_file = sprintf('%s/results_preproc_eeg_2.mat', outdir);
+    results_file = sprintf('%s/results_preproc_eeg_3.mat', outdir);
+    load( input_file, 'data' );
+    
+    eye_file = sprintf('%s/results_preproc_eye.mat', outdir);
+    T = load( eye_file );
+    data.eye = T.data.eye;
+    clear T;
+    
+    data = remove_artifacts_eeg( params, data );
+    
+    
+    % Save result
+    save(results_file, 'data', '-v7.3');
+    
+    % Plot?
+    if params.eeg.artifacts.plots.save
+        plot_artifacts_eeg( params, data, true );
+    end
+
+    fclose( fopen(flag_file,'w+') );
+    
+    close all;
+    fprintf('done.\n');
+    
+end

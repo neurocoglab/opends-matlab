@@ -27,10 +27,11 @@ subjects = strsplit(strtrim(fileread(sprintf('%s/%s/%s', params.io.input_dir, ..
                                                          params.io.metadata_dir, ...
                                                          params.general.subjects_file))));
 
-
+                                                     
 fprintf('\n\n==== START OF PROCESSING ===\n\n');
 
 fprintf('\nFound %d subjects.\n', length(subjects));
+
 
 %% For each subject
 for i = 1 : length(subjects)
@@ -64,7 +65,8 @@ for i = 1 : length(subjects)
         end
 
         results_file = sprintf('%s/results_preproc_eye.mat',outdir);
-        flag_file = sprintf('%s/eye_logs_converted.done', flagdir);
+        flag = 'eye_logs_converted.done';
+        flag_file = sprintf('%s/%s', flagdir, flag);
 
         if ~exist(flag_file,'file') || clobber
 
@@ -72,7 +74,7 @@ for i = 1 : length(subjects)
             
            fprintf('\tConverting %s log for %s...', params.eye.tracker_type, subject);
 
-           if exist(flag_file, 'file'), delete(flag_file); end 
+           delete_flags( flag, flagdir );
 
            switch params.eye.tracker_type
             
@@ -114,7 +116,7 @@ for i = 1 : length(subjects)
                 
                 fprintf('\tLoading converted time series for %s...', subject');
 
-                if exist(flag_file,'file'), delete(flag_file); end
+                delete_flags( flag, flagdir );
                 
                 data = read_log_eye( params, subject );
                 
@@ -134,10 +136,11 @@ for i = 1 : length(subjects)
        
         
         
-    %% 3. Convert simulation event log to CSV files
+    %% 3. Convert simulation event log to CSV files & synchronize time series
         if ok
             
-            flag_file = sprintf('%s/sim_logs_converted.done', flagdir);
+            flag = 'sim_logs_converted.done';
+            flag_file = sprintf('%s/%s', flagdir, flag);
             
             if exist(flag_file, 'file') && ~clobber
                 fprintf('\tSim log for %s already converted; skipping.\n', subject);
@@ -146,11 +149,14 @@ for i = 1 : length(subjects)
                 clobber = true;  % If this is redone, the rest must also be redone
                 fprintf('\tConverting sim log for %s...', subject);
 
-                if exist(flag_file, 'file'), delete(flag_file); end
+                delete_flags( flag, flagdir );
 
                 ok = convert_log_sim( params, subject );
                 
                 if ok
+                    load( results_file );
+                    data = synchronize_eye_sim( params, data );
+                    save(results_file, 'data');
                     fclose( fopen(flag_file,'w') );
                     fprintf('done.\n');
                 else
@@ -170,9 +176,9 @@ for i = 1 : length(subjects)
             flag_file = sprintf('%s/eye_blinks.done', flagdir);
 
             if exist(flag_file, 'file') && ~clobber
-                fprintf('Eye blinks for %s already processed; skipping.\n', subject);
+                fprintf('\tEye blinks for %s already processed; skipping.\n', subject);
             else
-                if exist(flag_file, 'file'), delete(flag_file); end
+                delete_flags( flag, flagdir );
                 
                 clobber = true;  % If this is redone, the rest must also be redone
 
@@ -204,13 +210,14 @@ for i = 1 : length(subjects)
 
     if ok
 
-        flag_file = sprintf('%s/eye_saccades.done', flagdir);
+        flag = 'eye_saccades.done';
+        flag_file = sprintf('%s/%s', flagdir, flag);
 
         if exist(flag_file, 'file') && ~clobber
-            fprintf('Saccades for %s already processed; skipping.\n', subject);
+            fprintf('\tSaccades for %s already processed; skipping.\n', subject);
         else
 
-            if exist(flag_file, 'file'), delete(flag_file); end
+            delete_flags( flag, flagdir );
             
             clobber = true;  % If this is redone, the rest must also be redone
 
@@ -241,7 +248,8 @@ for i = 1 : length(subjects)
     
     if ok
         
-        flag_file = sprintf('%s/eye_luminance.done', flagdir);
+        flag = 'eye_luminance.done';
+        flag_file = sprintf('%s/%s', flagdir, flag);
         
         if exist(flag_file, 'file') && ~clobber
             fprintf('\tLuminance correction for %s already done; skipping.\n', subject);
@@ -259,6 +267,8 @@ for i = 1 : length(subjects)
             if ~isfield(data.eye, 'luminance')
                 warning(' No luminance data found... skipping!\n');
             else
+                
+                delete_flags( flag, flagdir );
 
                 if data.eye.luminance.deficient
                     warning(' Regression was rank-deficient... skipping!\n');
@@ -288,14 +298,15 @@ for i = 1 : length(subjects)
     %% 7. Identify round and repeat intervals
 
     if ok
-
-        flag_file = sprintf('%s/sim_rounds.done', flagdir);
+        
+        flag = 'sim_rounds.done';
+        flag_file = sprintf('%s/%s', flagdir, flag);
 
         if exist(flag_file, 'file') && ~clobber
             fprintf('\tRounds + baseline for %s already processed; skipping.\n', subject);
         else
 
-            if exist(flag_file, 'file'), delete(flag_file); end
+            delete_flags( flag, flagdir );
             
             clobber = true;  % If this is redone, the rest must also be redone
 
@@ -316,7 +327,7 @@ for i = 1 : length(subjects)
 
             % Plot rounds 
             if params.general.show_plots
-                h = plot_events( params, data, [{'Rounds'},{'LaneChanges'},{'Baseline'},{'SaccadeRate'},{'Overtakes'}] );
+                h = plot_events_sim( params, data, [{'Rounds'},{'LaneChanges'},{'Baseline'},{'SaccadeRate'},{'Overtakes'}] );
             end
             
             clear data;
@@ -343,3 +354,26 @@ end
 
 fprintf('\n\n==== END OF PROCESSING ===\n\n');
 
+
+% Delete this flags and all flags after it
+function delete_flags ( start_flag, flagdir )
+
+    flag_files = [{'eye_logs_converted.done'}, ...
+                  {'eye_logs_imported.done'}, ...
+                  {'sim_logs_converted.done'}, ...
+                  {'eye_blinks.done'}, ...
+                  {'eye_saccades.done'}, ...
+                  {'eye_luminance.done'}, ...
+                  {'sim_rounds.done'}];
+              
+    idx = find(strcmp(flag_files, start_flag));
+    if ~isempty(idx)
+       for i = idx : length(flag_files)
+           flag_file = sprintf('%s/%s', flagdir, flag_files{i});
+           if exist(flag_file, 'file'), delete(flag_file); end
+       end
+    end
+    
+
+
+end

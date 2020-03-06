@@ -34,6 +34,9 @@ function [ data ] = process_luminance_eye( data, params )
     t_lum = lumtab.time(idx_nan);
     y_lum = y_lum(idx_nan);
     
+    % Zero on first simulation event
+    t_lum = t_lum - data.eye.t_start_sim;
+    
     % Remove outliers
     idx_keep = abs(zscore(y_lum))<params.eye.luminance.outlier_lim;
     y_lum = y_lum(idx_keep);
@@ -47,8 +50,9 @@ function [ data ] = process_luminance_eye( data, params )
     
     % Resample and match time series
     F = datain.diam(idx_keep & idx_center); % Fun fact: this transposes the vector
-    ts_eye = timeseries(F(:), ...
-                        double(data.eye.t_start) + data.eye.t(idx_keep & idx_center));
+    ts_eye = timeseries(F(:), data.eye.t(idx_keep & idx_center));
+%     ts_eye = timeseries(F(:), ...
+%                         double(data.eye.t_start) + data.eye.t(idx_keep & idx_center));
     if params.eye.luminance.downsample > 1
         % Downsample by factor (prevents rank deficiency)
         idx_ds = 1:params.eye.luminance.downsample:length(ts_eye.Time);
@@ -82,7 +86,8 @@ function [ data ] = process_luminance_eye( data, params )
     
     data.eye.luminance.deficient = false;
     
-    ts_eye = timeseries(datain.diam(:), double(data.eye.t_start) + data.eye.t);
+%     ts_eye = timeseries(datain.diam(:), double(data.eye.t_start) + data.eye.t);
+    ts_eye = timeseries(datain.diam(:), data.eye.t);
     ts_lum = resample(ts_lum_orig, ts_eye.Time);
     idx_nan = find(isnan(ts_lum.Data));
     data.eye.luminance.idx = ~isnan(ts_lum.Data);
@@ -91,7 +96,7 @@ function [ data ] = process_luminance_eye( data, params )
         ts_lum = delsample(ts_lum,'Index',idx_nan);
     end
     
-    data.eye.luminance.t = ts_lum.Time - double(data.eye.t_start);
+    data.eye.luminance.t = ts_lum.Time; % - double(data.eye.t_start);
     data.eye.luminance.y = ts_lum.Data;
     
     % Once for each time offset
@@ -120,7 +125,7 @@ function [ data ] = process_luminance_eye( data, params )
         data.eye.luminance.r2(i) = corr(ypred,ts_eye.Data(idx_eye))^2;
         diam = mean(diam) + resids;
         data.eye.luminance.diam(i) = {diam};
-        data.eye.luminance.ts(i) = {ts_eye.Time(idx_eye)-double(data.eye.t_start)};
+        data.eye.luminance.ts(i) = {ts_eye.Time(idx_eye)}; %-double(data.eye.t_start)};
         data.eye.luminance.idx_offset(i) = {idx_eye};
         
     end

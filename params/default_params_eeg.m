@@ -51,3 +51,19 @@ params.eeg.ica.plots.cfg.comment   = 'no';
 params.eeg.ica.plots.window_size_topo = [1000 1000];
 params.eeg.ica.plots.window_size_browser = [1500 900];
 
+% Artifact rejection
+params.eeg.artifacts.plots.save = true;
+params.eeg.artifacts.plots.channels = [{'vEOGover'},{'Fz'},{'FC5'},{'POz'},{'T7'}];
+params.eeg.artifacts.plots.stdev = 6;
+params.eeg.artifacts.eye.apply = true;
+
+params.eeg.artifacts.zscore.apply = true;
+cfg = [];
+cfg.artfctdef.zvalue.cutoff = 20;
+cfg.artfctdef.zvalue.trlpadding = 0;
+cfg.artfctdef.zvalue.fltpadding = 0;
+cfg.artfctdef.zvalue.artpadding = 0.05;
+params.eeg.artifacts.zscore.cfg = cfg;
+
+params.eeg.artifacts.minaccepttim = 0.7;
+

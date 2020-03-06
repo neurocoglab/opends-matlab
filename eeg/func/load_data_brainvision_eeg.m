@@ -49,12 +49,11 @@ end
 
 marker_file = sprintf('%s/%s-eeg/%s.vmrk', subj_dir, subject, subject);
 [~,cfg.event] = evalc('ft_read_event(marker_file)');
-idx_eeg_start = find(strcmp(vertcat({cfg.event.value}),'S128'));
-idx_eeg_start = idx_eeg_start(1);
-data.eeg.t_eeg_start = data.eeg.ft.time{1}(idx_eeg_start);
+% idx_eeg_start = find(strcmp(vertcat({cfg.event.value}),'S128'));
+% idx_eeg_start = idx_eeg_start(1);
+% data.eeg.t_eeg_start = data.eeg.ft.time{1}(idx_eeg_start);
 
 % -- Process EEG events, adjust time to be relative to first event --
-
 is_stim = strcmp({cfg.event(:).type}, 'Stimulus');
 tidx = cell2mat({cfg.event(is_stim).sample});
 value = {cfg.event(is_stim).value};
@@ -65,13 +64,6 @@ for i = 1 : length(value)
     event = value{i};
     triggers(i) = str2num(event(2:end));
 end
-
-% First trigger is simulation start; set times relative to this
-start_sim = tidx(1);
-t_simstart_eeg = data.eeg.ft.time{1}(start_sim);
-triggers = triggers(2:end);
-value = value(2:end);
-type = type(2:end);
 
 % Add 256 to each reset of byte values (SerialByte = 1)
 % This is because triggers increment at each step, and reset at 
@@ -90,17 +82,10 @@ for i = 1 : length(triggers)
 end
 
 times = data.eeg.ft.time{1}(tidx);
-times = times - t_simstart_eeg;
-times = times(2:end);
-tidx = tidx(2:end);
-
-data.eeg.t_simstart = t_simstart_eeg;
 data.eeg.trigger_idx = tidx;
 data.eeg.cfg = cfg;
 data.eeg.events = table(times', tidx', triggers', value', type');
 data.eeg.events.Properties.VariableNames = {'Time', 'Index', 'Trigger', 'Value', 'Type'};
-
-data.eeg.ft.time = {data.eeg.ft.time{1} - t_simstart_eeg};
 
 
 end

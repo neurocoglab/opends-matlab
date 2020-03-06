@@ -53,7 +53,9 @@ log_times = data.eye.log.messages.Time;
 if strcmp(params.eye.tracker_type, 'smi')
     log_times = log_times / 1000;
 end
-log_times = log_times - data.eye.t_start;
+
+% Zero log times on first trigger
+log_times = log_times - data.eye.t_start_sim;
 
 % Triggers (distance is screwed up on ver. 1.0 of ar.OpenDS)
 
@@ -67,19 +69,23 @@ if lane_dist < 0
     lane_dist = dists(idx(1));
 end
 
+% Define simulation time offset (start to first trigger) in seconds
+% Note: simulation started trigger typically is not inserted in time
+% series, so we have to synchronise to the first button trigger event
+
 % LaneChanges
 ids = data.sim.lane_change.values.LogId; 
 dists = data.sim.lane_change.values.Sim_DriverCar_LaneDistance; 
 cycles = data.sim.lane_change.values.Sim_Game_Cycle;
 repeats = data.sim.lane_change.values.Sim_Game_Repeat; 
-simtime = data.sim.lane_change.values.SimTime;
+simtime = data.sim.lane_change.values.Millis;
 
 % IncreaseSpeed events
 ids = [ids;data.sim.accelerate.values.LogId]; 
 dists = [dists;data.sim.accelerate.values.Sim_DriverCar_LaneDistance]; 
 cycles = [cycles;data.sim.accelerate.values.Sim_Game_Cycle];
 repeats = [repeats;data.sim.accelerate.values.Sim_Game_Repeat]; 
-simtime = [simtime;data.sim.accelerate.values.SimTime];
+simtime = [simtime;data.sim.accelerate.values.Millis];
 
 % SimulatorState events
 if height(data.sim.states.values) > 0
@@ -87,8 +93,10 @@ if height(data.sim.states.values) > 0
     dists = [dists;data.sim.states.values.Sim_DriverCar_LaneDistance]; 
     cycles = [cycles;data.sim.states.values.Sim_Game_Cycle];
     repeats = [repeats;data.sim.states.values.Sim_Game_Repeat]; 
-    simtime = [simtime;data.sim.states.values.SimTime];
+    simtime = [simtime;data.sim.states.values.Millis];
 end
+
+simtime = simtime - data.sim.t_start;
 
 cycles(cycles==0)=1;
 dists(dists<0)=0;
@@ -133,7 +141,7 @@ ids = ids(isok);
 M = M(idx,:);
 
 % Insert round 
-j = 3; c = 1; r = 1;
+j = 3;
 last_c = 1; last_r = 1;
 M2 = cell(0,7);
 N = size(M,1);
@@ -143,7 +151,6 @@ while j <= N
     
     if c > last_c && r == 1
         k=j-1;
-%         fprintf('k=%d | c=%d | r=%d\n', k, c, r);
         % This is a new cycle; interpolate to end
         if M{k,5} < lane_dist
            ddist1 = M{j,5} - M{k,5} + lane_dist;
@@ -233,7 +240,7 @@ end
 
 % First instance of iterate cycle gives cycle total distance
 types = data.sim.triggers.values.Action;
-times = data.sim.triggers.values.SimTime;
+times = data.sim.triggers.values.Millis - data.sim.t_start;
 
 idx = find(strcmp(types,'iterate-cycle') | strcmp(types,'iterate-cycle-reset'));
 if n_rounds > 0
@@ -254,7 +261,7 @@ sim2track.cycle_times = interpolate_log_times_sim( sim2track.matrix, times(idx) 
 
 % Rewards
 types = data.sim.reward.values.Type;
-times = data.sim.reward.values.SimTime;
+times = data.sim.reward.values.Millis - data.sim.t_start;
 magnitudes = data.sim.reward.values.Magnitude;
 
 idx_collision = find(strcmp(types,'collision'));
@@ -269,7 +276,7 @@ coll_types = types(idx_collision);
 ids = data.sim.rewarddisp.values.RewardId;
 magnitudes = data.sim.rewarddisp.values.Message;
 types = data.sim.rewarddisp.values.RewardType;
-dtimes = data.sim.rewarddisp.values.SimTime;
+dtimes = data.sim.rewarddisp.values.Millis - data.sim.t_start;
 
 mtimes = zeros(length(dtimes),1);
 
@@ -301,10 +308,10 @@ sim2track.reward_magnitudes = magnitudes(idx);
 sim2track.reward_magnitudes = sim2track.reward_magnitudes(idx);
 
 % SimulationEnded event
-sim2track.simended_time = interpolate_log_times_sim( sim2track.matrix, data.sim.simended.values.SimTime, true );
+sim2track.simended_time = interpolate_log_times_sim( sim2track.matrix, data.sim.simended.values.Millis - data.sim.t_start, true );
 
 % Lane changes
-times = data.sim.lane_change.values.SimTime;
+times = data.sim.lane_change.values.Millis - data.sim.t_start;
 dirs = data.sim.lane_change.values.Direction;
 
 idx = find(strcmp(dirs,'left'));

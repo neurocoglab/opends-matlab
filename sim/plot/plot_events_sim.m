@@ -4,7 +4,7 @@ function [ h ] = plot_events_sim( params, data, events, out2file )
         out2file = false;
     end
 
-    time_sec = data.eye.t / 60000;
+    time_min = data.eye.t / 60000;
             
     gap_clr = [0.95 0.9 0.9];
     round_clr = [0.8 0.8 0.9];
@@ -129,7 +129,7 @@ function [ h ] = plot_events_sim( params, data, events, out2file )
     
     % Plot gaps
     for j = 1 : size(data.eye.tgap,1)
-       x1 = time_sec(data.eye.tgap(j,1));
+       x1 = time_min(data.eye.tgap(j,1));
        x2 = x1 + data.eye.tgap(j,2) / 60000;
        if x2 > x1
        rectangle('Position',[x1 -500 x2-x1 1000], ...
@@ -146,13 +146,13 @@ function [ h ] = plot_events_sim( params, data, events, out2file )
     if isfield(data.eye, 'blinks')
        pdiam = data.eye.blinks.diam; 
     end
-    plot(time_sec, pdiam, 'Color', noisy_colour);
+    plot(time_min, pdiam, 'Color', noisy_colour);
     xsm = smooth(pdiam,250,'sgolay');
-    plot(time_sec, xsm, 'b');
+    plot(time_min, xsm, 'b');
     
     % Really smooth
     xxsm = smooth(pdiam,20000,'moving');
-    plot(time_sec, xxsm, 'Color', [.3 .3 .3], 'LineWidth', 1.5);
+    plot(time_min, xxsm, 'Color', [.3 .3 .3], 'LineWidth', 1.5);
     
     minx = min(xsm); maxx = max(xsm);
     minx = minx-minx*0.1; maxx = maxx+maxx*0.1;
@@ -236,7 +236,7 @@ function [ h ] = plot_events_sim( params, data, events, out2file )
     if any(strcmp(events,'Saccades'))
         for i = 1 : size(data.eye.saccades.saccades,1)
            i_m = data.eye.saccades.saccades(i,2);
-           x1 = time_sec(i_m);
+           x1 = time_min(i_m);
            line([x1 x1], [-500 500], ...
                  'Color', saccade_line_color, ...
                  'LineWidth', 0.5);

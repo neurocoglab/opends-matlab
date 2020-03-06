@@ -53,7 +53,6 @@ fprintf('\nFound %d subjects.\n', length(subjects));
 %  Plot results
 %
 
-
 flag_file = sprintf('%s/epochs_eye.done', results_flagdir);
 
 if exist(flag_file, 'file') && ~params.general.clobber
@@ -72,26 +71,41 @@ else
 
     for i = 1 : length(subjects)
 
-        subject = subjects{i};
+        try
+        
+            subject = subjects{i};
 
-        outdir = sprintf( '%s/%s', params.io.output_dir, subject );
-        figdir = sprintf( '%s/figures', outdir );
-        flagdir = sprintf( '%s/flags', outdir );
+            outdir = sprintf( '%s/%s', params.io.output_dir, subject );
+            figdir = sprintf( '%s/figures', outdir );
+            flagdir = sprintf( '%s/flags', outdir );
 
-        input_file = sprintf('%s/results_preproc_eye.mat',outdir);
-        load(input_file);
+            flag_done = sprintf('%s/sim_rounds.done', flagdir);
+            if ~exist(flag_done, 'file')
+               fprintf('\tRounds not processed for subject %s! Skipping...\n', subject);
+               continue;
+            end
 
-        [results, summary] = process_epochs_eye( params, data, summary );
+            input_file = sprintf('%s/results_preproc_eye.mat',outdir);
+            load(input_file);
 
-        results_file = sprintf('%s/results_eye.mat', outdir);
-        save(results_file, 'results');
+            [results, summary] = process_epochs_eye( params, data, summary );
 
-        % Plots
-        if params.eye.epochs.plots.save
-            plot_epoch_subject_eye( results, params, true );
+            results_file = sprintf('%s/results_eye.mat', outdir);
+            save(results_file, 'results');
+
+            % Plots
+            if params.eye.epochs.plots.save
+                plot_epoch_subject_eye( results, params, true );
+            end
+
+            fprintf('\tFinished subject %s\n', subject);
+        
+        catch err
+            warning on;
+            warning('\nError encountered while processing %s:\n%s\n', subject, err.message);
+                    
         end
-
-        fprintf('\tFinished subject %s\n', subject);
+        
     end
 
     % Run statistical analyses
@@ -138,24 +152,37 @@ else
 
     for i = 1 : length(subjects)
 
-        subject = subjects{i};
+        try
+            subject = subjects{i};
 
-        outdir = sprintf( '%s/%s', params.io.output_dir, subject );
-        figdir = sprintf( '%s/figures', outdir );
-        flagdir = sprintf( '%s/flags', outdir );
+            outdir = sprintf( '%s/%s', params.io.output_dir, subject );
+            figdir = sprintf( '%s/figures', outdir );
+            flagdir = sprintf( '%s/flags', outdir );
+            
+            flag_done = sprintf('%s/sim_rounds.done', flagdir);
+            if ~exist(flag_done, 'file')
+               fprintf('\tRounds not processed for subject %s! Skipping...\n', subject);
+               continue;
+            end
 
-        input_file = sprintf('%s/results_preproc_eye.mat',outdir);
-        load(input_file);
+            input_file = sprintf('%s/results_preproc_eye.mat',outdir);
+            load(input_file);
+
+            results_file = sprintf('%s/results_eye.mat', outdir);
+            load(results_file);
+
+            [results, summary] = process_events_eye( params, data, results, summary );
+
+            save(results_file, 'results');
+
+            fprintf('\tFinished subject %s\n', subject);
+
+        catch err
+            warning on;
+            warning('\nError encountered while processing %s:\n%s\n', subject, err.message);
+
+        end
         
-        results_file = sprintf('%s/results_eye.mat', outdir);
-        load(results_file);
-
-        [results, summary] = process_events_eye( params, data, results, summary );
-
-        save(results_file, 'results');
-
-        fprintf('\tFinished subject %s\n', subject);
-
     end
 
     % Run statistical analyses
@@ -171,6 +198,8 @@ else
     fclose( fopen( flag_file, 'w+' ) );
 
     fprintf('\nDone events processing.\n');
+    
+    
     
 end
 
