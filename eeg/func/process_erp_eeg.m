@@ -1,39 +1,22 @@
-function [ results ] = process_erp_eeg( data, trials, params )
+function [ results, summary ] = process_erp_eeg( params, data, results, summary )
 %%%%%%%%%%%%%%%%%%%
 % Performs timelock analyses for event-related potentials (ERPs) from EEG data, 
 % given a set of trials
 %
 %
 
+if ~exist(results, 'var')
+   results = []; 
+end
+
+results.subject = data.subject;
+
+% Get trial definitions
+trials = get_sim_trials_eeg( params, data );
+results.eeg.erp.trials = trials;
+
 % For preprocessing
 cfg = data.eeg.cfg;
-f = fieldnames(params.eeg.erp.cfg);
-for i = 1 : length(f)
-     cfg.(f{i}) = params.eeg.erp.cfg.(f{i});
-end
-cfg.artfctdef.eog.artifact   = data.eeg.artifacts;
-cfg.artfctdef.minaccepttim   = params.eeg.artifacts.minaccepttim_timefreq;
-cfg.artfctdef.reject = 'nan';
-cfg.detrend = 'yes';
-
-% For resampling
-cfg2 = [];
-cfg2.resamplefs = params.eeg.erp.resamplefs;
-cfg2.detrend = 'no';
-
-% For removal of bad channels
-cfg3 = [];
-% cfg3.channel = data.eeg.ft.label;
-cfg3.badchannel = data.eeg.badchannels;
-cfg3.layout = 'biosemi64.lay';
-cfg_nbr = [];
-% cfg_nbr.method = 'template';
-% cfg_nbr.template = params.eeg.template;
-cfg_nbr.method = 'distance';
-cfg_nbr.layout = 'biosemi64.lay';
-cfg_nbr.channel = params.eeg.channels;
-[~,cfg3.neighbours] = evalc('ft_prepare_neighbours(cfg_nbr);');
-
 
 % Overtake onset
 cfg.trl = trials.left_change.trl;
@@ -104,7 +87,11 @@ results.eeg.erp.right_change.negative.trl = cfg.trl;
 fprintf('...done overtake offsets with negative outcomes.\n');
 
 
-    function result = get_timelock( cfg )
+% Update summary
+summary = update_erp_summary( params, results, summary );
+
+
+    function result = get_timelock( cfg, data )
         
         if size(cfg.trl,1) < params.eeg.erp.min_trials
             fprintf('  Not enough trials found (%d < %d)!', size(cfg.trl,1), params.eeg.erp.min_trials);

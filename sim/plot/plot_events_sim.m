@@ -6,17 +6,18 @@ function [ h ] = plot_events_sim( params, data, events, out2file )
 
     time_min = data.eye.t / 60000;
             
-    gap_clr = [0.95 0.9 0.9];
-    round_clr = [0.8 0.8 0.9];
+    round_clr = params.sim.rounds.plots.color;
     round_line_color = [1 0 0];
     overtake_color = [0 .5 0];
     noisy_colour = [0.9 0.9 0.9];
     left_change_color = [0.78 0 0.78];
     right_change_color = [0.82 0 0.3];
-    pass_clr = [0.9 0.9 0.95];
-    baseline_clr = [0.9 0.95 0.9];
+    pass_clr = params.sim.plots.pass_color;
+    baseline_clr = params.sim.plots.baseline_color;
     saccade_line_color = [0.3 0.3 0.3];
     saccade_rate_clr = [1 0 1];
+    
+    gap_clr = params.eye.gaps.plots.color;
     
     if out2file
         h = figure('visible','off');
@@ -263,9 +264,9 @@ function [ h ] = plot_events_sim( params, data, events, out2file )
         if ~exist(outdir,'dir')
            mkdir(outdir); 
         end
-        saveas(h, sprintf('%s/events_sim.fig', outdir));
+        saveas(h, sprintf('%s/sim_events.fig', outdir));
         xlim([0 3]);
-        saveas(h, sprintf('%s/events_sim.png', outdir));
+        saveas(h, sprintf('%s/sim_events.png', outdir));
         close(h);
     end
 

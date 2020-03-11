@@ -32,7 +32,7 @@ subjects = strsplit(strtrim(fileread(sprintf('%s/%s/%s', params.io.input_dir, ..
                                                          params.io.metadata_dir, ...
                                                          params.general.subjects_file))));
 
-fprintf('\n\n==== START OF PROCESSING ===\n\n');
+fprintf('\n\n==== START OF EEG PRE-PROCESSING STEP 3 ===\n\n');
                                              
 fprintf('\nFound %d subjects.\n', length(subjects));
 
@@ -65,34 +65,43 @@ for i = 1 : length(subjects)
     end
 
     fprintf('\n\tProcessing subject %s...', subject);
+    
+%     try
 
-    if exist(flag_file, 'file')
-        delete( flag_file );
-    end
+        if exist(flag_file, 'file')
+            delete( flag_file );
+        end
 
-    input_file = sprintf('%s/results_preproc_eeg_2.mat', outdir);
-    results_file = sprintf('%s/results_preproc_eeg_3.mat', outdir);
-    load( input_file, 'data' );
-    
-    eye_file = sprintf('%s/results_preproc_eye.mat', outdir);
-    T = load( eye_file );
-    data.eye = T.data.eye;
-    clear T;
-    
-    data = remove_artifacts_eeg( params, data );
-    
-    
-    % Save result
-    save(results_file, 'data', '-v7.3');
-    
-    % Plot?
-    if params.eeg.artifacts.plots.save
-        plot_artifacts_eeg( params, data, true );
-    end
+        input_file = sprintf('%s/results_preproc_eeg_2.mat', outdir);
+        results_file = sprintf('%s/results_preproc_eeg_3.mat', outdir);
+        load( input_file, 'data' );
 
-    fclose( fopen(flag_file,'w+') );
+        eye_file = sprintf('%s/results_preproc_eye.mat', outdir);
+        T = load( eye_file );
+        data.eye = T.data.eye;
+        clear T;
+
+        data = remove_artifacts_eeg( params, data );
+
+        % Save result
+        save(results_file, 'data', '-v7.3');
+
+        % Plot?
+        if params.eeg.artifacts.plots.save
+            plot_artifacts_eeg( params, data, true );
+        end
+
+        fclose( fopen(flag_file,'w+') );
+
+        close all;
+        fprintf('done.\n');
     
-    close all;
-    fprintf('done.\n');
+%     catch err
+%         fprintf('\n== Errors encountered in pre-processing step 1 for subject %s: %s ==\n\n', subject, err.message);
+%         ok = false;
+%     end
     
 end
+
+fprintf('\n\n==== DONE EEG PRE-PROCESSING STEP 3 ===\n\n');
+

@@ -27,7 +27,7 @@ subjects = strsplit(strtrim(fileread(sprintf('%s/%s/%s', params.io.input_dir, ..
                                                          params.io.metadata_dir, ...
                                                          params.general.subjects_file))));
 
-fprintf('\n\n==== START OF PROCESSING ===\n\n');
+fprintf('\n\n==== START OF EEG PRE-PROCESSING STEP 2 ===\n\n');
                                              
 fprintf('\nFound %d subjects.\n', length(subjects));
        
@@ -99,8 +99,8 @@ for i = 1 : length(subjects)
         % Save result
         save(results_file, 'data', '-v7.3');
         if params.eeg.ica.plots.save
-            saveas(gcf,sprintf('%s/ica_browser_eeg.fig',figdir));
-            saveas(h,sprintf('%s/ica_topoplot_eeg.png',figdir));
+            saveas(gcf,sprintf('%s/eeg_ica_browser.fig',figdir));
+            saveas(h,sprintf('%s/eeg_ica_topoplot.png',figdir));
         end
 
         fclose( fopen(flag_file,'w+') );
@@ -113,3 +113,7 @@ for i = 1 : length(subjects)
     end
 
 end
+
+
+fprintf('\n\n==== DONE EEG PRE-PROCESSING STEP 2 ===\n\n');
+

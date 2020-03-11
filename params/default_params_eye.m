@@ -21,6 +21,7 @@ params.eye.gaps.criterion = 'diam';
 params.eye.gaps.gapmin = 10;
 params.eye.gaps.gapthres = 5;
 params.eye.gaps.gapmerge = 400;
+params.eye.gaps.plots.color = [0.9 0.8 0.8];
 
 %% Blink detection
 params.eye.blinks.apply = true;
@@ -37,6 +38,7 @@ params.eye.blinks.maxblink = 100;
 % Plots
 params.eye.blinks.plots.save = true;
 params.eye.blinks.plots.offset = 10;
+params.eye.blinks.plots.color = [0.8 0.9 0.8];
 
 
 %% Saccade detection

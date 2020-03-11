@@ -67,3 +67,44 @@ params.eeg.artifacts.zscore.cfg = cfg;
 
 params.eeg.artifacts.minaccepttim = 0.7;
 
+% Interpolation
+params.eeg.artifacts.interpolate.apply = true;
+cfg = [];
+cfg.method = 'linear';
+cfg.prewindow = 0.004;
+cfg.postwindow = 0.004;
+params.eeg.artifacts.interpolate.cfg = cfg;
+
+
+
+%% Processing stuff
+
+% Trials
+params.eeg.trials.events = [{'LeftChange'}, ...
+                            {'RightChange'}, ...
+                            {'Brake'}];
+
+params.eeg.trials.windows_file = 'trial_windows_eeg.csv';
+                        
+
+% Hilbert analysis
+params.eeg.hilbert.apply = true;
+params.eeg.hilbert.bands_file = 'hilbert_bands_eeg.csv';
+
+params.eeg.hilbert.plots.save = true;
+params.eeg.hilbert.plot.bands = 'all';
+params.eeg.hilbert.plot.channels = 'all';
+params.eeg.hilbert.plot.scale_pupil = 2;
+params.eeg.hilbert.plot.smooth_pupil = 70;
+params.eeg.hilbert.plot.scale_envelope = 1;
+params.eeg.hilbert.plot.scale_general = 0.2;
+
+% ERP analysis
+params.eeg.erp.apply = true;
+
+
+% Time/frequency analysis
+params.eeg.timefreq.apply = true;
+
+
+

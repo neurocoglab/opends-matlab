@@ -14,6 +14,7 @@ params.sim.convert.exec = 'simlog2csv';
 %% Pre-process rounds
 params.sim.rounds.plots.save = true;
 params.sim.rounds.fix_repeats = true;
+params.sim.rounds.plots.color = [0.8 0.8 0.9];
 
 params.sim.log.trigger_format = '%d64 %f %d %q %q %q %q %f %f %d %d %d %d';
 params.sim.log.lanechange_format = '%d64 %f %d %q %q %q %q %q %d %f %d %d %f %d %d';
@@ -34,3 +35,10 @@ params.sim.baseline.intervals_file = 'baseline_intervals.csv';
 
 %% Process epochs
 params.sim.sequence_difficulty_file = 'sequence_difficulty.csv';
+
+%% Plots
+params.sim.plots.pass_color = [0.9 0.9 0.95];
+params.sim.plots.baseline_color = [0.9 0.95 0.9];
+
+
+

@@ -31,7 +31,7 @@ subjects = strsplit(strtrim(fileread(sprintf('%s/%s/%s', params.io.input_dir, ..
                                                          params.io.metadata_dir, ...
                                                          params.general.subjects_file))));
 
-fprintf('\n\n==== START OF PROCESSING ===\n\n');
+fprintf('\n\n==== START OF EEG PRE-PROCESSING STEP 1 ===\n\n');
                                              
 fprintf('\nFound %d subjects.\n', length(subjects));
 
@@ -160,5 +160,5 @@ for i = 1 : length(subjects)
 
 end
 
-fprintf('\n\n==== END OF PROCESSING ===\n\n');
+fprintf('\n\n==== DONE EEG PRE-PROCESSING STEP 1 ===\n\n');
 

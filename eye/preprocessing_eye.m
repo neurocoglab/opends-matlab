@@ -28,7 +28,7 @@ subjects = strsplit(strtrim(fileread(sprintf('%s/%s/%s', params.io.input_dir, ..
                                                          params.general.subjects_file))));
 
                                                      
-fprintf('\n\n==== START OF PROCESSING ===\n\n');
+fprintf('\n\n==== START OF EYE/SIM PRE-PROCESSING ===\n\n');
 
 fprintf('\nFound %d subjects.\n', length(subjects));
 
@@ -352,7 +352,7 @@ for i = 1 : length(subjects)
 
 end
 
-fprintf('\n\n==== END OF PROCESSING ===\n\n');
+fprintf('\n\n==== DONE EYE/SIM PRE-PROCESSING ===\n\n');
 
 
 % Delete this flags and all flags after it

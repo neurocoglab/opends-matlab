@@ -24,7 +24,7 @@ h = plot_timelocked(params, summary.stats.left_change, {'Passing Onset'}, ...
                     plotly_layouts.layouts.boxplot, sig_dims, sig_clrs);
 h.layout.title = 'PD Locked to Passing Onset';
 h.layout.yaxis.range = [-0.5 1.5]; % [min(y(:)) max(y(:))]*1.3;
-h.PlotOptions.FileName = sprintf('%s/events_passonset_bl', outdir);
+h.PlotOptions.FileName = sprintf('%s/eye_events_passonset_bl', outdir);
 plotlyoffline(h);
 
 if show_plots
@@ -40,7 +40,7 @@ h = plot_timelocked(params, summary.stats.right_change, {'Passing Offset'}, ...
                     plotly_layouts.layouts.boxplot, sig_dims, sig_clrs);
 h.layout.title = 'PD Locked to Passing Offset';
 h.layout.yaxis.range = [-0.5 1.5]; % [min(y(:)) max(y(:))]*1.3;
-h.PlotOptions.FileName = sprintf('%s/events_passoffset_bl', outdir);
+h.PlotOptions.FileName = sprintf('%s/eye_events_passoffset_bl', outdir);
 plotlyoffline(h);
 
 if show_plots
@@ -56,7 +56,7 @@ h = plot_timelocked(params, summary.stats.overtake, {'Overtake'}, ...
                     plotly_layouts.layouts.boxplot, sig_dims, sig_clrs);
 h.layout.title = 'PD Locked to Overtake Event';
 h.layout.yaxis.range = [-0.5 1.5]; % [min(y(:)) max(y(:))]*1.3;
-h.PlotOptions.FileName = sprintf('%s/events_overtake_bl', outdir);
+h.PlotOptions.FileName = sprintf('%s/eye_events_overtake_bl', outdir);
 plotlyoffline(h);
 
 if show_plots
@@ -76,7 +76,7 @@ h.layout.yaxis.range = [-0.5 1.5]; % [min(y(:)) max(y(:))]*1.3;
 h.layout.showlegend = true;
 h.layout.legend = struct('x', 0.1, 'y', 0.95);
 
-h.PlotOptions.FileName = sprintf('%s/events_onset_diff', outdir);
+h.PlotOptions.FileName = sprintf('%s/eye_events_onset_diff', outdir);
 plotlyoffline(h);
 
 if show_plots
@@ -96,7 +96,7 @@ h.layout.yaxis.range = [-0.5 1.5]; % [min(y(:)) max(y(:))]*1.3;
 h.layout.showlegend = true;
 h.layout.legend = struct('x', 0.1, 'y', 0.95);
 
-h.PlotOptions.FileName = sprintf('%s/events_offset_diff', outdir);
+h.PlotOptions.FileName = sprintf('%s/eye_events_offset_diff', outdir);
 plotlyoffline(h);
 
 if show_plots
@@ -116,7 +116,7 @@ h.layout.yaxis.range = [-0.5 1.5]; % [min(y(:)) max(y(:))]*1.3;
 h.layout.showlegend = true;
 h.layout.legend = struct('x', 0.1, 'y', 0.95);
 
-h.PlotOptions.FileName = sprintf('%s/events_overtake_diff', outdir);
+h.PlotOptions.FileName = sprintf('%s/eye_events_overtake_diff', outdir);
 plotlyoffline(h);
 
 if show_plots
@@ -137,7 +137,7 @@ h.layout.yaxis.range = [-0.5 2]; % [min(y(:)) max(y(:))]*1.3;
 h.layout.showlegend = true;
 h.layout.legend = struct('x', 0.1, 'y', 0.95);
 
-h.PlotOptions.FileName = sprintf('%s/events_onset_outcome', outdir);
+h.PlotOptions.FileName = sprintf('%s/eye_events_onset_outcome', outdir);
 plotlyoffline(h);
 
 if show_plots
@@ -157,7 +157,7 @@ h.layout.yaxis.range = [-0.5 2]; % [min(y(:)) max(y(:))]*1.3;
 h.layout.showlegend = true;
 h.layout.legend = struct('x', 0.1, 'y', 0.95);
 
-h.PlotOptions.FileName = sprintf('%s/events_offset_outcome', outdir);
+h.PlotOptions.FileName = sprintf('%s/eye_events_offset_outcome', outdir);
 plotlyoffline(h);
 
 if show_plots
@@ -177,7 +177,7 @@ h.layout.yaxis.range = [-0.5 2]; % [min(y(:)) max(y(:))]*1.3;
 h.layout.showlegend = true;
 h.layout.legend = struct('x', 0.1, 'y', 0.95);
 
-h.PlotOptions.FileName = sprintf('%s/events_overtake_outcome', outdir);
+h.PlotOptions.FileName = sprintf('%s/eye_events_overtake_outcome', outdir);
 plotlyoffline(h);
 
 if show_plots

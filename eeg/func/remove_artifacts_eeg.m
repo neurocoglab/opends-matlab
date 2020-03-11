@@ -60,6 +60,14 @@ cfg.artfctdef.minaccepttim    = params.eeg.artifacts.minaccepttim;
 data.eeg.artifact.cfg         = cfg;
 [~, data.eeg.ft] = evalc('ft_rejectartifact(cfg, data.eeg.ft);');
 
+% Interpolate over artifacts
+if params.eeg.artifacts.interpolate.apply
+    cfg = params.eeg.artifacts.interpolate.cfg;
+    cfg.feedback = 'no';
+    [~, data.eeg.ft] = evalc('ft_interpolatenan_corrected(cfg, data.eeg.ft);');
+end
+
+
 end
 
 

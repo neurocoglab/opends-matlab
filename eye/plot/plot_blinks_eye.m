@@ -6,8 +6,8 @@ end
 
 time_sec = data.eye.t / 60000;
             
-gap_clr = [0.9 0.8 0.8];
-blink_clr = [0.8 0.9 0.8];
+gap_clr = params.eye.gaps.plots.color;
+blink_clr = params.eye.blinks.plots.color;
 
 if out2file
     h = figure('visible','off');
@@ -84,9 +84,9 @@ if out2file
     if ~exist(outdir,'dir')
        mkdir(outdir); 
     end
-    saveas(h, sprintf('%s/blinks_eye.fig', outdir));
+    saveas(h, sprintf('%s/eye_blinks.fig', outdir));
     xlim([0 3]);
-    saveas(h, sprintf('%s/blinks_eye.png', outdir));
+    saveas(h, sprintf('%s/eye_blinks.png', outdir));
     close(h);
 end
 

@@ -74,9 +74,9 @@ function [ h ] = plot_saccades_eye ( data, params, out2file )
         if ~exist(outdir,'dir')
            mkdir(outdir); 
         end
-        saveas(h, sprintf('%s/saccades_eye.fig', outdir));
+        saveas(h, sprintf('%s/eye_saccades.fig', outdir));
         xlim([0 3]);
-        saveas(h, sprintf('%s/saccades_eye.png', outdir));
+        saveas(h, sprintf('%s/eye_saccades.png', outdir));
         close(h);
     end
     
