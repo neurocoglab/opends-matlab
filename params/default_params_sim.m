@@ -34,7 +34,14 @@ end
 params.sim.baseline.intervals_file = 'baseline_intervals.csv';
 
 %% Process epochs
-params.sim.sequence_difficulty_file = 'sequence_difficulty.csv';
+params.sim.epochs.difficulty.apply = true;
+params.sim.epochs.difficulty.sequence_file = 'sequence_difficulty.csv';
+params.sim.epochs.outcomes.apply = true;
+
+%% Process events
+params.sim.events.difficulty.apply = true;
+params.sim.events.outcomes.apply = true;
+params.sim.events.button_presses.apply = true;
 
 %% Plots
 params.sim.plots.pass_color = [0.9 0.9 0.95];

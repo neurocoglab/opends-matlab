@@ -76,7 +76,7 @@ for i = 1 : length(subjects)
 
            delete_flags( flag, flagdir );
 
-           switch params.eye.tracker_type
+           switch params.eye.convert.format
             
                case 'smi'
                    ok = convert_eyelog_smi( subject, params );

@@ -3,10 +3,11 @@
 
 %% General stuff
 params.eeg.bad_channel_file = '';
-params.eeg.format = 'brainvision';
 params.eeg.sub_dir = 'eeg';
 
 %% Input stuff
+params.eeg.convert.format = 'brainvision';
+params.eeg.convert.prefix = 'eeg-';
 params.eeg.cfg = [];
 params.eeg.cfg.dataset = '';
 params.eeg.cfg.continuous = 'yes';

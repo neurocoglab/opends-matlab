@@ -2,11 +2,11 @@
 % processing pipeline
 
 %% General stuff
-params.eye.tracker_type = 'eyelink';
 params.eye.sub_dir = 'eye';
 
 
 %% Conversion
+params.eye.convert.format = 'eyelink';
 params.eye.convert.prefix = 'eye-';
 params.eye.convert.exec_eyelink = 'edf2asc-mac';
 params.eye.convert.exec_smi = 'smi2csv';
