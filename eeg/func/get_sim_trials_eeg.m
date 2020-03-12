@@ -26,6 +26,7 @@ window = W('LaneChangeRight',:);
 trials(end+1) = {trl};
 baseline_trials(end+1) = {trl_baseline};
 
+% ButtonPress events
 
 
 function [trl,trl_baseline] = get_trials(data, T, window)

@@ -59,6 +59,8 @@ fprintf('\nFound %d subjects.\n', length(subjects));
 %% Run Hilbert processing
 
 if params.eeg.hilbert.apply
+
+    fprintf('\nStarting Hilbert processing.\n');
     
     flag_file = sprintf('%s/hilbert_eeg.done', results_flagdir);
 
@@ -129,6 +131,8 @@ end
 
 if params.eeg.hilbert.apply
     
+    fprintf('\nStarting Hilbert analysis.\n');
+    
     summary = analyze_hilbert_eeg( params );
 
     summary_file = sprintf('%s/summary_hilbert_eeg.mat', results_dir);
@@ -156,6 +160,8 @@ if params.eeg.erp.apply
     end
     
     summary = [];
+    
+    fprintf('\nStarting ERP processing.\n');
 
     for i = 1 : length( subjects )
         
@@ -172,8 +178,6 @@ if params.eeg.erp.apply
             flag_file_i = sprintf('%s/eeg_erp.done', flagdir);
             if exist(flag_file_i, 'file') && ~clobber
                fprintf('\tERP analysis already performed for subject %s.\n', subject);
-               load( results_file );
-               summary = update_erp_summary( params, results, summary );
                continue;
             end
 
@@ -214,7 +218,16 @@ if params.eeg.erp.apply
 
     end
     
-    % Run statistical analyses
+    fprintf('\nDone ERP processing.\n');
+    
+end
+    
+%% Run statistical analyses
+
+if params.eeg.erp.apply
+
+    fprintf('\nStarting ERP analysis.\n');
+    
     summary = analyze_erp_eeg( params, summary );
 
     summary_file = sprintf('%s/summary_erp_eeg.mat', results_dir);
@@ -226,7 +239,7 @@ if params.eeg.erp.apply
 
     fclose( fopen( flag_file, 'w+' ) );
 
-    fprintf('\nDone ERP processing & analysis.\n');
+    fprintf('\nDone ERP analysis.\n');
 
 end
 
@@ -242,6 +255,8 @@ if params.eeg.timefreq.apply
     end
     
     summary = [];
+    
+    fprintf('\nStarting time/frequency processing.\n');
 
     for i = 1 : length( subjects )
         

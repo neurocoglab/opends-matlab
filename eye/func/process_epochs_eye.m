@@ -59,7 +59,7 @@ results.subject = data.subject;
 % Load sequence difficulty ratings
 seq_diff = readtable(sprintf('%s/%s/%s', params.io.input_dir, ...
                                          params.io.metadata_dir, ...
-                                         params.sim.sequence_difficulty_file));
+                                         params.sim.difficulty.sequence_file));
 diff_levels = [1 2]; % unique(D);
 
 % Baseline

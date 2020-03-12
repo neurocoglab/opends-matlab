@@ -20,69 +20,69 @@ cfg = data.eeg.cfg;
 
 % Overtake onset
 cfg.trl = trials.left_change.trl;
-results.eeg.erp.left_change.timelock = get_timelock( cfg );
+results.eeg.erp.left_change.timelock = get_timelock( cfg, params );
 results.eeg.erp.left_change.trl = cfg.trl;
 fprintf('...done overtake onsets.\n');
 
 % Easy
 idx = find(trials.left_change.trl(:,5)==1);
 cfg.trl = trials.left_change.trl(idx,1:4);
-results.eeg.erp.left_change.easy.timelock = get_timelock( cfg );
+results.eeg.erp.left_change.easy.timelock = get_timelock( cfg, params );
 results.eeg.erp.left_change.easy.trl = cfg.trl;
 fprintf('...done easy overtake onsets.\n');
 
 % Difficult
 idx = find(trials.left_change.trl(:,5)>1);
 cfg.trl = trials.left_change.trl(idx,1:4);
-results.eeg.erp.left_change.difficult.timelock = get_timelock( cfg );
+results.eeg.erp.left_change.difficult.timelock = get_timelock( cfg, params );
 results.eeg.erp.left_change.difficult.trl = cfg.trl;
 fprintf('...done difficult overtake onsets.\n');
 
 % Positive outcome
 idx = find(trials.left_change.trl(:,6)>0);
 cfg.trl = trials.left_change.trl(idx,1:4);
-results.eeg.erp.left_change.positive.timelock = get_timelock( cfg );
+results.eeg.erp.left_change.positive.timelock = get_timelock( cfg, params );
 results.eeg.erp.left_change.positive.trl = cfg.trl;
 fprintf('...done overtake onsets with positive outcomes.\n');
 
 % Negative outcome
 idx = find(trials.left_change.trl(:,6)<0);
 cfg.trl = trials.left_change.trl(idx,1:4);
-results.eeg.erp.left_change.negative.timelock = get_timelock( cfg );
+results.eeg.erp.left_change.negative.timelock = get_timelock( cfg, params );
 results.eeg.erp.left_change.negative.trl = cfg.trl;
 fprintf('...done overtake onsets with negative outcomes.\n');
 
 % Overtake offset
 cfg.trl = trials.right_change.trl;
-results.eeg.erp.right_change.timelock = get_timelock( cfg );
+results.eeg.erp.right_change.timelock = get_timelock( cfg, params );
 fprintf('...done overtake offsets.\n');
 results.eeg.erp.right_change.trl = cfg.trl;
 
 % Easy
 idx = find(trials.right_change.trl(:,5)==1);
 cfg.trl = trials.right_change.trl(idx,1:4);
-results.eeg.erp.right_change.easy.timelock = get_timelock( cfg );
+results.eeg.erp.right_change.easy.timelock = get_timelock( cfg, params );
 results.eeg.erp.right_change.easy.trl = cfg.trl;
 fprintf('...done easy overtake offsets.\n');
 
 % Difficult
 idx = find(trials.right_change.trl(:,5)>1);
 cfg.trl = trials.right_change.trl(idx,1:4);
-results.eeg.erp.right_change.difficult.timelock = get_timelock( cfg );
+results.eeg.erp.right_change.difficult.timelock = get_timelock( cfg, params );
 results.eeg.erp.right_change.difficult.trl = cfg.trl;
 fprintf('...done difficult overtake offsets.\n');
 
 % Positive outcome
 idx = find(trials.right_change.trl(:,6)>0);
 cfg.trl = trials.right_change.trl(idx,1:4);
-results.eeg.erp.right_change.positive.timelock = get_timelock( cfg );
+results.eeg.erp.right_change.positive.timelock = get_timelock( cfg, params );
 results.eeg.erp.right_change.positive.trl = cfg.trl;
 fprintf('...done overtake offsets with positive outcomes.\n');
 
 % Negative outcome
 idx = find(trials.right_change.trl(:,6)<0);
 cfg.trl = trials.right_change.trl(idx,1:4);
-results.eeg.erp.right_change.negative.timelock = get_timelock( cfg );
+results.eeg.erp.right_change.negative.timelock = get_timelock( cfg, params );
 results.eeg.erp.right_change.negative.trl = cfg.trl;
 fprintf('...done overtake offsets with negative outcomes.\n');
 
@@ -91,7 +91,7 @@ fprintf('...done overtake offsets with negative outcomes.\n');
 summary = update_erp_summary( params, results, summary );
 
 
-    function result = get_timelock( cfg, data )
+    function result = get_timelock( cfg, params )
         
         if size(cfg.trl,1) < params.eeg.erp.min_trials
             fprintf('  Not enough trials found (%d < %d)!', size(cfg.trl,1), params.eeg.erp.min_trials);
