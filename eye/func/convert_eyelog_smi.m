@@ -9,9 +9,10 @@ subj_dir = sprintf('%s/%s/%s', params.io.input_dir, params.eye.sub_dir, subject)
 output_dir = sprintf('%s/%s/%s', params.io.output_dir, subject, params.eye.sub_dir);
 temp_dir = sprintf('%s/tmp', output_dir);
 
-if ~exist(output_dir, 'dir')
-   mkdir(output_dir); 
+if exist(output_dir, 'dir')
+   rmdir( output_dir, 's' );
 end
+mkdir(output_dir); 
 
 if ~exist(temp_dir, 'dir')
    mkdir(temp_dir); 
@@ -109,7 +110,7 @@ if isempty(log_files)
    fprintf('\nLog or zip file not found for %s; skipping subject.\n', subject);
    ok = false;
 else
-   prefix = params.eye.convert.prefix;
+   prefix = [params.eye.convert.prefix subject];
    for j = 1 : length(log_files)
        log_file = log_files{j};
        if length(log_files) > 1
@@ -117,9 +118,9 @@ else
            if idx > 0
                k = log_file(idx+4);
            end
-           prefix = sprintf('%spart%s', params.eye.convert.prefix, k);
+           prefix = sprintf('%spart%s-', params.eye.convert.prefix, k);
        end
-       
+              
        exec = fullfile(params.general.matlab_dir, 'bin', params.eye.convert.exec_smi);
 
        a = strfind(exec,'/');

@@ -2,7 +2,7 @@ function [ data ] = read_log_eye( params, subject )
 %read_log_eye Reads converted eye data and saves in Matlab format
 
 subj_dir = sprintf('%s/%s/%s', params.io.output_dir, subject, params.eye.sub_dir);
-prefix = params.eye.convert.prefix;
+prefix = [params.eye.convert.prefix subject];
 input_files = [];
 input_file = sprintf('%s/%s_samples.csv', subj_dir, prefix);
 
@@ -41,10 +41,10 @@ for j = 1 : length(input_files)
     data_i.eye.diam = single(data_i.eye.diam);
 
     % Make data compatible
-    if strcmp(params.eye.tracker_type, 'smi')
+    if strcmp(params.eye.convert.format, 'smi')
         data_i.eye.t = data_i.eye.t / 1000;
     end
-    if strcmp(params.eye.tracker_type, 'eyelink')
+    if strcmp(params.eye.convert.format, 'eyelink')
         data_i.eye.diam = data_i.eye.diam / 10;
     end
     
@@ -108,13 +108,17 @@ else
        
    end
    
-   
-   
 end
 
 messages = [num2cell(messages{:,1}),num2cell(messages{:,2}), ...
                num2cell(messages{:,3}),num2cell(messages{:,4})];
 messages = cell2table(messages, 'VariableNames', hdr);
+
+if strcmp(params.eye.convert.format, 'smi')
+    % Convert SMI (microseconds) to milliseconds
+    messages.Time = messages.Time / 1000;
+end
+
 data.eye.log.messages = messages;
 
 

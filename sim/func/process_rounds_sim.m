@@ -50,9 +50,6 @@ data.sim.simended.values = import_log_sim(input_file, params.sim.log.simended_fo
 
 log_ids = data.eye.log.messages.LogId; 
 log_times = data.eye.log.messages.Time;
-if strcmp(params.eye.tracker_type, 'smi')
-    log_times = log_times / 1000;
-end
 
 % Zero log times on first trigger
 log_times = log_times - data.eye.t_start_sim;

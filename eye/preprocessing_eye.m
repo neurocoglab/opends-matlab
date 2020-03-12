@@ -47,7 +47,7 @@ for i = 1 : length(subjects)
     figdir = sprintf( '%s/figures', outdir );
     flagdir = sprintf( '%s/flags', outdir );
     
-    try
+%     try
         
         %% 1. Convert log to CSV
        
@@ -72,7 +72,7 @@ for i = 1 : length(subjects)
 
            clobber = true;  % If this is redone, the rest must also be redone
             
-           fprintf('\tConverting %s log for %s...', params.eye.tracker_type, subject);
+           fprintf('\tConverting %s log for %s...', params.eye.convert.format, subject);
 
            delete_flags( flag, flagdir );
 
@@ -86,7 +86,7 @@ for i = 1 : length(subjects)
                    
                otherwise
                    % Fail outright
-                   error('\tEye tracker type "%s" is invalid!', params.tracker_type)
+                   error('\tEye tracker type "%s" is invalid!', params.eye.convert.format)
                    
            end
            
@@ -124,7 +124,7 @@ for i = 1 : length(subjects)
                     save(results_file, 'data');
                     fclose( fopen(flag_file,'w') );
                     clear data;
-                    fprintf('done.\n');
+                    fprintf(' done.\n');
                 else
                     ok = false;
                     warning('Could not read converted time series. Skipping subject %s.\n', subject);
@@ -158,7 +158,7 @@ for i = 1 : length(subjects)
                     data = synchronize_eye_sim( params, data );
                     save(results_file, 'data');
                     fclose( fopen(flag_file,'w') );
-                    fprintf('done.\n');
+                    fprintf(' done.\n');
                 else
                     ok = false;
                     warning('Could not convert simulation log. Skipping subject %s.\n', subject);
@@ -194,7 +194,7 @@ for i = 1 : length(subjects)
                 end
                 
                 fclose( fopen(flag_file,'w') );
-                fprintf('done.\n');
+                fprintf(' done.\n');
             end
 
             if params.general.show_plots
@@ -233,7 +233,7 @@ for i = 1 : length(subjects)
             % Save results
             save(results_file, 'data');
             fclose( fopen(flag_file,'w') );
-            fprintf('done.\n');
+            fprintf(' done.\n');
         end
 
         if params.general.show_plots
@@ -280,7 +280,7 @@ for i = 1 : length(subjects)
                 % Save results
                 save(results_file, 'data');
                 fclose( fopen(flag_file,'w') );
-                fprintf('done.\n');
+                fprintf(' done.\n');
             
                 if params.general.show_plots
                     plot_luminance_eye ( data, params, false );
@@ -323,7 +323,7 @@ for i = 1 : length(subjects)
             end
 
             fclose( fopen(flag_file,'w') );
-            fprintf('done.\n');
+            fprintf(' done.\n');
 
             % Plot rounds 
             if params.general.show_plots
@@ -336,11 +336,11 @@ for i = 1 : length(subjects)
 
     end
 
-    catch err
-        warning on;
-        warning('\nError encountered while processing %s:\n%s\n', subject, err.message);
-        ok = false;
-    end
+%     catch err
+%         warning on;
+%         warning('\nError encountered while processing %s:\n%s\n', subject, err.message);
+%         ok = false;
+%     end
     
     if ok
         fprintf('\n-- Done subject %s --\n\n', subject);

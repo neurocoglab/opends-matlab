@@ -8,9 +8,6 @@ data.sim.events.values = import_log_sim(input_file, params.sim.log.events_format
 
 log_ids = data.eye.log.messages.LogId;
 log_times = data.eye.log.messages.Time;
-if strcmp(params.eye.tracker_type, 'smi')
-    log_times = log_times / 1000;
-end
 
 % Zero eye time on first trigger
 data.eye.t_start_sim = double(log_times(1));
