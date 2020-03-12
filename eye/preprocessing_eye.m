@@ -47,7 +47,7 @@ for i = 1 : length(subjects)
     figdir = sprintf( '%s/figures', outdir );
     flagdir = sprintf( '%s/flags', outdir );
     
-    try
+%     try
         
         %% 1. Convert log to CSV
        
@@ -72,7 +72,7 @@ for i = 1 : length(subjects)
 
            clobber = true;  % If this is redone, the rest must also be redone
             
-           fprintf('\tConverting %s log for %s...', params.eye.tracker_type, subject);
+           fprintf('\tConverting %s log for %s...', params.eye.convert.version, subject);
 
            delete_flags( flag, flagdir );
 
@@ -86,7 +86,7 @@ for i = 1 : length(subjects)
                    
                otherwise
                    % Fail outright
-                   error('\tEye tracker type "%s" is invalid!', params.tracker_type)
+                   error('\tEye tracker type "%s" is invalid!',  params.eye.convert.version)
                    
            end
            
@@ -336,11 +336,11 @@ for i = 1 : length(subjects)
 
     end
 
-    catch err
-        warning on;
-        warning('\nError encountered while processing %s:\n%s\n', subject, err.message);
-        ok = false;
-    end
+%     catch err
+%         warning on;
+%         warning('\nError encountered while processing %s:\n%s\n', subject, err.message);
+%         ok = false;
+%     end
     
     if ok
         fprintf('\n-- Done subject %s --\n\n', subject);
