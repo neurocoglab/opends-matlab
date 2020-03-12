@@ -8,7 +8,7 @@ params.eye.sub_dir = 'eye';
 %% Conversion
 params.eye.convert.format = 'eyelink';
 params.eye.convert.prefix = 'eye-';
-params.eye.convert.exec_eyelink = 'edf2asc-mac';
+params.eye.convert.exec_eyelink = 'edf2asc.exe';
 params.eye.convert.exec_smi = 'smi2csv';
 params.eye.convert.columns = 'smi_columns.txt';
 

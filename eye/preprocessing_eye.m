@@ -73,7 +73,6 @@ for i = 1 : length(subjects)
            clobber = true;  % If this is redone, the rest must also be redone
             
            fprintf('\tConverting %s log for %s...', params.eye.convert.format, subject);
-
            delete_flags( flag, flagdir );
 
            switch params.eye.convert.format
@@ -87,7 +86,7 @@ for i = 1 : length(subjects)
                otherwise
                    % Fail outright
                    error('\tEye tracker type "%s" is invalid!', params.eye.convert.format)
-                   
+
            end
            
            if ok 
