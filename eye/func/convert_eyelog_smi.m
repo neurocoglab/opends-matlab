@@ -118,7 +118,9 @@ else
            if idx > 0
                k = log_file(idx+4);
            end
-           prefix = sprintf('%spart%s-', params.eye.convert.prefix, k);
+           prefix2 = sprintf('%s-part%s', prefix, k);
+       else
+           prefix2 = prefix;
        end
               
        exec = fullfile(params.general.matlab_dir, 'bin', params.eye.convert.exec_smi);
@@ -134,7 +136,7 @@ else
                         log_file, ...
                         output_dir, ...
                         params.eye.convert.columns, ...
-                        prefix);
+                        prefix2);
 %                     fprintf('%s\n',cmd);
         [status,result] = system(cmd);
         if status ~= 0

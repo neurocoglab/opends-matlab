@@ -354,6 +354,7 @@ end
 fprintf('\n\n==== DONE EYE/SIM PRE-PROCESSING ===\n\n');
 
 
+%%
 % Delete this flags and all flags after it
 function delete_flags ( start_flag, flagdir )
 

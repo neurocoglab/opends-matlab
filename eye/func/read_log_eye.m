@@ -9,11 +9,11 @@ input_file = sprintf('%s/%s_samples.csv', subj_dir, prefix);
 if exist(input_file, 'file')
    input_files = {input_file};
 else
-   input_file = sprintf('%s/%spart1_samples.csv', subj_dir, prefix);
+   input_file = sprintf('%s/%s-part1_samples.csv', subj_dir, prefix);
    k = 2;
    while exist(input_file, 'file')
        input_files = [input_files {input_file}];
-       input_file = sprintf('%s/%spart%d_samples.csv', subj_dir, prefix, k);
+       input_file = sprintf('%s/%s-part%d_samples.csv', subj_dir, prefix, k);
        k = k + 1;
    end
 end
@@ -86,7 +86,7 @@ if exist(input_file, 'file')
    [messages, hdr] = import_messages_eye(input_file);
 else
    % There are probably multiple parts; need to glue these together
-   input_file = sprintf('%s/%spart1_messages.csv', subj_dir, prefix);
+   input_file = sprintf('%s/%s-part1_messages.csv', subj_dir, prefix);
    if ~exist(input_file, 'file')
        error('No message log found for subject %s', subject);
    end
