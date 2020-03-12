@@ -72,7 +72,7 @@ cfg.dataset = log_file;
 [~,data_eye] = evalc('ft_preprocessing(cfg);');
 prefix = [params.eye.convert.prefix subject];
 
-samples_out = sprintf('%s/%ssamples.csv', output_dir, prefix);
+samples_out = sprintf('%s/%s_samples.csv', output_dir, prefix);
 
 [fid_out, message] = fopen(samples_out, 'w+');
 if fid_out < 0
@@ -94,7 +94,7 @@ fclose(fid_out);
 
 [~,event_eye] = evalc('ft_read_header(cfg.dataset);');
 
-messages_out = sprintf('%s/%smessages.csv', output_dir, prefix);
+messages_out = sprintf('%s/%s_messages.csv', output_dir, prefix);
 [fid_out, message] = fopen(messages_out, 'w+');
 if fid_out < 0
     warning('Could not open CSV output file %s, with error: %s', messages_out, message);

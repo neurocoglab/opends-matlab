@@ -6,7 +6,7 @@ function [ times ] = interpolate_log_times_sim( M, sim_times, extrapolate )
 % within the time points specified by M (i.e., the first and last rows).
 %
 % Note: This is necessary because timers for both systems are not
-% synchronious (discrepancy of ~150 ms over 40 mins)
+% synchronous (discrepancy of ~150 ms over 40 mins)
 %
 
 if nargin < 4
@@ -46,7 +46,7 @@ for i = 1 : length(sim_times)
 
 end
 
-if outcount > 0
+if outcount > 5
    warning(['%d time points could not be extrapolated.' ...
             ' These entries will have nan values.'], outcount);
 end

@@ -104,7 +104,7 @@ else
            end
        end
        k = k + 1;
-       input_file = sprintf('%s/%spart%d_messages.csv', subj_dir, prefix, k);
+       input_file = sprintf('%s/%s-part%d_messages.csv', subj_dir, prefix, k);
        
    end
    
