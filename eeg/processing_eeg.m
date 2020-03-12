@@ -256,8 +256,6 @@ if params.eeg.timefreq.apply
             flag_file_i = sprintf('%s/eeg_timefreq.done', flagdir);
             if exist(flag_file_i, 'file') && ~clobber
                fprintf('\tTime/freq analysis already performed for subject %s.\n', subject);
-               load( results_file );
-               summary = update_timefreq_summary( params, results, summary );
                continue;
             end
 
@@ -276,7 +274,7 @@ if params.eeg.timefreq.apply
             results_file = sprintf('%s/results_eeg.mat', outdir);
             load( results_file );
             
-            [results, summary] = process_timefreq_eeg( params, data, results, summary );
+            [results] = process_timefreq_eeg( params, data, results );
             
             save(sprintf('%s/results_eeg.mat', outdir), 'results', '-v7.3');
             
@@ -297,9 +295,18 @@ if params.eeg.timefreq.apply
 %         end
 
     end
+    
+    fprintf('\nDone time/frequency processing.\n');
+    
+end
 
     
-    % Run statistical analyses
+%% Run statistical analyses
+
+if params.eeg.timefreq.apply
+
+    fprintf('\nStarting time/frequency analysis\n');
+    
     summary = analyze_timefreq_eeg( params, summary );
 
     summary_file = sprintf('%s/summary_timefreq_eeg.mat', results_dir);
@@ -311,7 +318,7 @@ if params.eeg.timefreq.apply
 
     fclose( fopen( flag_file, 'w+' ) );
 
-    fprintf('\nDone time/frequency processing & analysis.\n');
+    fprintf('\nDone time/frequency analysis.\n');
     
 end
 
