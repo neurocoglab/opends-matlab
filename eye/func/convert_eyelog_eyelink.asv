@@ -4,7 +4,7 @@ function [ ok ] = convert_eyelog_eyelink( subject, params )
 %
 
 subj_dir = sprintf('%s/%s/%s', params.io.input_dir, params.eye.sub_dir, subject);
-output_dir = sprintf('%s/%s/%s', params.io.output_dir, subject, params.eye.sub_dir);
+output_dir = sprintf('%s/%s', params.io.output_dir, subject);
  
 if ~exist(output_dir, 'dir')
    mkdir(output_dir); 
@@ -19,26 +19,26 @@ if ~isempty(params.eye.convert.exec_eyelink)
    for i = 1 : length(edf_files)
       filei = fullfile(edf_files(i).folder, edf_files(i).name);
       fileasc = [filei(1:end-4) '.asc'];
-%       if exist(fileasc, 'file')
-%           fprintf(' already converted %s\n', edf_files(i).name);
-%       else
-          cmd = sprintf('"%s" -p "%s" "%s"', exec, output_dir, filei);
+      if exist(fileasc, 'file')
+          fprintf(' already converted %s\n', edf_files(i).name);
+      else
+          cmd = sprintf('"%s" -p "%s" "%s"', exec, edf_files(i).folder, filei);
           [status, message] = system(cmd);
           if status ~= 255
               fprintf(' Problem converting %s: %s\n', filei, message);
               ok = false;
               return;
           end
-%       end
+      end
    end
     
 end
 
 try
                                
-    log_file = sprintf('%s/%s%s.asc', output_dir, params.eye.convert.prefix, subject);
+    log_file = sprintf('%s/%s%s.asc', subj_dir, params.eye.convert.prefix, subject);
     if ~exist(log_file, 'file')
-        zip_file = sprintf('%s/%s%s.zip', params.eye.convert.prefix, output_dir, subject);
+        zip_file = sprintf('%s/%s%s.zip', params.eye.convert.prefix, subj_dir, subject);
 
         if ~exist(zip_file, 'file')
             warning('No data found for %s! Skipping.', subject);
@@ -46,8 +46,8 @@ try
             return;
         end
 
-        unzip(zip_file, output_dir);
-        log_file = sprintf('%s/%s%s.asc', params.eye.convert.prefix, output_dir, subject);
+        unzip(zip_file, subj_dir);
+        log_file = sprintf('%s/%s%s.asc', params.eye.convert.prefix, subj_dir, subject);
 
         if ~exist(log_file, 'file')
             warning('No data found in zip file for %s! Skipping.', subject);
