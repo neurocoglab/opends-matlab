@@ -34,7 +34,7 @@ fprintf('\nFound %d subjects.\n', length(subjects));
 
 
 %% For each subject
-for i = 1 : length(subjects)
+for i = 28 : length(subjects)
     
     subject = subjects{i};
     ok = true;
@@ -47,7 +47,7 @@ for i = 1 : length(subjects)
     figdir = sprintf( '%s/figures', outdir );
     flagdir = sprintf( '%s/flags', outdir );
     
-%     try
+    try
         
         %% 1. Convert log to CSV
        
@@ -335,11 +335,11 @@ for i = 1 : length(subjects)
 
     end
 
-%     catch err
-%         warning on;
-%         warning('\nError encountered while processing %s:\n%s\n', subject, err.message);
-%         ok = false;
-%     end
+    catch err
+        warning on;
+        warning('\nError encountered while processing %s:\n%s\n', subject, err.message);
+        ok = false;
+    end
     
     if ok
         fprintf('\n-- Done subject %s --\n\n', subject);
