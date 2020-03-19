@@ -34,7 +34,7 @@ fprintf('\nFound %d subjects.\n', length(subjects));
 
 
 %% For each subject
-for i = 28 : length(subjects)
+for i = 1 : length(subjects)
     
     subject = subjects{i};
     ok = true;

@@ -22,6 +22,7 @@ params.eye.gaps.gapmin = 10;
 params.eye.gaps.gapthres = 5;
 params.eye.gaps.gapmerge = 400;
 params.eye.gaps.plots.color = [0.9 0.8 0.8];
+params.eye.gaps.buffer = 0;
 
 %% Blink detection
 params.eye.blinks.apply = true;
@@ -34,6 +35,7 @@ params.eye.blinks.absthres = 10;
 params.eye.blinks.interval = [70,120];
 params.eye.blinks.thres = [-0.5 0.1];
 params.eye.blinks.maxblink = 100;
+params.eye.blinks.from_gaps.width_lims = [];
 
 % Plots
 params.eye.blinks.plots.save = true;

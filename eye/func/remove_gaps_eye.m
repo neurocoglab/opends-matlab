@@ -92,6 +92,25 @@ while i <= N
     end
 end
 
+% Apply buffer in samples (specified in ms)
+if params.eye.gaps.buffer > 0
+    buffer = ceil(params.eye.gaps.buffer / (1000 / data.eye.Fs));
+    dg = diff(isgap);
+    inext = 0;
+    for i = 1 : length(dg)
+        if i > inext
+            if dg(i) < 0
+                idx_b = min(length(isgap),i+buffer);
+                isgap(i:idx_b) = true;
+                inext = idx_b;
+            elseif dg(i) > 0
+                idx_b = max(1,i-buffer);
+                isgap(idx_b:i) = true;
+            end
+        end
+    end
+end
+
 x = x(~isgap);
 
 % Remove gaps from time series

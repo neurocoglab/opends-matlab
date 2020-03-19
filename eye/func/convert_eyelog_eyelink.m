@@ -20,19 +20,21 @@ if ~isempty(params.eye.convert.exec_eyelink)
 
    for i = 1 : length(edf_files)
       filei = fullfile(edf_files(i).folder, edf_files(i).name);
-      fileasc = [filei(1:end-4) '.asc'];
+%       fileasc = [filei(1:end-4) '.asc'];
+      [~,fileasc,~] = fileparts(filei);
+      fileasc = [fileasc '.asc'];
       output_file = sprintf('%s/%s', output_dir, fileasc);
       if exist(output_file, 'file')
           fprintf(' already converted %s\n', edf_files(i).name);
       else
-          cmd = sprintf('"%s" -p "%s" "%s"', exec, output_file, filei);
+          cmd = sprintf('"%s" -p "%s" "%s"', exec, output_dir, filei);
           [status, message] = system(cmd);
           if status ~= 255
               fprintf(' Problem converting %s: %s\n', filei, message);
               ok = false;
               return;
           end
-%       end
+      end
    end
 
 end

@@ -45,7 +45,7 @@ for j = 1 : length(input_files)
         data_i.eye.t = data_i.eye.t / 1000;
     end
     if strcmp(params.eye.convert.format, 'eyelink')
-        data_i.eye.diam = data_i.eye.diam / 10;
+        data_i.eye.diam = data_i.eye.diam / 100;
     end
     
     % Record start time
