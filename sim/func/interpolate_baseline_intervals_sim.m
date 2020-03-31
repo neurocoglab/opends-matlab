@@ -1,7 +1,7 @@
 function [ T ] = interpolate_baseline_intervals_sim( intervals, tgaps, M )
 %
 % Interpolates baseline intervals from the matrix M into log times. Returns
-% an M x 2 matrix defining the intervals as atart and end log times
+% an M x 2 matrix defining the intervals as start and end log times
 %
 
 % idx_cycle = find(strcmp(hdr,'Cycle'));

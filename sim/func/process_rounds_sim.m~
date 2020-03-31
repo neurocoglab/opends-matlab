@@ -324,11 +324,12 @@ sim2track.right_change_times = sim2track.right_change_times(~isnan(sim2track.rig
 
 % Message button presses
 if isfield( data.sim, 'messagebutton' )
-    message_button_map_file = sprintf('%s/%s/%s', params.io.input_dir, params.io.metadata_dir, params.sim.messagebutton.maps_file );
+    message_button_map_file = sprintf('%s/%s/%s', params.io.input_dir, params.io.metadata_dir, params.sim.messagebutton.map_file );
     message_button_map = readtable( message_button_map_file );
-    sim2track.messagebutton = interpolate_messagebuttons_sim( data, ...
-                                                              message_button_map, ...
-                                                              sim2track.matrix ); 
+    sim2track.messagebutton = interpolate_messagebuttons_sim( message_button_map, ...
+        
+    
+    
 end
 
 % Baseline periods - assign to time series
