@@ -156,7 +156,7 @@ if params.eye.events.apply
 
     for i = 1 : length(subjects)
 
-%         try
+        try
             subject = subjects{i};
 
             outdir = sprintf( '%s/%s', params.io.output_dir, subject );
@@ -195,11 +195,11 @@ if params.eye.events.apply
 
             fprintf('\tFinished subject %s\n', subject);
 
-%         catch err
-%             warning on;
-%             warning('\nError encountered while processing %s:\n%s\n', subject, err.message);
-% 
-%         end
+        catch err
+            warning on;
+            warning('\nError encountered while processing %s:\n%s\n', subject, err.message);
+
+        end
 
     end
 

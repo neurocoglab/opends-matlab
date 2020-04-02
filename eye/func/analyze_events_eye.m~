@@ -5,9 +5,8 @@ function [ summary ] = analyze_events_eye( params, summary )
 %% Traffic decisions
 if params.sim.events.traffic_decision.apply
    
-    vars = [{'Subject'},{'Round'},{'Repeat'},...
-            {'Direction'},{'Correct'},{'Confidence'}];
     T_out = [];
+    M_out = [];
     
     % Build summary table
     for i = 1 : length(summary.subjects)
@@ -16,6 +15,27 @@ if params.sim.events.traffic_decision.apply
                                                                  subject, ...
                                                                  params.sim.sub_dir);
         R = readtable( results_file );
+        
+        % Averages
+        m_conf = mean(R.Confidence);
+        idx_corr = find(R.Correct==1);
+        idx_ncorr = find(R.Correct==0);
+        if isempty(idx_corr)
+            m_conf_corr = -1;
+            m_rt_corr = -1;
+        else
+            m_conf_corr = mean(R.Confidence(idx_corr));
+            m_rt_corr = mean(R.RT(idx_corr));
+        end
+        if isempty(idx_ncorr)
+            m_conf_ncorr = -1;
+            m_rt_ncorr = -1;
+        else
+            m_conf_ncorr = mean(R.Confidence(idx_ncorr));
+            m_rt_ncorr = mean(R.RT(idx_ncorr));
+        end
+        
+        
        
         if isempty(T_out)
             T_out = R;
@@ -27,7 +47,7 @@ if params.sim.events.traffic_decision.apply
     
     % Write result
     result_file = sprintf('%s/traffic_decisions.csv', params.io.results_dir);
-    writ
+    writetable( T_out, result_file );
     
 end
 

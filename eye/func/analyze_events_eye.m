@@ -5,9 +5,10 @@ function [ summary ] = analyze_events_eye( params, summary )
 %% Traffic decisions
 if params.sim.events.traffic_decision.apply
    
-    vars = [{'Subject'},{'Round'},{'Repeat'},...
-            {'Direction'},{'Correct'},{'Confidence'}];
     T_out = [];
+    M_out = [];
+    vars_m = [{'Subject'},{'ConfidenceAll'},{'ConfidenceCorrect'},{'ConfidenceWrong'}, ...
+              {'RtAll'},{'RtCorrect'},{'RtWrong'},{'PctCorrect'}];
     
     % Build summary table
     for i = 1 : length(summary.subjects)
@@ -16,6 +17,39 @@ if params.sim.events.traffic_decision.apply
                                                                  subject, ...
                                                                  params.sim.sub_dir);
         R = readtable( results_file );
+        
+        % Averages
+        m_conf = mean(R.Confidence);
+        m_rt = mean(R.RT);
+        idx_corr = find(R.Correct==1);
+        idx_ncorr = find(R.Correct==0);
+        
+        if isempty(idx_corr)
+            n_corr = 0;
+            m_conf_corr = -1;
+            m_rt_corr = -1;
+        else
+            n_corr = length(idx_corr); 
+            m_conf_corr = mean(R.Confidence(idx_corr));
+            m_rt_corr = mean(R.RT(idx_corr));
+        end
+        
+        if isempty(idx_ncorr)
+            m_conf_ncorr = -1;
+            m_rt_ncorr = -1;
+        else
+            m_conf_ncorr = mean(R.Confidence(idx_ncorr));
+            m_rt_ncorr = mean(R.RT(idx_ncorr));
+        end
+        
+        M = cell2table([{subject},{m_conf},{m_conf_corr},{m_conf_ncorr}, ...
+                        {m_rt},{m_rt_corr},{m_rt_ncorr},{100*n_corr/height(R)}],'VariableNames', vars_m);
+        
+        if isempty(M_out)
+            M_out = M;
+        else
+            M_out = [M_out;M];
+        end
        
         if isempty(T_out)
             T_out = R;
@@ -28,6 +62,9 @@ if params.sim.events.traffic_decision.apply
     % Write result
     result_file = sprintf('%s/traffic_decisions.csv', params.io.results_dir);
     writetable( T_out, result_file );
+    
+    result_file = sprintf('%s/traffic_decisions_means.csv', params.io.results_dir);
+    writetable( M_out, result_file );
     
 end
 
