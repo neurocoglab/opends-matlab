@@ -27,7 +27,7 @@ if params.sim.events.traffic_decision.apply
     
     % Write result
     result_file = sprintf('%s/traffic_decisions.csv', params.io.results_dir);
-    writetable( T_out, result_file );
+    writ
     
 end
 

@@ -1,5 +1,7 @@
 function [ T ] = import_log_sim( csv_file, fmt )
 
+% T = readtable(csv_file);
+
 fid = fopen(csv_file);
 
 hdr = fgetl(fid);

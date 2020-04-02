@@ -90,6 +90,9 @@ params.eye.epochs.plots.show_webplots = true;
 params.eye.events.zscore = true;
 params.eye.events.smooth = 500;
 
+params.eye.events.difficulty.apply = true;
+params.eye.events.outcomes.apply = true;
+
 params.eye.events.plots.save = true;
 params.eye.events.plots.ylims = [-1.5 1];
 params.eye.events.plots.show_webplots = true;

@@ -25,6 +25,8 @@ params.sim.log.start_format = '%d64 %f %d %q %f %d %d';
 params.sim.log.events_format = '%d64 %f %d %q %d';
 params.sim.log.simended_format = '%d64 %f %d %q %f %d %d';
 params.sim.log.rewarddisp_format = '%d64 %f %d %q %q %q %d %d %f %d %d';
+params.sim.log.messagebutton_format = '%d64 %f %d %q %q %q %d %q %f %d %d %d %d';
+params.sim.log.roadsign_format = '%d64 %f %d %q %q %q %f %d %d';
 
 % Fix for distances (bug in early versions)
 if exist('fixdist.mat', 'file')
@@ -32,6 +34,14 @@ if exist('fixdist.mat', 'file')
 end
 
 params.sim.baseline.intervals_file = 'baseline_intervals.csv';
+
+% Message button presses
+params.sim.rounds.messagebutton.apply = false;
+params.sim.rounds.messagebutton.maps_file = 'message_button_map.csv';
+
+% Roadsign changes
+params.sim.rounds.roadsign.apply = false;
+params.sim.rounds.roadsign.maps_file = 'roadsign_map.csv';
 
 %% Process epochs
 params.sim.epochs.difficulty.apply = true;
@@ -42,6 +52,18 @@ params.sim.epochs.outcomes.apply = true;
 params.sim.events.difficulty.apply = true;
 params.sim.events.outcomes.apply = true;
 params.sim.events.button_presses.apply = true;
+
+% Includes traffic decision button presses?
+params.sim.events.traffic_decision.apply = true;
+params.sim.events.traffic_decision.write_to_file = true;
+
+% Includes road sign changes?
+params.sim.events.roadsign.apply = true;
+
+% Includes saccades to road signs?
+params.sim.events.roadsign_saccades.apply = true;
+
+
 
 %% Plots
 params.sim.plots.pass_color = [0.9 0.9 0.95];

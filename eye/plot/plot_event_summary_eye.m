@@ -68,126 +68,127 @@ end
 % end
 
 %Comparison - Easy vs. Difficult - Passing Onset 
+if params.eye.events.difficulty.apply
+    h = plot_timelocked(params, summary.stats.left_change.diff, [{'Easy'},{'Difficult'}], ...
+                        plotly_layouts.layouts.boxplot, sig_dims, sig_clrs);
+    h.layout.title = 'PD Locked to Passing Onset: Difficulty';
+    h.layout.yaxis.range = [-0.5 1.5]; % [min(y(:)) max(y(:))]*1.3;
+    h.layout.showlegend = true;
+    h.layout.legend = struct('x', 0.1, 'y', 0.95);
 
-h = plot_timelocked(params, summary.stats.left_change.diff, [{'Easy'},{'Difficult'}], ...
-                    plotly_layouts.layouts.boxplot, sig_dims, sig_clrs);
-h.layout.title = 'PD Locked to Passing Onset: Difficulty';
-h.layout.yaxis.range = [-0.5 1.5]; % [min(y(:)) max(y(:))]*1.3;
-h.layout.showlegend = true;
-h.layout.legend = struct('x', 0.1, 'y', 0.95);
+    h.PlotOptions.FileName = sprintf('%s/eye_events_onset_diff', outdir);
+    plotlyoffline(h);
 
-h.PlotOptions.FileName = sprintf('%s/eye_events_onset_diff', outdir);
-plotlyoffline(h);
+    if show_plots
+        web(['file://' h.PlotOptions.FileName '.html'], '-new', '-notoolbar');
+    end
 
-if show_plots
-    web(['file://' h.PlotOptions.FileName '.html'], '-new', '-notoolbar');
+
+    % if out2file
+    %     saveplotlyfig(h, sprintf('%s/timelocked_onset_diff.png', outdir));
+    % end
+
+    % Comparison - Easy vs. Difficult - Passing Offset
+
+    h = plot_timelocked(params, summary.stats.right_change.diff, [{'Easy'},{'Difficult'}], ...
+                        plotly_layouts.layouts.boxplot, sig_dims, sig_clrs);
+    h.layout.title = 'PD Locked to Passing Offset: Difficulty';
+    h.layout.yaxis.range = [-0.5 1.5]; % [min(y(:)) max(y(:))]*1.3;
+    h.layout.showlegend = true;
+    h.layout.legend = struct('x', 0.1, 'y', 0.95);
+
+    h.PlotOptions.FileName = sprintf('%s/eye_events_offset_diff', outdir);
+    plotlyoffline(h);
+
+    if show_plots
+        web(['file://' h.PlotOptions.FileName '.html'], '-new', '-notoolbar');
+    end
+
+    % if out2file
+    %     saveplotlyfig(h, sprintf('%s/timelocked_offset_diff.png', outdir));
+    % end
+
+    % Comparison - Easy vs. Difficult - Overtake Event
+
+    h = plot_timelocked(params, summary.stats.overtake.diff, [{'Easy'},{'Difficult'}], ...
+                        plotly_layouts.layouts.boxplot, sig_dims, sig_clrs);
+    h.layout.title = 'PD Locked to Overtake Event: Difficulty';
+    h.layout.yaxis.range = [-0.5 1.5]; % [min(y(:)) max(y(:))]*1.3;
+    h.layout.showlegend = true;
+    h.layout.legend = struct('x', 0.1, 'y', 0.95);
+
+    h.PlotOptions.FileName = sprintf('%s/eye_events_overtake_diff', outdir);
+    plotlyoffline(h);
+
+    if show_plots
+        web(['file://' h.PlotOptions.FileName '.html'], '-new', '-notoolbar');
+    end
+
+    % if out2file
+    %     saveplotlyfig(h, sprintf('%s/timelocked_overtake_diff.png', outdir));
+    % end
 end
-
-% if out2file
-%     saveplotlyfig(h, sprintf('%s/timelocked_onset_diff.png', outdir));
-% end
-
-% Comparison - Easy vs. Difficult - Passing Offset
-
-h = plot_timelocked(params, summary.stats.right_change.diff, [{'Easy'},{'Difficult'}], ...
-                    plotly_layouts.layouts.boxplot, sig_dims, sig_clrs);
-h.layout.title = 'PD Locked to Passing Offset: Difficulty';
-h.layout.yaxis.range = [-0.5 1.5]; % [min(y(:)) max(y(:))]*1.3;
-h.layout.showlegend = true;
-h.layout.legend = struct('x', 0.1, 'y', 0.95);
-
-h.PlotOptions.FileName = sprintf('%s/eye_events_offset_diff', outdir);
-plotlyoffline(h);
-
-if show_plots
-    web(['file://' h.PlotOptions.FileName '.html'], '-new', '-notoolbar');
-end
-
-% if out2file
-%     saveplotlyfig(h, sprintf('%s/timelocked_offset_diff.png', outdir));
-% end
-
-% Comparison - Easy vs. Difficult - Overtake Event
-
-h = plot_timelocked(params, summary.stats.overtake.diff, [{'Easy'},{'Difficult'}], ...
-                    plotly_layouts.layouts.boxplot, sig_dims, sig_clrs);
-h.layout.title = 'PD Locked to Overtake Event: Difficulty';
-h.layout.yaxis.range = [-0.5 1.5]; % [min(y(:)) max(y(:))]*1.3;
-h.layout.showlegend = true;
-h.layout.legend = struct('x', 0.1, 'y', 0.95);
-
-h.PlotOptions.FileName = sprintf('%s/eye_events_overtake_diff', outdir);
-plotlyoffline(h);
-
-if show_plots
-    web(['file://' h.PlotOptions.FileName '.html'], '-new', '-notoolbar');
-end
-
-% if out2file
-%     saveplotlyfig(h, sprintf('%s/timelocked_overtake_diff.png', outdir));
-% end
-
 
 % Comparison - Positive vs. Negative Outcome - Passing Onset
+if params.eye.events.outcomes.apply
+    h = plot_timelocked(params, summary.stats.left_change.outcomes, [{'Negative'},{'Positive'}], ...
+                        plotly_layouts.layouts.boxplot, sig_dims, sig_clrs);
+    h.layout.title = 'PD Locked to Passing Onset: Outcome';
+    h.layout.yaxis.range = [-0.5 2]; % [min(y(:)) max(y(:))]*1.3;
+    h.layout.showlegend = true;
+    h.layout.legend = struct('x', 0.1, 'y', 0.95);
 
-h = plot_timelocked(params, summary.stats.left_change.outcomes, [{'Negative'},{'Positive'}], ...
-                    plotly_layouts.layouts.boxplot, sig_dims, sig_clrs);
-h.layout.title = 'PD Locked to Passing Onset: Outcome';
-h.layout.yaxis.range = [-0.5 2]; % [min(y(:)) max(y(:))]*1.3;
-h.layout.showlegend = true;
-h.layout.legend = struct('x', 0.1, 'y', 0.95);
+    h.PlotOptions.FileName = sprintf('%s/eye_events_onset_outcome', outdir);
+    plotlyoffline(h);
 
-h.PlotOptions.FileName = sprintf('%s/eye_events_onset_outcome', outdir);
-plotlyoffline(h);
+    if show_plots
+        web(['file://' h.PlotOptions.FileName '.html'], '-new', '-notoolbar');
+    end
 
-if show_plots
-    web(['file://' h.PlotOptions.FileName '.html'], '-new', '-notoolbar');
+    % if out2file
+    %     saveplotlyfig(h, sprintf('%s/timelocked_onset_outcome.png', outdir));
+    % end
+
+    % Comparison - Positive vs. Negative Outcome - Passing Offset
+
+    h = plot_timelocked(params, summary.stats.right_change.outcomes, [{'Negative'},{'Positive'}], ...
+                        plotly_layouts.layouts.boxplot, sig_dims, sig_clrs);
+    h.layout.title = 'PD Locked to Passing Offset: Outcome';
+    h.layout.yaxis.range = [-0.5 2]; % [min(y(:)) max(y(:))]*1.3;
+    h.layout.showlegend = true;
+    h.layout.legend = struct('x', 0.1, 'y', 0.95);
+
+    h.PlotOptions.FileName = sprintf('%s/eye_events_offset_outcome', outdir);
+    plotlyoffline(h);
+
+    if show_plots
+        web(['file://' h.PlotOptions.FileName '.html'], '-new', '-notoolbar');
+    end
+
+    % if out2file
+    %     saveplotlyfig(h, sprintf('%s/timelocked_offset_outcome.png', outdir));
+    % end
+
+    % Comparison - Positive vs. Negative Outcome - Overtake Event
+
+    h = plot_timelocked(params, summary.stats.overtake.outcomes, [{'Negative'},{'Positive'}], ...
+                        plotly_layouts.layouts.boxplot, sig_dims, sig_clrs);
+    h.layout.title = 'PD Locked to Overtake Event: Outcome';
+    h.layout.yaxis.range = [-0.5 2]; % [min(y(:)) max(y(:))]*1.3;
+    h.layout.showlegend = true;
+    h.layout.legend = struct('x', 0.1, 'y', 0.95);
+
+    h.PlotOptions.FileName = sprintf('%s/eye_events_overtake_outcome', outdir);
+    plotlyoffline(h);
+
+    if show_plots
+        web(['file://' h.PlotOptions.FileName '.html'], '-new', '-notoolbar');
+    end
+
+    % if out2file
+    %     saveplotlyfig(h, sprintf('%s/timelocked_overtake_outcome.png', outdir));
+    % end
 end
-
-% if out2file
-%     saveplotlyfig(h, sprintf('%s/timelocked_onset_outcome.png', outdir));
-% end
-
-% Comparison - Positive vs. Negative Outcome - Passing Offset
-
-h = plot_timelocked(params, summary.stats.right_change.outcomes, [{'Negative'},{'Positive'}], ...
-                    plotly_layouts.layouts.boxplot, sig_dims, sig_clrs);
-h.layout.title = 'PD Locked to Passing Offset: Outcome';
-h.layout.yaxis.range = [-0.5 2]; % [min(y(:)) max(y(:))]*1.3;
-h.layout.showlegend = true;
-h.layout.legend = struct('x', 0.1, 'y', 0.95);
-
-h.PlotOptions.FileName = sprintf('%s/eye_events_offset_outcome', outdir);
-plotlyoffline(h);
-
-if show_plots
-    web(['file://' h.PlotOptions.FileName '.html'], '-new', '-notoolbar');
-end
-
-% if out2file
-%     saveplotlyfig(h, sprintf('%s/timelocked_offset_outcome.png', outdir));
-% end
-
-% Comparison - Positive vs. Negative Outcome - Overtake Event
-
-h = plot_timelocked(params, summary.stats.overtake.outcomes, [{'Negative'},{'Positive'}], ...
-                    plotly_layouts.layouts.boxplot, sig_dims, sig_clrs);
-h.layout.title = 'PD Locked to Overtake Event: Outcome';
-h.layout.yaxis.range = [-0.5 2]; % [min(y(:)) max(y(:))]*1.3;
-h.layout.showlegend = true;
-h.layout.legend = struct('x', 0.1, 'y', 0.95);
-
-h.PlotOptions.FileName = sprintf('%s/eye_events_overtake_outcome', outdir);
-plotlyoffline(h);
-
-if show_plots
-    web(['file://' h.PlotOptions.FileName '.html'], '-new', '-notoolbar');
-end
-
-% if out2file
-%     saveplotlyfig(h, sprintf('%s/timelocked_overtake_outcome.png', outdir));
-% end
-
 
 
 end

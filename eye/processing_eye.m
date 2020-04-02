@@ -43,6 +43,7 @@ fprintf('\n\n==== START OF PROCESSING ===\n\n');
                                              
 fprintf('\nFound %d subjects.\n', length(subjects));
 
+clobber = params.general.clobber;
 
 %% Process epochs
 %
@@ -53,81 +54,82 @@ fprintf('\nFound %d subjects.\n', length(subjects));
 %  Plot results
 %
 
-flag_file = sprintf('%s/epochs_eye.done', results_flagdir);
+if params.eye.epochs.apply
 
-if exist(flag_file, 'file')
-   delete( flag_file ); 
-end
+    flag_file = sprintf('%s/epochs_eye.done', results_flagdir);
 
-clobber = params.general.clobber;
+    if exist(flag_file, 'file')
+       delete( flag_file ); 
+    end
 
-summary = [];
+    summary = [];
 
-fprintf('\nProcessing epochs...\n');
+    fprintf('\nProcessing epochs...\n');
 
-for i = 1 : length(subjects)
+    for i = 1 : length(subjects)
 
-    try
+        try
 
-        subject = subjects{i};
+            subject = subjects{i};
 
-        outdir = sprintf( '%s/%s', params.io.output_dir, subject );
-        figdir = sprintf( '%s/figures', outdir );
-        flagdir = sprintf( '%s/flags', outdir );
+            outdir = sprintf( '%s/%s', params.io.output_dir, subject );
+            figdir = sprintf( '%s/figures', outdir );
+            flagdir = sprintf( '%s/flags', outdir );
 
-        flag_file_i = sprintf('%s/eye_epochs.done', flagdir);
-        if exist(flag_file_i, 'file') && ~clobber
-           fprintf('\tEpochs already processed for subject %s! Skipping...\n', subject);
-           continue;
+            flag_file_i = sprintf('%s/eye_epochs.done', flagdir);
+            if exist(flag_file_i, 'file') && ~clobber
+               fprintf('\tEpochs already processed for subject %s! Skipping...\n', subject);
+               continue;
+            end
+
+            flag_done = sprintf('%s/sim_rounds.done', flagdir);
+            if ~exist(flag_done, 'file')
+               fprintf('\tRounds not processed for subject %s! Skipping...\n', subject);
+               continue;
+            end
+
+            if exist(flag_file_i, 'file'), delete(flag_file_i); end
+
+            input_file = sprintf('%s/results_preproc_eye.mat',outdir);
+            load(input_file);
+
+            [results, summary] = process_epochs_eye( params, data, summary );
+
+            results_file = sprintf('%s/results_eye.mat', outdir);
+            save(results_file, 'results');
+
+            % Plots
+            if params.eye.epochs.plots.save
+                plot_epoch_subject_eye( results, params, true );
+            end
+
+            fclose( fopen( flag_file_i, 'w+' ) );
+
+            fprintf('\tFinished subject %s\n', subject);
+
+        catch err
+            warning on;
+            warning('\nError encountered while processing %s:\n%s\n', subject, err.message);
+
         end
-
-        flag_done = sprintf('%s/sim_rounds.done', flagdir);
-        if ~exist(flag_done, 'file')
-           fprintf('\tRounds not processed for subject %s! Skipping...\n', subject);
-           continue;
-        end
-
-        if exist(flag_file_i, 'file'), delete(flag_file_i); end
-
-        input_file = sprintf('%s/results_preproc_eye.mat',outdir);
-        load(input_file);
-
-        [results, summary] = process_epochs_eye( params, data, summary );
-
-        results_file = sprintf('%s/results_eye.mat', outdir);
-        save(results_file, 'results');
-
-        % Plots
-        if params.eye.epochs.plots.save
-            plot_epoch_subject_eye( results, params, true );
-        end
-        
-        fclose( fopen( flag_file_i, 'w+' ) );
-
-        fprintf('\tFinished subject %s\n', subject);
-
-    catch err
-        warning on;
-        warning('\nError encountered while processing %s:\n%s\n', subject, err.message);
 
     end
 
+    % Run statistical analyses
+    summary = analyze_epochs_eye( summary, subject_data );
+
+    summary_file = sprintf('%s/summary_epochs_eye.mat', results_dir);
+    save(summary_file , 'summary', '-v7.3' );
+
+    if params.eye.epochs.plots.save
+        plot_epoch_summary_eye( params, summary, true );
+    end
+
+    fclose( fopen( flag_file, 'w+' ) );
+
+    fprintf('\nDone epochs processing.\n');
+
 end
-
-% Run statistical analyses
-summary = analyze_epochs_eye( summary, subject_data );
-
-summary_file = sprintf('%s/summary_epochs_eye.mat', results_dir);
-save(summary_file , 'summary', '-v7.3' );
-
-if params.eye.epochs.plots.save
-    plot_epoch_summary_eye( params, summary, true );
-end
-
-fclose( fopen( flag_file, 'w+' ) );
-
-fprintf('\nDone epochs processing.\n');
-
 
 
 %% Process events
@@ -139,77 +141,85 @@ fprintf('\nDone epochs processing.\n');
 %  Plot results
 %
 
-flag_file = sprintf('%s/events_eye.done', results_flagdir);
+if params.eye.events.apply
 
-    
-if exist(flag_file, 'file')
-   delete( flag_file ); 
-end
+    flag_file = sprintf('%s/events_eye.done', results_flagdir);
 
-summary = [];
 
-fprintf('\nProcessing events...\n');
+    if exist(flag_file, 'file')
+       delete( flag_file ); 
+    end
 
-for i = 1 : length(subjects)
+    summary = [];
 
-    try
-        subject = subjects{i};
+    fprintf('\nProcessing events...\n');
 
-        outdir = sprintf( '%s/%s', params.io.output_dir, subject );
-        figdir = sprintf( '%s/figures', outdir );
-        flagdir = sprintf( '%s/flags', outdir );
-        
-        flag_file_i = sprintf('%s/eye_events.done', flagdir);
-        if exist(flag_file_i, 'file') && ~clobber
-           fprintf('\tEvents already processed for subject %s! Skipping...\n', subject);
-           continue;
-        end
+    for i = 1 : length(subjects)
 
-        flag_done = sprintf('%s/sim_rounds.done', flagdir);
-        if ~exist(flag_done, 'file')
-           fprintf('\tRounds not processed for subject %s! Skipping...\n', subject);
-           continue;
-        end
-        
-        if exist(flag_file_i, 'file'), delete(flag_file_i); end
+%         try
+            subject = subjects{i};
 
-        input_file = sprintf('%s/results_preproc_eye.mat',outdir);
-        load(input_file);
+            outdir = sprintf( '%s/%s', params.io.output_dir, subject );
+            figdir = sprintf( '%s/figures', outdir );
+            flagdir = sprintf( '%s/flags', outdir );
 
-        results_file = sprintf('%s/results_eye.mat', outdir);
-        load(results_file);
+            flag_file_i = sprintf('%s/eye_events.done', flagdir);
+            if exist(flag_file_i, 'file') && ~clobber
+               fprintf('\tEvents already processed for subject %s! Skipping...\n', subject);
+               continue;
+            end
 
-        [results, summary] = process_events_eye( params, data, results, summary );
+            flag_done = sprintf('%s/sim_rounds.done', flagdir);
+            if ~exist(flag_done, 'file')
+               fprintf('\tRounds not processed for subject %s! Skipping...\n', subject);
+               continue;
+            end
 
-        save(results_file, 'results');
-        
-        fclose( fopen( flag_file_i, 'w+' ) );
+            if exist(flag_file_i, 'file'), delete(flag_file_i); end
 
-        fprintf('\tFinished subject %s\n', subject);
+            input_file = sprintf('%s/results_preproc_eye.mat',outdir);
+            load(input_file);
 
-    catch err
-        warning on;
-        warning('\nError encountered while processing %s:\n%s\n', subject, err.message);
+            results_file = sprintf('%s/results_eye.mat', outdir);
+            if exist(results_file, 'file')
+                load(results_file);
+            else
+                results = [];
+            end
+
+            [results, summary] = process_events_eye( params, data, results, summary );
+
+            save(results_file, 'results');
+
+            fclose( fopen( flag_file_i, 'w+' ) );
+
+            fprintf('\tFinished subject %s\n', subject);
+
+%         catch err
+%             warning on;
+%             warning('\nError encountered while processing %s:\n%s\n', subject, err.message);
+% 
+%         end
 
     end
 
-end
 
-%% Run statistical analyses
-summary = analyze_events_eye( params, summary );
+    %% Run statistical analyses
+    summary = analyze_events_eye( params, summary );
 
-summary_file = sprintf('%s/summary_events_eye.mat', results_dir);
-save(summary_file , 'summary', '-v7.3' );
+    summary_file = sprintf('%s/summary_events_eye.mat', results_dir);
+    save(summary_file , 'summary', '-v7.3' );
 
-if params.eye.events.plots.save
-    plot_event_summary_eye( params, summary, true );
-end
+    if params.eye.events.plots.save
+        plot_event_summary_eye( params, summary, true );
+    end
 
-fclose( fopen( flag_file, 'w+' ) );
+    fclose( fopen( flag_file, 'w+' ) );
 
-fprintf('\nDone events processing.\n');
+    fprintf('\nDone events processing.\n');
+
     
-    
+end
 
 
 fprintf('\n\n==== DONE PROCESSING ===\n\n');

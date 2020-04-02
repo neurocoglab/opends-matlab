@@ -40,11 +40,9 @@ end
 summary.subjects = [summary.subjects {data.subject}];
 
 % Load sequence difficulty ratings
-if params.eye.events.difficulty.apply
-    seq_diff = readtable(sprintf('%s/%s/%s', params.io.input_dir, ...
-                                             params.io.metadata_dir, ...
-                                             params.sim.sequence_difficulty_file));
-end
+seq_diff = readtable(sprintf('%s/%s/%s', params.io.input_dir, ...
+                                         params.io.metadata_dir, ...
+                                         params.sim.sequence_difficulty_file));
 
 if isfield(data.eye, 'luminance') && ~data.eye.luminance.deficient
     idx_offset = params.eye.luminance.use_offset;
@@ -128,17 +126,14 @@ results.eye.events.overtake.diffs = zeros(length(events),1);
 results.eye.events.overtake.outcomes = nan(length(events),1);
 
 for i = 1 : length(events)
-    if params.eye.events.difficulty.apply
+    if params.eye.events.
     results.eye.events.overtake.diffs(i) = get_difficulty(seq_diff, data.sim.sim2track.matrix, ...
                                                           events(i), params.sim.lane_dist);
-    end
-    if params.eye.events.outcomes.apply
-        idxi = find(results.eye.epochs.overtake_intervals(:,1) <= events(i) & ...
-                    results.eye.epochs.overtake_intervals(:,2) >= events(i));
-        if ~isempty(idxi)
-            results.eye.events.overtake.outcomes(i) = get_outcome(data.sim.sim2track, ...
-                                                                  results.eye.epochs.overtake_intervals(idxi,:));
-        end
+    idxi = find(results.eye.epochs.overtake_intervals(:,1) <= events(i) & ...
+                results.eye.epochs.overtake_intervals(:,2) >= events(i));
+    if ~isempty(idxi)
+        results.eye.events.overtake.outcomes(i) = get_outcome(data.sim.sim2track, ...
+                                                              results.eye.epochs.overtake_intervals(idxi,:));
     end
 end
 
@@ -181,17 +176,13 @@ results.eye.events.left_change.diffs = zeros(length(events),1);
 results.eye.events.left_change.outcomes = nan(length(events),1);
 
 for i = 1 : length(events)
-    if params.eye.events.difficulty.apply
-        results.eye.events.left_change.diffs(i) = get_difficulty(seq_diff, data.sim.sim2track.matrix, ...
-                                                                 events(i), params.sim.lane_dist);
-    end
-    if params.eye.events.outcomes.apply
-        idxi = find(results.eye.epochs.overtake_intervals(:,1) <= events(i) & ...
-                    results.eye.epochs.overtake_intervals(:,2) >= events(i));
-        if ~isempty(idxi)
-            results.eye.events.left_change.outcomes(i) = get_outcome(data.sim.sim2track, ...
-                                                                     results.eye.epochs.overtake_intervals(idxi,:));
-        end
+    results.eye.events.left_change.diffs(i) = get_difficulty(seq_diff, data.sim.sim2track.matrix, ...
+                                                             events(i), params.sim.lane_dist);
+    idxi = find(results.eye.epochs.overtake_intervals(:,1) <= events(i) & ...
+                results.eye.epochs.overtake_intervals(:,2) >= events(i));
+    if ~isempty(idxi)
+        results.eye.events.left_change.outcomes(i) = get_outcome(data.sim.sim2track, ...
+                                                                 results.eye.epochs.overtake_intervals(idxi,:));
     end
 end
 
@@ -233,17 +224,13 @@ results.eye.events.right_change.diffs = zeros(length(events),1);
 results.eye.events.right_change.outcomes = nan(length(events),1);
 
 for i = 1 : length(events)
-    if params.eye.events.difficulty.apply
-        results.eye.events.right_change.diffs(i) = get_difficulty(seq_diff, data.sim.sim2track.matrix, ...
-                                                                 events(i), params.sim.lane_dist);
-    end
-    if params.eye.events.outcomes.apply
-        idxi = find(results.eye.epochs.overtake_intervals(:,1) <= events(i) & ...
-                    results.eye.epochs.overtake_intervals(:,2) >= events(i));
-        if ~isempty(idxi)
-            results.eye.events.right_change.outcomes(i) = get_outcome(data.sim.sim2track, ...
-                                                                      results.eye.epochs.overtake_intervals(idxi,:));
-        end
+    results.eye.events.right_change.diffs(i) = get_difficulty(seq_diff, data.sim.sim2track.matrix, ...
+                                                             events(i), params.sim.lane_dist);
+    idxi = find(results.eye.epochs.overtake_intervals(:,1) <= events(i) & ...
+                results.eye.epochs.overtake_intervals(:,2) >= events(i));
+    if ~isempty(idxi)
+        results.eye.events.right_change.outcomes(i) = get_outcome(data.sim.sim2track, ...
+                                                                  results.eye.epochs.overtake_intervals(idxi,:));
     end
 end
 
@@ -304,16 +291,16 @@ summary.right_change.tlocked_bl2 = [summary.right_change.tlocked_bl2 {results.ey
 summary.right_change.diffs = [summary.right_change.diffs {results.eye.events.right_change.diffs}];
 summary.right_change.outcomes = [summary.right_change.outcomes {results.eye.events.right_change.outcomes}];
 
-% if params.sim.events.traffic_decision.apply
-%     summary.traffic_decision.tlocked = [summary.traffic_decision.tlocked {results.eye.events.traffic_decision.tlocked}];
-%     summary.traffic_decision.tlocked_bl = [summary.traffic_decision.tlocked_bl {results.eye.events.traffic_decision.tlocked_bl}];
-%     summary.traffic_decision.tlocked_bl2 = [summary.traffic_decision.tlocked_bl2 {results.eye.events.traffic_decision.tlocked_bl2}];
-%     summary.traffic_decision.confidence = [summary.traffic_decision.confidence {results.eye.events.traffic_decision.confidence}];
-%     summary.traffic_decision.outcomes = [summary.traffic_decision.outcomes {results.eye.events.traffic_decision.outcomes}];
-% 
-%   
-%     
-% end
+if params.sim.events.traffic_decision.apply
+    summary.traffic_decision.tlocked = [summary.traffic_decision.tlocked {results.eye.events.traffic_decision.tlocked}];
+    summary.traffic_decision.tlocked_bl = [summary.traffic_decision.tlocked_bl {results.eye.events.traffic_decision.tlocked_bl}];
+    summary.traffic_decision.tlocked_bl2 = [summary.traffic_decision.tlocked_bl2 {results.eye.events.traffic_decision.tlocked_bl2}];
+    summary.traffic_decision.confidence = [summary.traffic_decision.confidence {results.eye.events.traffic_decision.confidence}];
+    summary.traffic_decision.outcomes = [summary.traffic_decision.outcomes {results.eye.events.traffic_decision.outcomes}];
+
+  
+    
+end
 
 if ~isfield(summary.overtake, 't')
     summary.overtake.t = results.eye.events.overtake.t;

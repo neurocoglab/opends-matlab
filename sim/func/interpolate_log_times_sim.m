@@ -9,7 +9,7 @@ function [ times ] = interpolate_log_times_sim( M, sim_times, extrapolate )
 % synchronous (discrepancy of ~150 ms over 40 mins)
 %
 
-if nargin < 4
+if nargin < 3
    extrapolate = false; 
 end
 
@@ -33,6 +33,7 @@ for i = 1 : length(sim_times)
        outcount = outcount + 1;
     else
        if isempty(idx), idx = length(stimes); end
+       if idx < 2, idx = 2; end
        xs = stimes(idx-1);
        xe = stimes(idx);
        di = double(ti - xs) / double(xe - xs);

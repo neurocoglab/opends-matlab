@@ -43,9 +43,14 @@ input_file = sprintf('%s/events-SimulatorState.csv', sim_dir);
 data.sim.states.values = import_log_sim(input_file, params.sim.log.state_format);
 input_file = sprintf('%s/events-SimulatorEnded.csv', sim_dir);
 data.sim.simended.values = import_log_sim(input_file, params.sim.log.simended_format);
-if isfield(params.sim.log, 'messagebutton_format')
+if params.sim.rounds.messagebutton.apply
     input_file = sprintf('%s/events-MessageButtonPress.csv', sim_dir);
     data.sim.messagebutton.values = import_log_sim(input_file, params.sim.log.messagebutton_format);
+end
+
+if params.sim.rounds.roadsign.apply
+    input_file = sprintf('%s/events-SignTextChanged.csv', sim_dir);
+    data.sim.roadsigns.values = import_log_sim(input_file, params.sim.log.roadsign_format);
 end
 
 % Synch time series
@@ -323,12 +328,21 @@ sim2track.right_change_times = interpolate_log_times_sim( sim2track.matrix, time
 sim2track.right_change_times = sim2track.right_change_times(~isnan(sim2track.right_change_times));
 
 % Message button presses
-if isfield( data.sim, 'messagebutton' )
-    message_button_map_file = sprintf('%s/%s/%s', params.io.input_dir, params.io.metadata_dir, params.sim.messagebutton.maps_file );
+if params.sim.rounds.messagebutton.apply
+    message_button_map_file = sprintf('%s/%s/%s', params.io.input_dir, params.io.metadata_dir, params.sim.rounds.messagebutton.maps_file );
     message_button_map = readtable( message_button_map_file );
     sim2track.messagebutton = interpolate_messagebuttons_sim( data, ...
                                                               message_button_map, ...
                                                               sim2track.matrix ); 
+end
+
+% Road sign changes
+if params.sim.rounds.roadsign.apply
+    roadsign_map_file = sprintf('%s/%s/%s', params.io.input_dir, params.io.metadata_dir, params.sim.rounds.roadsign.maps_file );
+    roadsign_map = readtable( roadsign_map_file );
+    sim2track.roadsigns = interpolate_roadsigns_sim( data, ...
+                                                     roadsign_map, ...
+                                                     sim2track.matrix ); 
 end
 
 % Baseline periods - assign to time series

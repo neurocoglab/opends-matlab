@@ -13,7 +13,7 @@ end
 mkdir(output_dir);
 
 if ~isempty(params.eye.convert.exec_eyelink)
-   fprintf(' Converting from EDF to ASC...\n');
+%    fprintf(' Converting from EDF to ASC...\n');
    edf_files = dir(sprintf('%s/*.edf', subj_dir));
 
    exec = fullfile(params.general.matlab_dir, 'bin', params.eye.convert.exec_eyelink);

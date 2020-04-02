@@ -48,6 +48,11 @@ if isfield(params.sim.log, 'messagebutton_format')
     data.sim.messagebutton.values = import_log_sim(input_file, params.sim.log.messagebutton_format);
 end
 
+if isfield(params.sim.log, 'roadsign_format')
+    input_file = sprintf('%s/events-SignTextChanged.csv', sim_dir);
+    data.sim.roadsigns.values = import_log_sim(input_file, params.sim.log.roadsign_format);
+end
+
 % Synch time series
 % Construct matrix with tracker time, linked to event distance and event
 % simulation time.
@@ -324,12 +329,18 @@ sim2track.right_change_times = sim2track.right_change_times(~isnan(sim2track.rig
 
 % Message button presses
 if isfield( data.sim, 'messagebutton' )
-    message_button_map_file = sprintf('%s/%s/%s', params.io.input_dir, params.io.metadata_dir, params.sim.messagebutton.map_file );
+    message_button_map_file = sprintf('%s/%s/%s', params.io.input_dir, params.io.metadata_dir, params.sim.messagebutton.maps_file );
     message_button_map = readtable( message_button_map_file );
-    sim2track.messagebutton = interpolate_messagebuttons_sim( message_button_map, ...
-        
-    
-    
+    sim2track.messagebutton = interpolate_messagebuttons_sim( data, ...
+                                                              message_button_map, ...
+                                                              sim2track.matrix ); 
+end
+
+% Road sign changes
+if isfield( data.sim, 'roadsigns' )
+    roadsign_map_file = sprintf('%s/%s/%s', params.io.input_dir, params.io.metadata_dir, params.sim.messagebutton.maps_file );
+    message_button_map = readtable( message_button_map_file );
+    sim2track.roadsigns = interpolate_roadsigns_sim( data, sim2track.matrix ); 
 end
 
 % Baseline periods - assign to time series

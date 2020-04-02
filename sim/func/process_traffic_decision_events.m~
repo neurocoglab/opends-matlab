@@ -1,0 +1,72 @@
+function [ results ] = process_traffic_decision_events( data, results, params )
+% Processes traffic decision button press events and associated confidence ratings
+%
+
+% Get times for traffic decision events and associated confidence events
+events_d = data.sim.sim2track.messagebutton.direction_dialog;
+events_c = data.sim.sim2track.messagebutton.confidence_dialog;
+roadsigns = data.sim.sim2track.roadsigns;
+
+N_ev = length(events_d.times);
+cc = cell(N_v,1);
+
+for i = 1 : N_v
+    cc(i) = {sprintf('%d.%d',events_d.rounds(i),events_d.repeats(i))};
+end
+
+idx = [];
+for i = 1 : N_v
+    
+end
+
+correct = false(N_ev,1);
+dir_corr = cell(N_ev,1);
+dir_chosen = cell(N_ev,1);
+names = cell(N_ev,1);
+confidence = cell(N_ev,1);
+
+% Compute right/wrong decision
+for i = 1 : N_ev
+    round_i = events_d.rounds(i);
+    repeat_i = 
+    name_i = events_d.messages{i};
+    name_i = name_i(14:end-1);
+    names(i) = {name_i};
+    dir_i = events_d.keys{i};
+    dir_i = dir_i(8:end);
+    idx = find(roadsigns.rounds==round_i);
+    names_i = roadsigns.names(idx);
+    dirs = roadsigns.direction(idx);
+    idx2 = find(strcmp(names_i,name_i));
+    dir_chosen(i) = {dir_i};
+    dir_corr(i) = {lower(dirs{idx2})};
+    correct(i) = strcmpi(dir_i, dir_corr(i));
+    idx_c = find(events_c.rounds==round_i
+end
+
+C = [num2cell(events_d.times(:)),names(:),dir_chosen(:),dir_corr(:), ...
+     num2cell(correct(:)),num2cell(events_c.values(:)),num2cell(events_d.durations(:))];
+
+T = cell2table(C,'VariableNames',[{'Time'},{'Name'},{'Direction'},{'Dir_corr'}, ...
+                                  {'Correct'},{'Confidence'},{'RT'}]);
+
+% Output as CSV table
+results.sim.events.traffic_decision.values = T;
+
+if params.sim.events.traffic_decision.write_to_file
+    subj_dir = sprintf('%s/%s/%s', params.io.output_dir, ...
+                                   data.subject, ...
+                                   params.sim.sub_dir);
+    if ~exist(subj_dir, 'dir'), mkdir(subj_dir); end
+    output_file = sprintf('%s/traffic_decisions.csv', subj_dir);
+   
+    writetable(T, output_file);
+    
+end
+
+
+
+
+
+end
+
