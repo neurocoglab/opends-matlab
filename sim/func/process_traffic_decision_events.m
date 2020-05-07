@@ -24,13 +24,12 @@ N_ev = length(idx);
 
 ids = repmat({data.subject},1,N_ev);
 
-correct = zeros(N_ev,1);
+correct = false(N_ev,1);
 dir_corr = cell(N_ev,1);
 dir_chosen = cell(N_ev,1);
 names = cell(N_ev,1);
 confidence = ones(N_ev,1)*-1;
 rounds = ones(N_ev,1)*-1;
-orders = ones(N_ev,1)*-1;
 
 % Compute right/wrong decision
 for j = 1 : N_ev
@@ -45,19 +44,11 @@ for j = 1 : N_ev
     dir_i = dir_i(8:end);
     idx1 = find(roadsigns.rounds==round_i);
     names_i = roadsigns.names(idx1);
-    orders_i = roadsigns.order(idx1);
     dirs = roadsigns.direction(idx1);
     idx2 = find(strcmp(names_i,name_i));
-    if ~isempty(idx2)
-        dir_chosen(j) = {dir_i};
-        dir_corr(j) = {lower(dirs{idx2})};
-        correct(j) = strcmpi(dir_i, dir_corr(j));
-        orders(j) = orders_i(idx2);
-    else
-        dir_chosen(j) = {''};
-        dir_corr(j) = {''};
-        correct(j) = -1;
-    end
+    dir_chosen(j) = {dir_i};
+    dir_corr(j) = {lower(dirs{idx2})};
+    correct(j) = strcmpi(dir_i, dir_corr(j));
     idx_c = find(events_c.rounds==round_i & events_c.repeats==repeat_i, 1);
     if ~isempty(idx_c)
         confidence(j) = events_c.values(idx_c);
@@ -66,11 +57,11 @@ end
 
 C = [ids(:), num2cell(events_d.times(idx)),names(:),dir_chosen(:),dir_corr(:), ...
      num2cell(correct(:)),num2cell(confidence(:)),num2cell(events_d.durations(idx)), ...
-     num2cell(rounds(:)), num2cell(orders(:))];
+     num2cell(rounds(:))];
 
 T = cell2table(C,'VariableNames',[{'Subject'},{'Time'},{'Name'},{'Direction'},{'Dir_corr'}, ...
-                                  {'Correct'},{'Confidence'},{'RT'},{'Round'},{'Order'}]);                              
-                              
+                                  {'Correct'},{'Confidence'},{'RT'},{'Round'}]);
+
 % Output as CSV table
 results.sim.events.traffic_decision.values = T;
 

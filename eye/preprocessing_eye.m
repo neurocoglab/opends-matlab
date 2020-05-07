@@ -47,7 +47,7 @@ for i = 1 : length(subjects)
     figdir = sprintf( '%s/figures', outdir );
     flagdir = sprintf( '%s/flags', outdir );
     
-%     try
+    try
         
         %% 1. Convert log to CSV
        
@@ -90,7 +90,7 @@ for i = 1 : length(subjects)
            end
            
            if ok 
-              fclose( fopen(flag_file,'w+') );
+              fclose( fopen(flag_file,'w') );
               fprintf(' done.\n'); 
            else
               fprintf(' errors encountered.\n'); 
@@ -105,9 +105,8 @@ for i = 1 : length(subjects)
         %% 2. Load converted time series
         if ok
             
-            flag = 'eye_logs_imported.done';
-            flag_file = sprintf('%s/%s', flagdir, flag);
-            
+            flag_file = sprintf('%s/eye_logs_imported.done', flagdir);
+
             if exist(flag_file,'file') && ~clobber
                 fprintf('\tTimes series for %s already converted; skipping.\n', subject);
             else
@@ -122,7 +121,7 @@ for i = 1 : length(subjects)
                 
                 if ~isempty(data)
                     save(results_file, 'data');
-                    fclose( fopen(flag_file,'w+') );
+                    fclose( fopen(flag_file,'w') );
                     clear data;
                     fprintf(' done.\n');
                 else
@@ -157,7 +156,7 @@ for i = 1 : length(subjects)
                     load( results_file );
                     data = synchronize_eye_sim( params, data );
                     save(results_file, 'data');
-                    fclose( fopen(flag_file,'w+') );
+                    fclose( fopen(flag_file,'w') );
                     fprintf(' done.\n');
                 else
                     ok = false;
@@ -173,8 +172,7 @@ for i = 1 : length(subjects)
 
         if ok
 
-            flag = 'eye_blinks.done';
-            flag_file = sprintf('%s/%s', flagdir, flag);
+            flag_file = sprintf('%s/eye_blinks.done', flagdir);
 
             if exist(flag_file, 'file') && ~clobber
                 fprintf('\tEye blinks for %s already processed; skipping.\n', subject);
@@ -194,7 +192,7 @@ for i = 1 : length(subjects)
                     plot_blinks_eye ( data, params, true );
                 end
                 
-                fclose( fopen(flag_file,'w+') );
+                fclose( fopen(flag_file,'w') );
                 fprintf(' done.\n');
             end
 
@@ -233,7 +231,7 @@ for i = 1 : length(subjects)
 
             % Save results
             save(results_file, 'data');
-            fclose( fopen(flag_file,'w+') );
+            fclose( fopen(flag_file,'w') );
             fprintf(' done.\n');
         end
 
@@ -256,6 +254,7 @@ for i = 1 : length(subjects)
             fprintf('\tLuminance correction for %s already done; skipping.\n', subject);
         else
             
+            clobber = true;
             fprintf('\tProcessing luminance for %s...', subject);
             
             load(results_file);
@@ -265,13 +264,13 @@ for i = 1 : length(subjects)
             warning on;
 
             if ~isfield(data.eye, 'luminance')
-                warning(' No luminance data found... skipping!');
+                warning(' No luminance data found... skipping!\n');
             else
-                clobber = true;
+                
                 delete_flags( flag, flagdir );
 
                 if data.eye.luminance.deficient
-                    warning(' Regression was rank-deficient... skipping!');
+                    warning(' Regression was rank-deficient... skipping!\n');
                     plot_luminance_eye ( data, params, true );
                 else
                     plot_luminance_eye ( data, params, true );
@@ -279,7 +278,7 @@ for i = 1 : length(subjects)
 
                 % Save results
                 save(results_file, 'data');
-                fclose( fopen(flag_file,'w+') );
+                fclose( fopen(flag_file,'w') );
                 fprintf(' done.\n');
             
                 if params.general.show_plots
@@ -322,7 +321,7 @@ for i = 1 : length(subjects)
                 plot_events_sim( params, data, [{'Rounds'},{'LaneChanges'},{'Baseline'},{'SaccadeRate'},{'Overtakes'}], true );
             end
 
-            fclose( fopen(flag_file,'w+') );
+            fclose( fopen(flag_file,'w') );
             fprintf(' done.\n');
 
             % Plot rounds 
@@ -336,11 +335,11 @@ for i = 1 : length(subjects)
 
     end
 
-%     catch err
-%         warning on;
-%         warning('\nError encountered while processing %s:\n%s\n', subject, err.message);
-%         ok = false;
-%     end
+    catch err
+        warning on;
+        warning('\nError encountered while processing %s:\n%s\n', subject, err.message);
+        ok = false;
+    end
     
     if ok
         fprintf('\n-- Done subject %s --\n\n', subject);
@@ -356,7 +355,7 @@ fprintf('\n\n==== DONE EYE/SIM PRE-PROCESSING ===\n\n');
 
 
 %%
-% Delete this flag and all flags after it
+% Delete this flags and all flags after it
 function delete_flags ( start_flag, flagdir )
 
     flag_files = [{'eye_logs_converted.done'}, ...

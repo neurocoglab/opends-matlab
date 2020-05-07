@@ -156,7 +156,7 @@ if params.eye.events.apply
 
     for i = 1 : length(subjects)
 
-%         try
+        try
             subject = subjects{i};
 
             outdir = sprintf( '%s/%s', params.io.output_dir, subject );
@@ -182,13 +182,7 @@ if params.eye.events.apply
 
             results_file = sprintf('%s/results_eye.mat', outdir);
             if exist(results_file, 'file')
-                try
-                    load(results_file);
-                catch
-                    warning('\t%s: Existing results corrupt. Removing...\n', subject);
-                    delete(results_file);
-                    results = [];
-                end
+                load(results_file);
             else
                 results = [];
             end
@@ -201,11 +195,11 @@ if params.eye.events.apply
 
             fprintf('\tFinished subject %s\n', subject);
 
-%         catch err
-%             warning on;
-%             warning('\nError encountered while processing %s:\n%s\n', subject, err.message);
-% 
-%         end
+        catch err
+            warning on;
+            warning('\nError encountered while processing %s:\n%s\n', subject, err.message);
+
+        end
 
     end
 
