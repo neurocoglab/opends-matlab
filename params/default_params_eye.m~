@@ -129,21 +129,18 @@ params.eye.events.blinks.prepost = [1500 1500];
 params.eye.events.blinks.plots.ylims = [-0.5 0.5];
 
 params.eye.events.traffic_decision.apply = true;
-params.eye.events.traffic_decision.baseline.apply = true;
-params.eye.events.traffic_decision.messagebutton_baseline.apply = true;
-params.eye.events.traffic_decision.messagebutton_baseline.window = [-6000 -250];
+params.eye.events.traffic_decision.baseline = '
 params.eye.events.traffic_decision.zscore = true;
-params.eye.events.traffic_decision.prepost = [2000 3000];
+params.eye.events.traffic_decision.prepost = [5000 7500];
 % params.eye.events.blinks.baseline = [2000 500];
 params.eye.events.traffic_decision.plots.ylims = [-1 1.5];
 
-params.eye.events.traffic_decision.min_trials = 2;
-params.eye.events.traffic_decision.correct.apply = true;
-params.eye.events.traffic_decision.confidence.apply = true;
+params.eye.events.traffic_decision.correct.apply = false;
+params.eye.events.traffic_decision.confidence.apply = false;
 params.eye.events.traffic_decision.confidence.split = 1.5;
-params.eye.events.traffic_decision.nback.apply = true;
+params.eye.events.traffic_decision.nback.apply = false;
 
-params.eye.events.random.N = 25;
+params.eye.events.random.N = 10;
 
 params.eye.events.alpha = 0.05;
 params.eye.events.min_trials = 5;

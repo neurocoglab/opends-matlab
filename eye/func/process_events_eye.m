@@ -2,30 +2,38 @@ function [ results, summary ] = process_events_eye( params, data, results, summa
 
 if isempty(summary)
     summary = [];
-    summary.overtake.tlocked = {};
-    summary.overtake.tlocked_bl = {};
-    summary.overtake.tlocked_bl2 = {};
-    summary.overtake.diffs = {};
-    summary.overtake.outcomes = {};
+    
+    if params.eye.events.overtake.apply
+        summary.overtake.tlocked = {};
+        summary.overtake.tlocked_bl = {};
+        summary.overtake.tlocked_bl2 = {};
+        summary.overtake.diffs = {};
+        summary.overtake.outcomes = {};
+    end
 
-    summary.left_change.tlocked = {};
-    summary.left_change.tlocked_bl = {};
-    summary.left_change.tlocked_bl2 = {};
-    summary.left_change.diffs = {};
-    summary.left_change.outcomes = {};
+    if params.eye.events.left_change.apply
+        summary.left_change.tlocked = {};
+        summary.left_change.tlocked_bl = {};
+        summary.left_change.tlocked_bl2 = {};
+        summary.left_change.diffs = {};
+        summary.left_change.outcomes = {};
+    end
 
-    summary.right_change.tlocked = {};
-    summary.right_change.tlocked_bl = {};
-    summary.right_change.tlocked_bl2 = {};
-    summary.right_change.diffs = {};
-    summary.right_change.outcomes = {};
+    if params.eye.events.right_change.apply
+        summary.right_change.tlocked = {};
+        summary.right_change.tlocked_bl = {};
+        summary.right_change.tlocked_bl2 = {};
+        summary.right_change.diffs = {};
+        summary.right_change.outcomes = {};
+    end
     
     if params.sim.events.traffic_decision.apply
         summary.traffic_decision.tlocked = {};
         summary.traffic_decision.tlocked_bl = {};
         summary.traffic_decision.tlocked_bl2 = {};
         summary.traffic_decision.confidence = {};
-        summary.traffic_decision.outcomes = {};
+        summary.traffic_decision.nback = {};
+        summary.traffic_decision.correct = {};
         
     end
 
@@ -101,224 +109,308 @@ end
 N_rand = params.eye.events.random.N;
 
 % Overtake events
-events = data.sim.sim2track.overtake_times;
-events = events(~isnan(events));
+if params.eye.events.overtake.apply
+    events = data.sim.sim2track.overtake_times;
+    events = events(~isnan(events));
 
-[tlocked,tstart] = get_tlocked(pdz, t_pd, events, params.eye.events.overtake);
-clear baseline_stats;
-baseline_stats.mean = nan(length(tstart),1);
-baseline_stats.std = nan(length(tstart),1);
-tlocked_bl = zeros(size(tlocked));
-for i = 1 : length(tstart)
-   idx_bl = find(t_baselines < tstart(i),1,'last');
-   if ~isempty(idx_bl)
-      xx = pdz(idx_baseline(idx_bl,1):idx_baseline(idx_bl,2));
-      baseline_stats.mean(i) = mean(xx);
-      baseline_stats.std(i) = std(xx);
-      tlocked_bl(i,:) = tlocked(i,:) - baseline_stats.mean(i);
-   end
-end
-results.eye.events.overtake.baseline_stats = baseline_stats;
-results.eye.events.overtake.events = events;
-results.eye.events.overtake.tlocked = tlocked;
-results.eye.events.overtake.tlocked_bl = tlocked_bl;
-results.eye.events.overtake.t = -params.eye.events.overtake.prepost(1):params.eye.events.overtake.prepost(2);
-results.eye.events.overtake.t = results.eye.events.overtake.t/params.eye.Fs;
-results.eye.events.overtake.diffs = zeros(length(events),1);
-results.eye.events.overtake.outcomes = nan(length(events),1);
-
-for i = 1 : length(events)
-    if params.eye.events.difficulty.apply
-    results.eye.events.overtake.diffs(i) = get_difficulty(seq_diff, data.sim.sim2track.matrix, ...
-                                                          events(i), params.sim.lane_dist);
+    [tlocked,tstart] = get_tlocked(pdz, t_pd, events, params.eye.events.overtake);
+    clear baseline_stats;
+    baseline_stats.mean = nan(length(tstart),1);
+    baseline_stats.std = nan(length(tstart),1);
+    tlocked_bl = zeros(size(tlocked));
+    for i = 1 : length(tstart)
+       idx_bl = find(t_baselines < tstart(i),1,'last');
+       if ~isempty(idx_bl)
+          xx = pdz(idx_baseline(idx_bl,1):idx_baseline(idx_bl,2));
+          baseline_stats.mean(i) = mean(xx);
+          baseline_stats.std(i) = std(xx);
+          tlocked_bl(i,:) = tlocked(i,:) - baseline_stats.mean(i);
+       end
     end
-    if params.eye.events.outcomes.apply
-        idxi = find(results.eye.epochs.overtake_intervals(:,1) <= events(i) & ...
-                    results.eye.epochs.overtake_intervals(:,2) >= events(i));
-        if ~isempty(idxi)
-            results.eye.events.overtake.outcomes(i) = get_outcome(data.sim.sim2track, ...
-                                                                  results.eye.epochs.overtake_intervals(idxi,:));
+    results.eye.events.overtake.baseline_stats = baseline_stats;
+    results.eye.events.overtake.events = events;
+    results.eye.events.overtake.tlocked = tlocked;
+    results.eye.events.overtake.tlocked_bl = tlocked_bl;
+    results.eye.events.overtake.t = -params.eye.events.overtake.prepost(1):params.eye.events.overtake.prepost(2);
+    results.eye.events.overtake.t = results.eye.events.overtake.t/params.eye.Fs;
+    results.eye.events.overtake.diffs = zeros(length(events),1);
+    results.eye.events.overtake.outcomes = nan(length(events),1);
+
+    for i = 1 : length(events)
+        if params.eye.events.difficulty.apply
+        results.eye.events.overtake.diffs(i) = get_difficulty(seq_diff, data.sim.sim2track.matrix, ...
+                                                              events(i), params.sim.lane_dist);
+        end
+        if params.eye.events.outcomes.apply
+            idxi = find(results.eye.epochs.overtake_intervals(:,1) <= events(i) & ...
+                        results.eye.epochs.overtake_intervals(:,2) >= events(i));
+            if ~isempty(idxi)
+                results.eye.events.overtake.outcomes(i) = get_outcome(data.sim.sim2track, ...
+                                                                      results.eye.epochs.overtake_intervals(idxi,:));
+            end
         end
     end
-end
 
-% Get corresponding random time-locked events for statistical comparison
-N_event = length(events);
-events = get_random_events( events, N_rand, [results.eye.events.overtake.t(1) results.eye.events.overtake.t(end)], ...
-                            idx_baseline );
-T = zeros(N_rand,N_event,length(results.eye.events.overtake.t));
-for i = 1 : N_rand
-    T(i,:,:) = get_tlocked(pdz, t_pd, events(:,i), params.eye.events.overtake);
+    % Get corresponding random time-locked events for statistical comparison
+    N_event = length(events);
+    events = get_random_events( events, N_rand, [results.eye.events.overtake.t(1) results.eye.events.overtake.t(end)], ...
+                                idx_baseline );
+    T = zeros(N_rand,N_event,length(results.eye.events.overtake.t));
+    for i = 1 : N_rand
+        T(i,:,:) = get_tlocked(pdz, t_pd, events(:,i), params.eye.events.overtake);
+    end
+    results.eye.events.overtake.tlocked_bl2 = squeeze(nanmean(T,1));
 end
-results.eye.events.overtake.tlocked_bl2 = squeeze(nanmean(T,1));
-
 
 % Lane change left events
-events = data.sim.sim2track.left_change_times;
-events = events(~isnan(events));
+if params.eye.events.left_change.apply
+    events = data.sim.sim2track.left_change_times;
+    events = events(~isnan(events));
 
-[tlocked,tstart] = get_tlocked(pdz, t_pd, events, params.eye.events.left_change);
-clear baseline_stats;
-baseline_stats.mean = nan(length(tstart),1);
-baseline_stats.std = nan(length(tstart),1);
-tlocked_bl = zeros(size(tlocked));
-for i = 1 : length(tstart)
-   idx_bl = find(t_baselines < tstart(i),1,'last');
-   if ~isempty(idx_bl)
-      xx = pdz(idx_baseline(idx_bl,1):idx_baseline(idx_bl,2));
-      baseline_stats.mean(i) = mean(xx);
-      baseline_stats.std(i) = std(xx);
-      tlocked_bl(i,:) = tlocked(i,:) - baseline_stats.mean(i);
-   end
-end
-results.eye.events.left_change.baseline_stats = baseline_stats;
-results.eye.events.left_change.events = events;
-results.eye.events.left_change.tlocked = tlocked;
-results.eye.events.left_change.tlocked_bl = tlocked_bl;
-results.eye.events.left_change.t = -params.eye.events.left_change.prepost(1):params.eye.events.left_change.prepost(2);
-results.eye.events.left_change.t = results.eye.events.left_change.t/params.eye.Fs;
-results.eye.events.left_change.diffs = zeros(length(events),1);
-results.eye.events.left_change.outcomes = nan(length(events),1);
-
-for i = 1 : length(events)
-    if params.eye.events.difficulty.apply
-        results.eye.events.left_change.diffs(i) = get_difficulty(seq_diff, data.sim.sim2track.matrix, ...
-                                                                 events(i), params.sim.lane_dist);
+    [tlocked,tstart] = get_tlocked(pdz, t_pd, events, params.eye.events.left_change);
+    clear baseline_stats;
+    baseline_stats.mean = nan(length(tstart),1);
+    baseline_stats.std = nan(length(tstart),1);
+    tlocked_bl = zeros(size(tlocked));
+    for i = 1 : length(tstart)
+       idx_bl = find(t_baselines < tstart(i),1,'last');
+       if ~isempty(idx_bl)
+          xx = pdz(idx_baseline(idx_bl,1):idx_baseline(idx_bl,2));
+          baseline_stats.mean(i) = mean(xx);
+          baseline_stats.std(i) = std(xx);
+          tlocked_bl(i,:) = tlocked(i,:) - baseline_stats.mean(i);
+       end
     end
-    if params.eye.events.outcomes.apply
-        idxi = find(results.eye.epochs.overtake_intervals(:,1) <= events(i) & ...
-                    results.eye.epochs.overtake_intervals(:,2) >= events(i));
-        if ~isempty(idxi)
-            results.eye.events.left_change.outcomes(i) = get_outcome(data.sim.sim2track, ...
-                                                                     results.eye.epochs.overtake_intervals(idxi,:));
+    results.eye.events.left_change.baseline_stats = baseline_stats;
+    results.eye.events.left_change.events = events;
+    results.eye.events.left_change.tlocked = tlocked;
+    results.eye.events.left_change.tlocked_bl = tlocked_bl;
+    results.eye.events.left_change.t = -params.eye.events.left_change.prepost(1):params.eye.events.left_change.prepost(2);
+    results.eye.events.left_change.t = results.eye.events.left_change.t/params.eye.Fs;
+    results.eye.events.left_change.diffs = zeros(length(events),1);
+    results.eye.events.left_change.outcomes = nan(length(events),1);
+
+    for i = 1 : length(events)
+        if params.eye.events.difficulty.apply
+            results.eye.events.left_change.diffs(i) = get_difficulty(seq_diff, data.sim.sim2track.matrix, ...
+                                                                     events(i), params.sim.lane_dist);
+        end
+        if params.eye.events.outcomes.apply
+            idxi = find(results.eye.epochs.overtake_intervals(:,1) <= events(i) & ...
+                        results.eye.epochs.overtake_intervals(:,2) >= events(i));
+            if ~isempty(idxi)
+                results.eye.events.left_change.outcomes(i) = get_outcome(data.sim.sim2track, ...
+                                                                         results.eye.epochs.overtake_intervals(idxi,:));
+            end
         end
     end
-end
 
-% Get corresponding random time-locked events for statistical comparison
-N_event = length(events);
-events = get_random_events( events, N_rand, [results.eye.events.left_change.t(1) results.eye.events.left_change.t(end)], ...
-                            idx_baseline );
-T = zeros(N_rand,N_event,length(results.eye.events.left_change.t));
-for i = 1 : N_rand
-    T(i,:,:) = get_tlocked(pdz, t_pd, events(:,i), params.eye.events.left_change);
+    % Get corresponding random time-locked events for statistical comparison
+    N_event = length(events);
+    events = get_random_events( events, N_rand, [results.eye.events.left_change.t(1) ...
+                                                 results.eye.events.left_change.t(end)], ...
+                                idx_baseline );
+    T = zeros(N_rand,N_event,length(results.eye.events.left_change.t));
+    for i = 1 : N_rand
+        T(i,:,:) = get_tlocked(pdz, t_pd, events(:,i), params.eye.events.left_change);
+    end
+    results.eye.events.left_change.tlocked_bl2 = squeeze(nanmean(T,1));
 end
-results.eye.events.left_change.tlocked_bl2 = squeeze(nanmean(T,1));
                                                  
 % Lane change right events
-events = data.sim.sim2track.right_change_times;
-events = events(~isnan(events));
+if params.eye.events.right_change.apply
+    events = data.sim.sim2track.right_change_times;
+    events = events(~isnan(events));
 
-[tlocked,tstart] = get_tlocked(pdz, t_pd, events, params.eye.events.right_change);
-clear baseline_stats;
-baseline_stats.mean = nan(length(tstart),1);
-baseline_stats.std = nan(length(tstart),1);
-tlocked_bl = zeros(size(tlocked));
-for i = 1 : length(tstart)
-   idx_bl = find(t_baselines < tstart(i),1,'last');
-   if ~isempty(idx_bl)
-      xx = pdz(idx_baseline(idx_bl,1):idx_baseline(idx_bl,2));
-      baseline_stats.mean(i) = mean(xx);
-      baseline_stats.std(i) = std(xx);
-      tlocked_bl(i,:) = tlocked(i,:) - baseline_stats.mean(i);
-   end
-end
-results.eye.events.right_change.baseline_stats = baseline_stats;
-results.eye.events.right_change.events = events;
-results.eye.events.right_change.tlocked = tlocked;
-results.eye.events.right_change.tlocked_bl = tlocked_bl;
-results.eye.events.right_change.t = -params.eye.events.right_change.prepost(1):params.eye.events.right_change.prepost(2);
-results.eye.events.right_change.t = results.eye.events.right_change.t/params.eye.Fs;
-results.eye.events.right_change.diffs = zeros(length(events),1);
-results.eye.events.right_change.outcomes = nan(length(events),1);
-
-for i = 1 : length(events)
-    if params.eye.events.difficulty.apply
-        results.eye.events.right_change.diffs(i) = get_difficulty(seq_diff, data.sim.sim2track.matrix, ...
-                                                                 events(i), params.sim.lane_dist);
+    [tlocked,tstart] = get_tlocked(pdz, t_pd, events, params.eye.events.right_change);
+    clear baseline_stats;
+    baseline_stats.mean = nan(length(tstart),1);
+    baseline_stats.std = nan(length(tstart),1);
+    tlocked_bl = zeros(size(tlocked));
+    for i = 1 : length(tstart)
+       idx_bl = find(t_baselines < tstart(i),1,'last');
+       if ~isempty(idx_bl)
+          xx = pdz(idx_baseline(idx_bl,1):idx_baseline(idx_bl,2));
+          baseline_stats.mean(i) = mean(xx);
+          baseline_stats.std(i) = std(xx);
+          tlocked_bl(i,:) = tlocked(i,:) - baseline_stats.mean(i);
+       end
     end
-    if params.eye.events.outcomes.apply
-        idxi = find(results.eye.epochs.overtake_intervals(:,1) <= events(i) & ...
-                    results.eye.epochs.overtake_intervals(:,2) >= events(i));
-        if ~isempty(idxi)
-            results.eye.events.right_change.outcomes(i) = get_outcome(data.sim.sim2track, ...
-                                                                      results.eye.epochs.overtake_intervals(idxi,:));
+    results.eye.events.right_change.baseline_stats = baseline_stats;
+    results.eye.events.right_change.events = events;
+    results.eye.events.right_change.tlocked = tlocked;
+    results.eye.events.right_change.tlocked_bl = tlocked_bl;
+    results.eye.events.right_change.t = -params.eye.events.right_change.prepost(1):params.eye.events.right_change.prepost(2);
+    results.eye.events.right_change.t = results.eye.events.right_change.t/params.eye.Fs;
+    results.eye.events.right_change.diffs = zeros(length(events),1);
+    results.eye.events.right_change.outcomes = nan(length(events),1);
+
+    for i = 1 : length(events)
+        if params.eye.events.difficulty.apply
+            results.eye.events.right_change.diffs(i) = get_difficulty(seq_diff, data.sim.sim2track.matrix, ...
+                                                                     events(i), params.sim.lane_dist);
+        end
+        if params.eye.events.outcomes.apply
+            idxi = find(results.eye.epochs.overtake_intervals(:,1) <= events(i) & ...
+                        results.eye.epochs.overtake_intervals(:,2) >= events(i));
+            if ~isempty(idxi)
+                results.eye.events.right_change.outcomes(i) = get_outcome(data.sim.sim2track, ...
+                                                                          results.eye.epochs.overtake_intervals(idxi,:));
+            end
         end
     end
-end
 
-% Get corresponding random time-locked events for statistical comparison
-N_event = length(events);
-events = get_random_events( events, N_rand, [results.eye.events.right_change.t(1) results.eye.events.right_change.t(end)], ...
-                            idx_baseline );
-T = zeros(N_rand,N_event,length(results.eye.events.right_change.t));
-for i = 1 : N_rand
-    T(i,:,:) = get_tlocked(pdz, t_pd, events(:,i), params.eye.events.right_change);
+    % Get corresponding random time-locked events for statistical comparison
+    N_event = length(events);
+    events = get_random_events( events, N_rand, [results.eye.events.right_change.t(1) results.eye.events.right_change.t(end)], ...
+                                idx_baseline );
+    T = zeros(N_rand,N_event,length(results.eye.events.right_change.t));
+    for i = 1 : N_rand
+        T(i,:,:) = get_tlocked(pdz, t_pd, events(:,i), params.eye.events.right_change);
+    end
+    results.eye.events.right_change.tlocked_bl2 = squeeze(nanmean(T,1));
 end
-results.eye.events.right_change.tlocked_bl2 = squeeze(nanmean(T,1));
 
 % Saccade offset events
-svel = data.eye.saccades.saccades(:,4);
-events = data.eye.saccades.saccades(svel>params.eye.events.saccades.vmin,3);
-events=t(events);
-tlocked = get_tlocked(pdz_raw, t, events', params.eye.events.saccades);
-results.eye.events.saccades.events = events';
-results.eye.events.saccades.tlocked = tlocked;
-results.eye.events.saccades.t = -params.eye.events.saccades.prepost(1):params.eye.events.saccades.prepost(2);
-results.eye.events.saccades.t = results.eye.events.saccades.t/params.eye.Fs;
+if params.eye.events.saccades.apply
+    svel = data.eye.saccades.saccades(:,4);
+    events = data.eye.saccades.saccades(svel>params.eye.events.saccades.vmin,3);
+    events=t(events);
+    tlocked = get_tlocked(pdz_raw, t, events', params.eye.events.saccades);
+    results.eye.events.saccades.events = events';
+    results.eye.events.saccades.tlocked = tlocked;
+    results.eye.events.saccades.t = -params.eye.events.saccades.prepost(1):params.eye.events.saccades.prepost(2);
+    results.eye.events.saccades.t = results.eye.events.saccades.t/params.eye.Fs;
+end
 
 % Blink events
 %events = get_blink_offsets( preprocess.blink_ints );
-events = get_blink_events( t, data.eye.blinks.blink_ints );
-tlocked = get_tlocked(pdz_raw, t, events', params.eye.events.blinks);
-results.eye.events.blinks.tlocked = tlocked;
-results.eye.events.blinks.t = -params.eye.events.blinks.prepost(1):params.eye.events.blinks.prepost(2);
-results.eye.events.blinks.t = results.eye.events.blinks.t/params.eye.Fs;
+if params.eye.events.blinks.apply
+    events = get_blink_events( t, data.eye.blinks.blink_ints );
+    tlocked = get_tlocked(pdz_raw, t, events', params.eye.events.blinks);
+    results.eye.events.blinks.tlocked = tlocked;
+    results.eye.events.blinks.t = -params.eye.events.blinks.prepost(1):params.eye.events.blinks.prepost(2);
+    results.eye.events.blinks.t = results.eye.events.blinks.t/params.eye.Fs;
+end
 
 % Traffic decision events
-if params.sim.events.traffic_decision.apply
+if params.eye.events.traffic_decision.apply
     
     results = process_traffic_decision_events( data, results, params );
-    
-    
+   
+    events = data.sim.sim2track.messagebutton.direction_dialog.times;
+    events = events(~isnan(events));
 
+    [tlocked,tstart] = get_tlocked(pdz, t_pd, events, params.eye.events.traffic_decision);
+    
+    clear baseline_stats;
+    
+    if params.eye.events.traffic_decision.messagebutton_baseline.apply 
+        % Use message box appearance to define baseline
+        [idx_baseline2, t_baselines2] = get_messagebutton_baseline( data, params, t_pd );
+    else
+        idx_baseline2 = idx_baseline;
+        t_baselines2 = t_baselines;
+    end
+    
+    baseline_stats.mean = nan(length(tstart),1);
+    baseline_stats.std = nan(length(tstart),1);
+    tlocked_bl = zeros(size(tlocked));
+    for i = 1 : length(tstart)
+       if params.eye.events.traffic_decision.messagebutton_baseline.apply 
+           % Use previous messagebutton baseline
+           idx_bl = find(t_baselines2 < tstart(i),1,'last');
+       else
+           % Use *next* simulation baseline
+           idx_bl = find(t_baselines2 > tstart(i),1,'first');
+       end
+       if ~isempty(idx_bl)
+          xx = pdz(idx_baseline2(idx_bl,1):idx_baseline2(idx_bl,2));
+          baseline_stats.mean(i) = mean(xx);
+          baseline_stats.std(i) = std(xx);
+          if params.eye.events.traffic_decision.baseline.apply
+              tlocked_bl(i,:) = tlocked(i,:) - baseline_stats.mean(i);
+          else
+              tlocked_bl(i,:) = tlocked(i,:);
+          end
+       end
+    end
+    
+    results.eye.events.traffic_decision.baseline_stats = baseline_stats;
+    results.eye.events.traffic_decision.events = events;
+    results.eye.events.traffic_decision.tlocked = tlocked;
+    results.eye.events.traffic_decision.tlocked_bl = tlocked_bl;
+    results.eye.events.traffic_decision.t = -params.eye.events.traffic_decision.prepost(1):params.eye.events.traffic_decision.prepost(2);
+    results.eye.events.traffic_decision.t = results.eye.events.traffic_decision.t/params.eye.Fs;
+
+     % Get corresponding random time-locked events for statistical comparison
+    N_event = length(events);
+    events = get_random_events( events, N_rand, [results.eye.events.traffic_decision.t(1) ...
+                                                 results.eye.events.traffic_decision.t(end)], ...
+                                idx_baseline2 );
+    T = zeros(N_rand,N_event,length(results.eye.events.traffic_decision.t));
+    for i = 1 : N_rand
+        T(i,:,:) = get_tlocked(pdz, t_pd, events(:,i), params.eye.events.traffic_decision);
+    end
+    results.eye.events.traffic_decision.tlocked_bl2 = squeeze(nanmean(T,1));
+    
+    if params.eye.events.traffic_decision.correct.apply
+        results.eye.events.traffic_decision.correct = 1 + results.sim.events.traffic_decision.values.Correct;
+    end
+    if params.eye.events.traffic_decision.nback.apply
+        results.eye.events.traffic_decision.nback = 3-results.sim.events.traffic_decision.values.Order;
+    end
+    if params.eye.events.traffic_decision.confidence.apply
+        results.eye.events.traffic_decision.confidence = 1 + ...
+                double(results.sim.events.traffic_decision.values.Confidence > ...
+                params.eye.events.traffic_decision.confidence.split);
+    end
+    
 end
 
 
 % Update summary
-summary.overtake.tlocked = [summary.overtake.tlocked {results.eye.events.overtake.tlocked}];
-summary.overtake.tlocked_bl = [summary.overtake.tlocked_bl {results.eye.events.overtake.tlocked_bl}];
-summary.overtake.tlocked_bl2 = [summary.overtake.tlocked_bl2 {results.eye.events.overtake.tlocked_bl2}];
-summary.overtake.diffs = [summary.overtake.diffs {results.eye.events.overtake.diffs}];
-summary.overtake.outcomes = [summary.overtake.outcomes {results.eye.events.overtake.outcomes}];
-
-summary.left_change.tlocked = [summary.left_change.tlocked {results.eye.events.left_change.tlocked}];
-summary.left_change.tlocked_bl = [summary.left_change.tlocked_bl {results.eye.events.left_change.tlocked_bl}];
-summary.left_change.tlocked_bl2 = [summary.left_change.tlocked_bl2 {results.eye.events.left_change.tlocked_bl2}];
-summary.left_change.diffs = [summary.left_change.diffs {results.eye.events.left_change.diffs}];
-summary.left_change.outcomes = [summary.left_change.outcomes {results.eye.events.left_change.outcomes}];
-
-summary.right_change.tlocked = [summary.right_change.tlocked {results.eye.events.right_change.tlocked}];
-summary.right_change.tlocked_bl = [summary.right_change.tlocked_bl {results.eye.events.right_change.tlocked_bl}];
-summary.right_change.tlocked_bl2 = [summary.right_change.tlocked_bl2 {results.eye.events.right_change.tlocked_bl2}];
-summary.right_change.diffs = [summary.right_change.diffs {results.eye.events.right_change.diffs}];
-summary.right_change.outcomes = [summary.right_change.outcomes {results.eye.events.right_change.outcomes}];
-
-% if params.sim.events.traffic_decision.apply
-%     summary.traffic_decision.tlocked = [summary.traffic_decision.tlocked {results.eye.events.traffic_decision.tlocked}];
-%     summary.traffic_decision.tlocked_bl = [summary.traffic_decision.tlocked_bl {results.eye.events.traffic_decision.tlocked_bl}];
-%     summary.traffic_decision.tlocked_bl2 = [summary.traffic_decision.tlocked_bl2 {results.eye.events.traffic_decision.tlocked_bl2}];
-%     summary.traffic_decision.confidence = [summary.traffic_decision.confidence {results.eye.events.traffic_decision.confidence}];
-%     summary.traffic_decision.outcomes = [summary.traffic_decision.outcomes {results.eye.events.traffic_decision.outcomes}];
-% 
-%   
-%     
-% end
-
-if ~isfield(summary.overtake, 't')
+if params.eye.events.overtake.apply
+    summary.overtake.tlocked = [summary.overtake.tlocked {results.eye.events.overtake.tlocked}];
+    summary.overtake.tlocked_bl = [summary.overtake.tlocked_bl {results.eye.events.overtake.tlocked_bl}];
+    summary.overtake.tlocked_bl2 = [summary.overtake.tlocked_bl2 {results.eye.events.overtake.tlocked_bl2}];
+    summary.overtake.diffs = [summary.overtake.diffs {results.eye.events.overtake.diffs}];
+    summary.overtake.outcomes = [summary.overtake.outcomes {results.eye.events.overtake.outcomes}];
     summary.overtake.t = results.eye.events.overtake.t;
+end
+
+if params.eye.events.left_change.apply
+    summary.left_change.tlocked = [summary.left_change.tlocked {results.eye.events.left_change.tlocked}];
+    summary.left_change.tlocked_bl = [summary.left_change.tlocked_bl {results.eye.events.left_change.tlocked_bl}];
+    summary.left_change.tlocked_bl2 = [summary.left_change.tlocked_bl2 {results.eye.events.left_change.tlocked_bl2}];
+    summary.left_change.diffs = [summary.left_change.diffs {results.eye.events.left_change.diffs}];
+    summary.left_change.outcomes = [summary.left_change.outcomes {results.eye.events.left_change.outcomes}];
     summary.left_change.t = results.eye.events.left_change.t;
+end
+
+if params.eye.events.right_change.apply
+    summary.right_change.tlocked = [summary.right_change.tlocked {results.eye.events.right_change.tlocked}];
+    summary.right_change.tlocked_bl = [summary.right_change.tlocked_bl {results.eye.events.right_change.tlocked_bl}];
+    summary.right_change.tlocked_bl2 = [summary.right_change.tlocked_bl2 {results.eye.events.right_change.tlocked_bl2}];
+    summary.right_change.diffs = [summary.right_change.diffs {results.eye.events.right_change.diffs}];
+    summary.right_change.outcomes = [summary.right_change.outcomes {results.eye.events.right_change.outcomes}];
     summary.right_change.t = results.eye.events.right_change.t;
+end
+
+if params.sim.events.traffic_decision.apply
+    summary.traffic_decision.tlocked = [summary.traffic_decision.tlocked {results.eye.events.traffic_decision.tlocked}];
+    summary.traffic_decision.tlocked_bl = [summary.traffic_decision.tlocked_bl {results.eye.events.traffic_decision.tlocked_bl}];
+    summary.traffic_decision.tlocked_bl2 = [summary.traffic_decision.tlocked_bl2 {results.eye.events.traffic_decision.tlocked_bl2}];
+    if params.eye.events.traffic_decision.confidence.apply
+        summary.traffic_decision.confidence = [summary.traffic_decision.confidence {results.eye.events.traffic_decision.confidence}];
+    end
+    if params.eye.events.traffic_decision.nback.apply
+        summary.traffic_decision.nback = [summary.traffic_decision.nback {results.eye.events.traffic_decision.nback}];
+    end
+    if params.eye.events.traffic_decision.correct.apply
+        summary.traffic_decision.correct = [summary.traffic_decision.correct {results.eye.events.traffic_decision.correct}];
+    end
+    summary.traffic_decision.t = results.eye.events.traffic_decision.t;
 end
 
    
@@ -375,6 +467,32 @@ function blink_events = get_blink_events( t, blink_ints )
             blink_events = [blink_events t(idx)];
         end
     end
+
+end
+
+function [ idx_baseline, t_baselines ] = get_messagebutton_baseline ( data, params, t_pd )
+
+    window = 1000*params.eye.events.traffic_decision.messagebutton_baseline.window/data.eye.Fs;
+    events = data.sim.sim2track.messagebutton.direction_dialog.times;
+    durations = double(data.sim.sim2track.messagebutton.direction_dialog.durations);
+    events = events-durations; % This is start of message display
+    
+    idx_baseline = [];
+    t_baselines = [];
+    
+    for i = 1 : length(events)
+        ti = events(i);
+        idx1 = find(t_pd < ti+window(1),1,'last');
+        idx2 = find(t_pd < ti+window(2),1,'last');
+
+        if ~isempty(idx1) && ~isempty(idx2)
+            if idx2 > idx1
+                idx_baseline(end+1,:) = [idx1,idx2];
+                t_baselines(end+1) = t_pd(idx1);
+            end
+        end
+    end
+
 
 end
 

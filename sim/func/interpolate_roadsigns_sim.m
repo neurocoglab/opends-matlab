@@ -8,7 +8,7 @@ sign_ids = data.sim.roadsigns.values.Source;
 messages = data.sim.roadsigns.values.CurrentText;
 rounds = data.sim.roadsigns.values.Sim_Game_Cycle;
 repeats = data.sim.roadsigns.values.Sim_Game_Repeat;
-times = data.sim.roadsigns.values.Millis - data.sim.t_start;
+times = data.sim.roadsigns.values.Millis - double(data.sim.t_start);
 
 ids = roadsign_map.Id;
 

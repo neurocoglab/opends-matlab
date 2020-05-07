@@ -3,12 +3,15 @@ function [ summary ] = analyze_events_eye( params, summary )
 %
 
 %% Traffic decisions
-if params.sim.events.traffic_decision.apply
+if params.eye.events.traffic_decision.apply
    
     T_out = [];
     M_out = [];
     vars_m = [{'Subject'},{'ConfidenceAll'},{'ConfidenceCorrect'},{'ConfidenceWrong'}, ...
-              {'RtAll'},{'RtCorrect'},{'RtWrong'},{'PctCorrect'}];
+              {'Confidence1Back'},{'Confidence2Back'}, ...
+              {'RtAll'},{'RtCorrect'},{'RtWrong'}, ...
+              {'Rt1Back'},{'Rt2Back'}, {'PctCorrect'}, ...
+              {'PctCorrect1Back'},{'PctCorrect2Back'}];
     
     % Build summary table
     for i = 1 : length(summary.subjects)
@@ -21,6 +24,8 @@ if params.sim.events.traffic_decision.apply
         % Averages
         m_conf = mean(R.Confidence);
         m_rt = mean(R.RT);
+        
+        % By correct/incorrect
         idx_corr = find(R.Correct==1);
         idx_ncorr = find(R.Correct==0);
         
@@ -30,20 +35,65 @@ if params.sim.events.traffic_decision.apply
             m_rt_corr = -1;
         else
             n_corr = length(idx_corr); 
-            m_conf_corr = mean(R.Confidence(idx_corr));
-            m_rt_corr = mean(R.RT(idx_corr));
+            x = R.Confidence(idx_corr);
+            m_conf_corr = mean(x(x>-1));
+            x = R.RT(idx_corr);
+            m_rt_corr = mean(x(x>-1));
         end
         
         if isempty(idx_ncorr)
             m_conf_ncorr = -1;
             m_rt_ncorr = -1;
         else
-            m_conf_ncorr = mean(R.Confidence(idx_ncorr));
-            m_rt_ncorr = mean(R.RT(idx_ncorr));
+            x = R.Confidence(idx_ncorr);
+            m_conf_ncorr = mean(x(x>-1));
+            x = R.RT(idx_ncorr);
+            m_rt_ncorr = mean(x(x>-1));
         end
         
+        % By 1/2 back
+        idx_1b = find(R.Order==2);
+        idx_2b = find(R.Order==1);
+        
+        pct_corr_1b = -1;
+        pct_corr_2b = -1;
+        
+        if isempty(idx_1b)
+            m_conf_1b = -1;
+            m_rt_1b = -1;
+        else
+            if n_corr>0
+                pct_corr_1b = sum(R.Order==2 & R.Correct==1)/sum(R.Order==2);
+            end
+            
+            x = R.Confidence(idx_1b);
+            m_conf_1b = mean(x(x>-1));
+            x = R.RT(idx_1b);
+            m_rt_1b = mean(x(x>-1));
+        end
+        
+        if isempty(idx_2b)
+            m_conf_2b = -1;
+            m_rt_2b = -1;
+        else
+            if n_corr>0
+                pct_corr_2b = sum(R.Order==1 & R.Correct==1)/sum(R.Order==1);
+            end
+            
+            x = R.Confidence(idx_2b);
+            m_conf_2b = mean(x(x>-1));
+            x = R.RT(idx_2b);
+            m_rt_2b = mean(x(x>-1));
+        end
+        
+        % Write result
         M = cell2table([{subject},{m_conf},{m_conf_corr},{m_conf_ncorr}, ...
-                        {m_rt},{m_rt_corr},{m_rt_ncorr},{100*n_corr/height(R)}],'VariableNames', vars_m);
+                        {m_conf_1b},{m_conf_2b}, ...
+                        {m_rt},{m_rt_corr},{m_rt_ncorr}, ...
+                        {m_rt_1b},{m_rt_2b}, ...
+                        {100*n_corr/height(R)}, ...
+                        {100*pct_corr_1b},{100*pct_corr_2b}, ...
+                        ],'VariableNames', vars_m);
         
         if isempty(M_out)
             M_out = M;
@@ -54,7 +104,11 @@ if params.sim.events.traffic_decision.apply
         if isempty(T_out)
             T_out = R;
         else
+            try
             T_out = [T_out;R];
+            catch
+                a=0;
+            end
         end
         
     end
@@ -72,62 +126,85 @@ end
 %% Compare left-change, overtake, and right-change to zero
 %  Using cluster-based inference
 
-[result, timelock_ga] = cluster_ttest_baseline(summary.left_change, summary.subjects, params);
-if isempty(result)
-   warning('No result for Passing Onset v. Baseline!'); 
+if params.eye.events.left_change.apply
+    [result, timelock_ga] = cluster_ttest_baseline(summary.left_change, summary.subjects, params);
+    if isempty(result)
+       warning('No result for Passing Onset v. Baseline!'); 
+    end
+    summary.stats.left_change.subjects = result.subjects;
+    summary.stats.left_change.excluded_subjects = result.excluded_subjects;
+    summary.stats.left_change.timelockstats = result.stats;
+    summary.stats.left_change.timelock_avr = timelock_ga;
 end
-summary.stats.left_change.subjects = result.subjects;
-summary.stats.left_change.excluded_subjects = result.excluded_subjects;
-summary.stats.left_change.timelockstats = result.stats;
-summary.stats.left_change.timelock_avr = timelock_ga;
 
-[result, timelock_ga] = cluster_ttest_baseline(summary.overtake, summary.subjects, params);
-if isempty(result)
-   warning('No result for Overtake v. Baseline!'); 
+if params.eye.events.overtake.apply
+    [result, timelock_ga] = cluster_ttest_baseline(summary.overtake, summary.subjects, params);
+    if isempty(result)
+       warning('No result for Overtake v. Baseline!'); 
+    end
+    summary.stats.overtake.subjects = result.subjects;
+    summary.stats.overtake.excluded_subjects = result.excluded_subjects;
+    summary.stats.overtake.timelockstats = result.stats;
+    summary.stats.overtake.timelock_avr = timelock_ga;
 end
-summary.stats.overtake.subjects = result.subjects;
-summary.stats.overtake.excluded_subjects = result.excluded_subjects;
-summary.stats.overtake.timelockstats = result.stats;
-summary.stats.overtake.timelock_avr = timelock_ga;
 
-[result, timelock_ga] = cluster_ttest_baseline(summary.right_change, summary.subjects, params);
-if isempty(result)
-   warning('No result for Passing Offset v. Baseline!'); 
+if params.eye.events.right_change.apply
+    [result, timelock_ga] = cluster_ttest_baseline(summary.right_change, summary.subjects, params);
+    if isempty(result)
+       warning('No result for Passing Offset v. Baseline!'); 
+    end
+    summary.stats.right_change.subjects = result.subjects;
+    summary.stats.right_change.excluded_subjects = result.excluded_subjects;
+    summary.stats.right_change.timelockstats = result.stats;
+    summary.stats.right_change.timelock_avr = timelock_ga;
 end
-summary.stats.right_change.subjects = result.subjects;
-summary.stats.right_change.excluded_subjects = result.excluded_subjects;
-summary.stats.right_change.timelockstats = result.stats;
-summary.stats.right_change.timelock_avr = timelock_ga;
+
+if params.eye.events.traffic_decision.apply
+    [result, timelock_ga] = cluster_ttest_baseline(summary.traffic_decision, summary.subjects, params);
+    if isempty(result)
+       warning('No result for Traffic Decision v. Baseline!'); 
+    end
+    summary.stats.traffic_decision.subjects = result.subjects;
+    summary.stats.traffic_decision.excluded_subjects = result.excluded_subjects;
+    summary.stats.traffic_decision.timelockstats = result.stats;
+    summary.stats.traffic_decision.timelock_avr = timelock_ga;
+end
 
 
 % %% Compare Easy v. Difficult
 if params.eye.events.difficulty.apply
-    [result, timelock_ga] = cluster_ttest_twosample(summary.left_change, summary.left_change.diffs, summary.subjects, params);
-    if isempty(result)
-       warning('No result for Passing Onset x Difficulty!'); 
+    if params.eye.events.left_change.apply
+        [result, timelock_ga] = cluster_ttest_twosample(summary.left_change, summary.left_change.diffs, summary.subjects, params);
+        if isempty(result)
+           warning('No result for Passing Onset x Difficulty!'); 
+        end
+        summary.stats.left_change.diff.subjects = result.subjects;
+        summary.stats.left_change.diff.excluded_subjects = result.excluded_subjects;
+        summary.stats.left_change.diff.timelockstats = result.stats;
+        summary.stats.left_change.diff.timelock_avr = timelock_ga;
     end
-    summary.stats.left_change.diff.subjects = result.subjects;
-    summary.stats.left_change.diff.excluded_subjects = result.excluded_subjects;
-    summary.stats.left_change.diff.timelockstats = result.stats;
-    summary.stats.left_change.diff.timelock_avr = timelock_ga;
 
-    [result, timelock_ga] = cluster_ttest_twosample(summary.right_change, summary.right_change.diffs, summary.subjects, params);
-    if isempty(result)
-       warning('No result for Passing Offset x Difficulty!'); 
+    if params.eye.events.right_change.apply
+        [result, timelock_ga] = cluster_ttest_twosample(summary.right_change, summary.right_change.diffs, summary.subjects, params);
+        if isempty(result)
+           warning('No result for Passing Offset x Difficulty!'); 
+        end
+        summary.stats.right_change.diff.subjects = result.subjects;
+        summary.stats.right_change.diff.excluded_subjects = result.excluded_subjects;
+        summary.stats.right_change.diff.timelockstats = result.stats;
+        summary.stats.right_change.diff.timelock_avr = timelock_ga;
     end
-    summary.stats.right_change.diff.subjects = result.subjects;
-    summary.stats.right_change.diff.excluded_subjects = result.excluded_subjects;
-    summary.stats.right_change.diff.timelockstats = result.stats;
-    summary.stats.right_change.diff.timelock_avr = timelock_ga;
 
-    [result, timelock_ga] = cluster_ttest_twosample(summary.overtake, summary.overtake.diffs, summary.subjects, params);
-    if isempty(result)
-       warning('No result for Overtake x Difficulty!'); 
+    if params.eye.events.overtake.apply
+        [result, timelock_ga] = cluster_ttest_twosample(summary.overtake, summary.overtake.diffs, summary.subjects, params);
+        if isempty(result)
+           warning('No result for Overtake x Difficulty!'); 
+        end
+        summary.stats.overtake.diff.subjects = result.subjects;
+        summary.stats.overtake.diff.excluded_subjects = result.excluded_subjects;
+        summary.stats.overtake.diff.timelockstats = result.stats;
+        summary.stats.overtake.diff.timelock_avr = timelock_ga;
     end
-    summary.stats.overtake.diff.subjects = result.subjects;
-    summary.stats.overtake.diff.excluded_subjects = result.excluded_subjects;
-    summary.stats.overtake.diff.timelockstats = result.stats;
-    summary.stats.overtake.diff.timelock_avr = timelock_ga;
 
 end
 
@@ -190,6 +267,73 @@ if params.eye.events.outcomes.apply
     summary.stats.overtake.outcomes.timelock_avr = timelock_ga;
 
 end
+
+% Compare Traffic correct vs. incorrect
+if params.eye.events.traffic_decision.correct.apply
+    
+    N = length(summary.traffic_decision.correct);
+    groups = cell(N,1);
+    for i = 1 : N
+        groups(i) = summary.traffic_decision.correct(i);
+    end
+    [result, timelock_ga] = cluster_ttest_twosample(summary.traffic_decision, groups, ...
+                                                    summary.subjects, params, ...
+                                                    params.eye.events.traffic_decision.min_trials);
+    if isempty(result)
+       warning('No result for Traffic Decision Correct v. Incorrect!'); 
+    end
+    summary.stats.traffic_decision.correct.subjects = result.subjects;
+    summary.stats.traffic_decision.correct.excluded_subjects = result.excluded_subjects;
+    summary.stats.traffic_decision.correct.timelockstats = result.stats;
+    summary.stats.traffic_decision.correct.timelock_avr = timelock_ga;
+
+end
+
+% Compare Traffic confident vs. nonconfident
+if params.eye.events.traffic_decision.confidence.apply
+
+    N = length(summary.traffic_decision.confidence);
+    groups = cell(N,1);
+    for i = 1 : N
+        groups(i) = summary.traffic_decision.confidence(i);
+    end
+    [result, timelock_ga] = cluster_ttest_twosample(summary.traffic_decision, groups, ...
+                                                    summary.subjects, params, ...
+                                                    params.eye.events.traffic_decision.min_trials);
+    if isempty(result)
+       warning('No result for Traffic Decision Confidence!'); 
+    end
+    summary.stats.traffic_decision.confidence.subjects = result.subjects;
+    summary.stats.traffic_decision.confidence.excluded_subjects = result.excluded_subjects;
+    summary.stats.traffic_decision.confidence.timelockstats = result.stats;
+    summary.stats.traffic_decision.confidence.timelock_avr = timelock_ga;
+    
+end
+
+% Compare Traffic 1-back vs. 2-back
+if params.eye.events.traffic_decision.nback.apply
+
+    N = length(summary.traffic_decision.nback);
+    groups = cell(N,1);
+    for i = 1 : N
+        groups(i) = summary.traffic_decision.nback(i);
+    end
+    [result, timelock_ga] = cluster_ttest_twosample(summary.traffic_decision, groups, ...
+                                                    summary.subjects, params, ...
+                                                    params.eye.events.traffic_decision.min_trials);
+    if isempty(result)
+       warning('No result for Traffic Decision N-back!'); 
+    end
+    summary.stats.traffic_decision.nback.subjects = result.subjects;
+    summary.stats.traffic_decision.nback.excluded_subjects = result.excluded_subjects;
+    summary.stats.traffic_decision.nback.timelockstats = result.stats;
+    summary.stats.traffic_decision.nback.timelock_avr = timelock_ga;
+   
+    
+end
+
+
+
 
     function [result, timelock_ga] = cluster_ttest_onesample( event, subjects, params )
         
@@ -321,10 +465,12 @@ end
 
 
 
-    function [result, timelock_ga] = cluster_ttest_twosample( event, groups, subjects, params )
+    function [result, timelock_ga] = cluster_ttest_twosample( event, groups, subjects, params, min_trials )
         
         alpha = params.eye.events.alpha/2;
-        min_trials = params.eye.events.min_trials;
+        if nargin < 5
+            min_trials = params.eye.events.min_trials;
+        end
         
         % Build Fieldtrip structure
         result.subjects = {};
@@ -352,7 +498,7 @@ end
             keeprows = sum(isnan(trial),2) == 0;
             trial = trial(keeprows,:);
             % Only add if both groups have at least one sample
-            if ~isempty(trial) && sum(keeprows) > min_trials
+            if ~isempty(trial) && sum(keeprows) >= min_trials
                 for jj = 1 : size(trial,1)
                     data1.trial(end+1) = {squeeze(trial(jj,:))};
                 end
@@ -362,7 +508,7 @@ end
                 trial = event.tlocked_bl{ii}(idx2,:);
                 keeprows = sum(isnan(trial),2) == 0;
                 trial = trial(keeprows,:);
-                if ~isempty(trial) && sum(keeprows) > min_trials
+                if ~isempty(trial) && sum(keeprows) >= min_trials
                     timelock1(ii) = {X};
                     for jj = 1 : size(trial,1)
                         data2.trial(end+1) = {squeeze(trial(jj,:))};

@@ -51,7 +51,7 @@ while cycle <= N_cycles
            
            if ~(isempty(d1) || isempty(d2)) 
            
-               if d1 == d2
+               if d1 == d2 || dists(d2)==dists(d1)
                   ratio = 0; 
                else
                   ratio = (d_start-dists(d1))/(dists(d2)-dists(d1));
