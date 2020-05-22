@@ -15,6 +15,7 @@ end
 exec = strrep(exec,'\','/');
 a = strfind(exec,'/');
 a = a(end);
+exec = strrep(exec,'/',filesep);
 cdir = exec(1:a);
 cfile = exec(a+1:end);
 if ~ispc, cfile = ['.' filsep cfile]; end
