@@ -12,15 +12,17 @@ if ~exist(outdir, 'dir')
    mkdir(outdir); 
 end
 
+exec = strrep(exec,'\','/');
 a = strfind(exec,'/');
 a = a(end);
 cdir = exec(1:a);
 cfile = exec(a+1:end);
-if ~ispc, cfile = ['./' cfile]; end
+if ~ispc, cfile = ['.' filsep cfile]; end
 
-cmd = sprintf('cd "%s"; %s "%s" assets/opends/%s.xml "%s" -addserial', cdir, ...
+cmd = sprintf('cd "%s"; %s "%s" assets%sopends%s%s.xml "%s" -addserial', cdir, ...
                                             cfile, ...
                                             log_file, ...
+                                            filesep, filesep, ...
                                             params.sim.convert.filter, ...
                                             outdir);
 
