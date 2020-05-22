@@ -29,11 +29,12 @@ if ~isempty(params.eye.convert.exec_eyelink)
       else
           cmd = sprintf('"%s" -p "%s" "%s"', exec, output_dir, filei);
           [status, message] = system(cmd);
-          if status ~= 255
-              fprintf(' Problem converting %s: %s\n', filei, message);
-              ok = false;
-              return;
-          end
+          % Not reliable; error will be apparent later
+%           if status ~= 255
+%               fprintf(' Problem converting %s: %s\n', filei, message);
+%               ok = false;
+%               return;
+%           end
       end
    end
 
