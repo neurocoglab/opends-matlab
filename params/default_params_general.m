@@ -8,6 +8,7 @@ params.io.metadata_dir = 'metadata';
 params.io.results_dir = '';
 
 %% General parameters
+params.general.debug = false;
 params.general.matlab_dir = '../opends-matlab';
 params.general.subjects_file = '';
 params.general.clobber = false;
