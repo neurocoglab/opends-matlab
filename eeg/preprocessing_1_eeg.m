@@ -153,6 +153,7 @@ for i = 1 : length(subjects)
     catch err
         fprintf('\n== Errors encountered in pre-processing step 1 for subject %s: %s ==\n\n', subject, err.message);
         ok = false;
+        
     end
 
     close all;

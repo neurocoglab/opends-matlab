@@ -45,6 +45,8 @@ fprintf('\nFound %d subjects.\n', length(subjects));
 
 clobber = params.general.clobber;
 
+ok = true;
+
 %% Process epochs
 %
 %  Compute averages
@@ -196,27 +198,36 @@ if params.eye.events.apply
             fprintf('\tFinished subject %s\n', subject);
 
         catch err
-            warning on;
-            warning('\nError encountered while processing %s:\n%s\n', subject, err.message);
-
+            if params.general.show_error_stack
+                fprintf(2, '%s\n', getReport(err, 'extended'));
+                if params.general.fail_on_error
+                    ok = false;
+                    break;
+                end
+            else
+                warning on;
+                warning('\nError encountered while processing %s:\n%s\n', subject, err.message);
+            end
         end
 
     end
 
 
     %% Run statistical analyses
-    summary = analyze_events_eye( params, summary );
+    if ok
+        summary = analyze_events_eye( params, summary );
 
-    summary_file = sprintf('%s/summary_events_eye.mat', results_dir);
-    save(summary_file , 'summary', '-v7.3' );
+        summary_file = sprintf('%s/summary_events_eye.mat', results_dir);
+        save(summary_file , 'summary', '-v7.3' );
 
-    if params.eye.events.plots.save
-        plot_event_summary_eye( params, summary, true );
+        if params.eye.events.plots.save
+            plot_event_summary_eye( params, summary, true );
+        end
+
+        fclose( fopen( flag_file, 'w+' ) );
+
+        fprintf('\nDone events processing.\n');
     end
-
-    fclose( fopen( flag_file, 'w+' ) );
-
-    fprintf('\nDone events processing.\n');
 
     
 end

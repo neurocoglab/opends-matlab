@@ -336,8 +336,12 @@ for i = 1 : length(subjects)
     end
 
     catch err
-        warning on;
-        warning('\nError encountered while processing %s:\n%s\n', subject, err.message);
+        if params.general.show_error_stack
+            fprintf(2, '%s\n', getReport(err, 'extended'));
+        else
+            warning on;
+            warning('\nError encountered while processing %s:\n%s\n', subject, err.message);
+        end
         ok = false;
     end
     
@@ -345,6 +349,9 @@ for i = 1 : length(subjects)
         fprintf('\n-- Done subject %s --\n\n', subject);
     else
         fprintf('\n-- Failed for subject %s --\n\n', subject);
+        if params.general.fail_on_error
+            break;
+        end
     end
 
     close all;
