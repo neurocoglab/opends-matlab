@@ -93,9 +93,9 @@ for i = 1 : length(subjects)
           
            if ok 
               fclose( fopen(flag_file,'w') );
-              fprintf(' done.\n'); 
+              fprintf('\nDone.\n'); 
            else
-              fprintf(' errors encountered.\n'); 
+              fprintf('\nErrors encountered.\n'); 
            end
            
         else
