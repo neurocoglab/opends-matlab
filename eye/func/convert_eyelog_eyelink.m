@@ -46,7 +46,7 @@ try
         zip_file = sprintf('%s/%s%s.zip', params.eye.convert.prefix, output_dir, subject);
 
         if ~exist(zip_file, 'file')
-            warning('No data found for %s! Skipping.', subject);
+            fprintf('\nNo data found for %s! Skipping.', subject);
             ok = false;
             return;
         end
@@ -55,7 +55,7 @@ try
         log_file = sprintf('%s/%s%s.asc', output_dir, params.eye.convert.prefix, subject);
 
         if ~exist(log_file, 'file')
-            warning('\nNo data found in zip file for %s! Skipping.', subject);
+            fprintf('\nNo data found in zip file for %s! Skipping.', subject);
             ok = false;
             return;
         end
@@ -63,7 +63,7 @@ try
     end
 
 catch err
-    warning('Exception: %s', err);
+    fprintf('Exception: %s', err);
     ok = false;
     return;
 end
@@ -78,7 +78,7 @@ samples_out = sprintf('%s/%s_samples.csv', output_dir, prefix);
 
 [fid_out, message] = fopen(samples_out, 'w+');
 if fid_out < 0
-    warning('Could not open CSV output file %s, with error: %s', samples_out, message);
+    fprintf('Could not open CSV output file %s, with error: %s', samples_out, message);
     fclose all;
     ok = false;
     return;
@@ -99,7 +99,7 @@ fclose(fid_out);
 messages_out = sprintf('%s/%s_messages.csv', output_dir, prefix);
 [fid_out, message] = fopen(messages_out, 'w+');
 if fid_out < 0
-    warning('Could not open CSV output file %s, with error: %s', messages_out, message);
+    fprintf('Could not open CSV output file %s, with error: %s', messages_out, message);
     fclose all;
     ok = false;
     return;
