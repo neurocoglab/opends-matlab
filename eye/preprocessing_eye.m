@@ -75,6 +75,8 @@ for i = 1 : length(subjects)
            fprintf('\tConverting %s log for %s...', params.eye.convert.format, subject);
            delete_flags( flag, flagdir );
 
+           warning on;
+           
            switch params.eye.convert.format
             
                case 'smi'
@@ -88,7 +90,7 @@ for i = 1 : length(subjects)
                    error('\tEye tracker type "%s" is invalid!', params.eye.convert.format)
 
            end
-           
+          
            if ok 
               fclose( fopen(flag_file,'w') );
               fprintf(' done.\n'); 
