@@ -93,9 +93,9 @@ for i = 1 : length(subjects)
           
            if ok 
               fclose( fopen(flag_file,'w') );
-              fprintf('\nDone.\n'); 
+              fprintf('done.\n'); 
            else
-              fprintf('\nErrors encountered.\n'); 
+              warning('Errors encountered.'); 
            end
            
         else
@@ -128,7 +128,7 @@ for i = 1 : length(subjects)
                     fprintf(' done.\n');
                 else
                     ok = false;
-                    warning('Could not read converted time series. Skipping subject %s.\n', subject);
+                    warning('Could not read converted time series. Skipping subject %s.', subject);
                 end
              
             end
@@ -163,7 +163,7 @@ for i = 1 : length(subjects)
                     fprintf(' done.\n');
                 else
                     ok = false;
-                    warning('Could not convert simulation log. Skipping subject %s.\n', subject);
+                    warning('Could not convert simulation log. Skipping subject %s.', subject);
                 end
                 
             end
@@ -267,13 +267,13 @@ for i = 1 : length(subjects)
             warning on;
 
             if ~isfield(data.eye, 'luminance')
-                warning(' No luminance data found... skipping!\n');
+                warning(' No luminance data found... skipping!');
             else
                 
                 delete_flags( flag, flagdir );
 
                 if data.eye.luminance.deficient
-                    warning(' Regression was rank-deficient... skipping!\n');
+                    warning(' Regression was rank-deficient... skipping!');
                     plot_luminance_eye ( data, params, true );
                 else
                     plot_luminance_eye ( data, params, true );
