@@ -35,9 +35,13 @@ for i = 1 : length(buttons)
     values = nan(length(idx),1);
     for j = 1 : length( idx )
         key = data.sim.messagebutton.values.KeyPressed(idx(j));
-        values(j) = button_map_i.Value(find(strcmp(button_map_i.Key,key),1));
+        idx2 = find(strcmp(button_map_i.Key,key),1);
+        if isempty(idx2)
+           continue; 
+        end
+        values(j) = button_map_i.Value(idx2);
     end
-    result.(button).values = values;
+    result.(button).values = values(~isnan(values));
   
 end
 
