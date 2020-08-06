@@ -43,10 +43,6 @@ end
 if status ~= 0 || contains(result,'Exception')
     warning('Error converting simlog for %s: %s', subject, result);
     ok = false;
-else
-%     fid = fopen(flag_file,'w');
-%     fclose(fid);
-%     fprintf('Done.\n');
 end    
 
 
