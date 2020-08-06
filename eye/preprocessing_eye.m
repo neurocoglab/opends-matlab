@@ -140,6 +140,7 @@ for i = 1 : length(subjects)
     %% 3. Convert simulation event log to CSV files & synchronize time series
         if ok
             
+
             flag = 'sim_logs_converted.done';
             flag_file = sprintf('%s/%s', flagdir, flag);
             
