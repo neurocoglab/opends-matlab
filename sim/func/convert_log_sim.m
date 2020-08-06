@@ -28,7 +28,7 @@ if ismac || isunix
                                                 params.sim.convert.filter, ...
                                                 outdir);
 else
-    cmd = sprintf('cd "%s"; %s "%s" assets%sopends%s%s.xml "%s" -addserial', cdir, ...
+    cmd = sprintf('cd "%s" & %s "%s" assets%sopends%s%s.xml "%s" -addserial', cdir, ...
                                                 cfile, ...
                                                 log_file, ...
                                                 filesep, filesep, ...
@@ -43,10 +43,6 @@ end
 if status ~= 0 || contains(result,'Exception')
     warning('Error converting simlog for %s: %s', subject, result);
     ok = false;
-else
-%     fid = fopen(flag_file,'w');
-%     fclose(fid);
-%     fprintf('Done.\n');
 end    
 
 
