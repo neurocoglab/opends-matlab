@@ -37,7 +37,7 @@ else
 end
 
 
-%% select rounds
+%% select trials
 
 keepID = true(1,size(dataIn.time,2)); % start with all trials
 
@@ -51,12 +51,12 @@ if isfield(cfg,'rounds')
     keepID(dataIn.rounds~=cfg.rounds) = false;
 end
 
-% only use specified repeats
+% only use specified rounds
 if isfield(cfg,'repeats')
     keepID(dataIn.repeats~=cfg.repeats) = false;
 end
 
-% trial admin
+%% trial admin
 
 % create output struct
 dataOut = dataIn;
@@ -71,11 +71,8 @@ end
 
 if isfield(cfg, 'toi') && isfield(cfg, 'event')
     
-    rmfields = {'time','event','event_info'};
-    dataOutTmp = rmfield(dataOut,rmfields);
-    
+    dataOutTmp = dataOut;
     fields = fieldnames(dataOut);
-    fields = fields(~ismember(fields,rmfields));
     
     % find time and index step
     if length(cfg.toi) == 2 && ~isfield(cfg, 'dt')
@@ -95,12 +92,6 @@ if isfield(cfg, 'toi') && isfield(cfg, 'event')
         % in case there are several events of this type in the trial
         for ev = 1:length(dataOut.event{cfg.event,tr})
         
-            for f = 1:length(fields)
-                if eval(['size(dataOutTmp.',fields{f}, ',2) == size(dataOut.time,2)'])
-                    eval(['dataOutTmp.',fields{f}, '(:,ctr) = dataOut.',fields{f},'(:,tr);'])
-                end
-            end
-            
             % find event ID
             [~,eventID] = min(abs(dataOut.time{tr}-dataOut.event{cfg.event,tr}(ev)));
         
@@ -123,10 +114,16 @@ if isfield(cfg, 'toi') && isfield(cfg, 'event')
             % set time axis
             dataOutTmp.time{ctr} = dataOut.time{tr}(selectIDs) - dataOut.time{tr}(eventID);
             dataOutTmp.event{cfg.event,ctr} = 0;
+            for r = size(dataOut.event_info,1)
+                dataOutTmp.event_info{r,ctr} = dataOut.event_info{r,tr}(ev);
+            end
             
-            % TODO: this should be changed!
-            dataOutTmp.event_info{1,ctr} = dataOut.event_info{cfg.event,tr}(ev);
-            
+            fields = fields(
+            for f = 1:length(fields)
+                if eval(['size(dataOutTmp.',fields{f}, ',2) == size(dataOut.time,2)'])
+                    eval(['dataOutTmp.',fields{f}, '(:,ctr) = dataOut.',fields{f},'(:,tr);'])
+                end
+            end
         
         ctr = ctr +1;
         end
