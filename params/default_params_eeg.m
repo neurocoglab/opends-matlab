@@ -106,6 +106,9 @@ params.eeg.erp.apply = true;
 
 % Time/frequency analysis
 params.eeg.timefreq.apply = true;
-
-
+params.eeg.timefreq.buffer = 5;
+params.eeg.timefreq.event_types_file = 'timefreq_events_eeg.csv';
+params.eeg.timefreq.dt = 0.1;
+params.eeg.timefreq.foi = [2:1:8,10:2:18,22:4:30];
+params.eeg.timefreq.wavelet = 'cmor4-1';
 

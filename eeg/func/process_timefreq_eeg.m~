@@ -21,41 +21,34 @@ if ~exist( timefreq_dir, 'dir' )
    mkdir( timefreq_dir );
 end
 
-results = get_timefreq_trials_eeg( params, data, results );
+results.eeg.timefreq = get_timefreq_trials_eeg( data, results, params );
 
 outdir = sprintf( '%s/%s', params.io.output_dir, subject );
 fft_file = sprintf('%s/results_fft_eeg.m', outdir);
 
 if exist(fft_file, 'file') && ~params.eeg.timefreq.regen_fft
     % Load existing FFT results
-    load( fft_file );
     
 else
     
     % Compute time/frequency for each round
     cfg = [];
+    % cfg.toi = [];
+    % cfg.dt = 0.1;%0.02;
+    % cfg.foi = [2,4];%[2:1:8,10:2:18,22:4:30];
+    % cfg.Zscore = 0;
+    % cfg.wavelet = 'cmor4-1';
     cfg.toi = [];
     cfg.Zscore = false;
     cfg.dt = params.eeg.timefreq.dt;
     cfg.foi = params.eeg.timefreq.foi;
     cfg.wavelet = params.eeg.timefreq.wavelet;
 
-    results.eeg.timefreq = process_wavelet_eeg(cfg, results.eeg.timefreq, [], params.general.debug);
+    results.eeg.timefreq = process_wavelet_eeg(cfg, results.eeg.timefreq, [], params.eeg.timefreq.verbose);
 
     % Save FFT results
-    if params.general.debug
-       fprintf(' * Saving FFT to %s...', fft_file);
-    end
-    save( fft_file, 'results' );
-    if params.general.debug
-       fprintf('done.\n');
-    end
+    save( fft_file, 'results
 end
-
-% Perform statistical analyses
-results = analyze_timefreq_eeg( params, data, results );
-
-
 
 end
 

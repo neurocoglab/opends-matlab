@@ -37,7 +37,7 @@ else
 end
 
 if params.general.debug
-   fprintf('Running: %s', cmd); 
+   fprintf('\nDEBUG: Running: %s\n', cmd); 
 end
 [status,result] = system(cmd);
 if status ~= 0 || contains(result,'Exception')

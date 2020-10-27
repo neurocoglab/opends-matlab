@@ -90,8 +90,7 @@ hh = title(sprintf('Luminance correction (%1.1f s offset) - Subject %s', t_offse
 hh.FontSize = 16;
 legend([{'Original'},{'Corrected'}]);
 ylim([-3 4.5]);
-% xlim([0 3]);
-resize_window(h,[1000,500]);
+h.Position(3:4) = [1000,500];
 if out2file
     saveas(h, sprintf('%s/eye_lum_corrected_pd.fig', outdir));
     xlim([0 3]);
@@ -134,8 +133,7 @@ hh.FontSize = 12;
 
 hh = title(sprintf('Regression (Luminance v. PD) - Subject %s', data.subject));
 hh.FontSize = 16;
-% ylim([0 0.3]);
-resize_window(h,[1000,500]);
+h.Position(3:4) = [1000,500];
 if out2file
     saveas(h, sprintf('%s/eye_lum_r2_offsets.fig', outdir));
     saveas(h, sprintf('%s/eye_lum_r2_offsets.png', outdir));

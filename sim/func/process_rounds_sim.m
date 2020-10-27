@@ -39,6 +39,8 @@ input_file = sprintf('%s/events-RewardAssessed.csv', sim_dir);
 data.sim.reward.values = import_log_sim(input_file, params.sim.log.reward_format);
 input_file = sprintf('%s/events-RewardDisplayed.csv', sim_dir);
 data.sim.rewarddisp.values = import_log_sim(input_file, params.sim.log.rewarddisp_format);
+input_file = sprintf('%s/events-SimulatorResumed.csv', sim_dir);
+data.sim.resumed.values = import_log_sim(input_file, params.sim.log.resumed_format);
 input_file = sprintf('%s/events-SimulatorState.csv', sim_dir);
 data.sim.states.values = import_log_sim(input_file, params.sim.log.state_format);
 input_file = sprintf('%s/events-SimulatorEnded.csv', sim_dir);
@@ -52,6 +54,9 @@ if params.sim.rounds.roadsign.apply
     input_file = sprintf('%s/events-SignTextChanged.csv', sim_dir);
     data.sim.roadsigns.values = import_log_sim(input_file, params.sim.log.roadsign_format);
 end
+
+% Construct trigger table for rounds
+data.sim.rounds.triggers = get_cycle_indices_sim( data );
 
 % Synch time series
 % Construct matrix with tracker time, linked to event distance and event

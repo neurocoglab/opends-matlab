@@ -1,5 +1,5 @@
 function [ trials, baseline_trials ] = get_sim_trials_eeg( params, data )
-%   GET_SIM_TRIALS_EEG Produced trial definitions based on simulation
+%   GET_SIM_TRIALS_EEG Produce trial definitions based on simulation
 %   events and triggers in the EEG data
 %      
 
@@ -38,21 +38,10 @@ function [trl,trl_baseline] = get_trials(data, T, window)
     
     
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
     % Overtake difficulty
-    process_results_file = sprintf('%s/%s/processing_results.mat', proc.params.data_dir, subject);
+    process_results_file = sprintf('%s/%s/results_eye.mat', params.io.output_dir, data.subject);
     processing_results = load(process_results_file);
     diffs = processing_results.results.events.left_change.diffs;
-    
-    data.sim.
 
     Ts = 1 / data.eeg.ft.fsample * 1000; % Sample period in ms
     window = [window.From / Ts, window.To / Ts];

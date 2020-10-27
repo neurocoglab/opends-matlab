@@ -23,6 +23,7 @@ params.sim.log.reward_format = '%d64 %f %d %q %q %q %f %d %f %d %d';
 params.sim.log.state_format = '%d64 %f %d %q %d %d %f %d %f %d %d';
 params.sim.log.start_format = '%d64 %f %d %q %f %d %d';
 params.sim.log.events_format = '%d64 %f %d %q %d';
+params.sim.log.resumed_format = '%d64 %f %d %q %q %d %d %d %d %d';
 params.sim.log.simended_format = '%d64 %f %d %q %f %d %d';
 params.sim.log.rewarddisp_format = '%d64 %f %d %q %q %q %d %d %f %d %d';
 params.sim.log.messagebutton_format = '%d64 %f %d %q %q %q %d %q %f %d %d %d %d';

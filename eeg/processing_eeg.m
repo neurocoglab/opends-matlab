@@ -166,7 +166,7 @@ if params.eeg.erp.apply
     for i = 1 : length( subjects )
         
 %         try
-        
+            subject = subjects{i};
             fprintf('\nStarting ERP processing for %s...\n', subject);
             
             outdir = sprintf( '%s/%s', params.io.output_dir, subject );
@@ -192,9 +192,16 @@ if params.eeg.erp.apply
             input_file = sprintf('%s/results_preproc_eeg_3.mat', outdir);
             load( input_file );
             
+            input_file = sprintf('%s/results_preproc_eye.mat', outdir);
+            T = load( input_file );
+            data.sim = T.data.sim;
+            clear T;
+            
             results = [];
             
-            load( results_file );
+            if exist( results_file, 'file' )
+                load( results_file );
+            end
             
             [results, summary] = process_erp_eeg( params, data, results, summary );
             
@@ -261,6 +268,7 @@ if params.eeg.timefreq.apply
     for i = 1 : length( subjects )
         
 %         try
+            subject = subjects{i};
         
             fprintf('\nStarting time/frequency processing for %s...\n', subject);
             
@@ -284,12 +292,22 @@ if params.eeg.timefreq.apply
             
             input_file = sprintf('%s/results_preproc_eeg_3.mat', outdir);
             load( input_file );
+            input_file = sprintf('%s/results_preproc_eye.mat', outdir);
+            T = load( input_file );
+            data.sim = T.data.sim;
+            clear T;
             
-            results = [];
-            results_file = sprintf('%s/results_eeg.mat', outdir);
+            results_file = sprintf('%s/results_eye.mat', outdir);
             load( results_file );
             
-            [results] = process_timefreq_eeg( params, data, results );
+            results_file = sprintf('%s/results_eeg.mat', outdir);
+            if exist( results_file, 'file' )
+                T = load( results_file );
+                data.eeg = T.data.eeg;
+                clear T;
+            end
+            
+            results = process_timefreq_eeg( params, data, results );
             
             save(sprintf('%s/results_eeg.mat', outdir), 'results', '-v7.3');
             
