@@ -173,7 +173,7 @@ if params.eeg.erp.apply
             figdir = sprintf( '%s/figures', outdir );
             flagdir = sprintf( '%s/flags', outdir );
             
-            results_file = sprintf('%s/results_eeg.mat', outdir);
+            results_file = sprintf('%s/results_erp_eeg.mat', outdir);
 
             flag_file_i = sprintf('%s/eeg_erp.done', flagdir);
             if exist(flag_file_i, 'file') && ~clobber
@@ -300,16 +300,9 @@ if params.eeg.timefreq.apply
             results_file = sprintf('%s/results_eye.mat', outdir);
             load( results_file );
             
-            results_file = sprintf('%s/results_eeg.mat', outdir);
-            if exist( results_file, 'file' )
-                T = load( results_file );
-                data.eeg = T.data.eeg;
-                clear T;
-            end
-            
             results = process_timefreq_eeg( params, data, results );
             
-            save(sprintf('%s/results_eeg.mat', outdir), 'results', '-v7.3');
+            save(sprintf('%s/results_timefreq_eeg_2.mat', outdir), 'results');
             
             if params.eeg.timefreq.plots.save
                 plot_timefreq_eeg( params, results, true );

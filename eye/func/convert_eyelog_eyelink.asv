@@ -27,7 +27,8 @@ if ~isempty(params.eye.convert.exec_eyelink)
       if exist(output_file, 'file')
           fprintf(' already converted %s\n', edf_files(i).name);
       else
-          cmd = sprintf('%s -p "%s" "%s"', exec, output_dir, filei);
+          if exec(end-4:end)
+          cmd = sprintf('"%s" -p "%s" "%s"', exec, output_dir, filei);
           [status, message] = system(cmd);
           % Not reliable; error will be apparent later
 %           if status ~= 255

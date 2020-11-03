@@ -95,6 +95,7 @@ for i = 1 : length(subjects)
               fclose( fopen(flag_file,'w') );
               fprintf('done.\n'); 
            else
+              fprintf('\n');
               warning('Errors encountered.'); 
            end
            

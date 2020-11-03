@@ -1,4 +1,4 @@
-function [ result ] = get_timefreq_trials_eeg( params, data, results )
+function [ results ] = get_timefreq_trials_eeg( params, data, results )
 %get_timefreq_trials Produces trials from rounds (and repeats),
 %   suitable for time/frequency analysis. 
 %
@@ -142,7 +142,8 @@ for i = 1 : height(T_start)
     end
 end
 
-result.eeg.timefreq = result;
+results = [];
+results.eeg.timefreq = result;
 
 
     % Get index in EEG time series of closest previous trigger in the

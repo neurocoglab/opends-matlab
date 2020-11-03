@@ -7,12 +7,9 @@ function [ results ] = process_timefreq_eeg( params, data, results )
 % results:  Output of "processing_eye.m"
 %
 % Returns:
-% results:  a struct containing time
+% results:  a struct containing time/frequency analysis results
 %
-
-if nargin < 3
-   results = []; 
-end
+%
 
 subject = data.subject;
 outdir = sprintf( '%s/%s', params.io.output_dir, subject );
@@ -23,39 +20,39 @@ end
 
 results = get_timefreq_trials_eeg( params, data, results );
 
-% outdir = sprintf( '%s/%s', params.io.output_dir, subject );
-% fft_file = sprintf('%s/results_fft_eeg.m', outdir);
-% 
-% if exist(fft_file, 'file') && ~params.eeg.timefreq.regen_fft
-%     Load existing FFT results
-%     load( fft_file );
-%     
-% else
-%     
-%     Compute time/frequency for each round
-%     cfg = [];
-%     cfg.toi = [];
-%     cfg.Zscore = false;
-%     cfg.dt = params.eeg.timefreq.dt;
-%     cfg.foi = params.eeg.timefreq.foi;
-%     cfg.wavelet = params.eeg.timefreq.wavelet;
-% 
-%     results.eeg.timefreq = process_wavelet_eeg(cfg, results.eeg.timefreq, [], params.general.debug);
-% 
-%     Save FFT results
-%     if params.general.debug
-%        fprintf(' * Saving FFT to %s...', fft_file);
-%     end
-%     save( fft_file, 'results' );
-%     if params.general.debug
-%        fprintf('done.\n');
-%     end
-% end
-% 
+outdir = sprintf( '%s/%s', params.io.output_dir, subject );
+results_file = sprintf('%s/results_timefreq_eeg_1.mat', outdir);
+
+if exist(results_file, 'file') && ~params.eeg.timefreq.regen_all
+    % Load existing FFT results
+    load( results_file );
+    
+else
+    
+    % Compute time/frequency for full time series
+    cfg = [];
+    cfg.toi = [];
+    cfg.Zscore = false;
+    cfg.dt = params.eeg.timefreq.dt;
+    cfg.foi = params.eeg.timefreq.foi;
+    cfg.wavelet = params.eeg.timefreq.wavelet;
+
+    results.eeg.timefreq = process_wavelet_eeg(cfg, results.eeg.timefreq, [], params.general.debug);
+
+    % Save time/frequency results
+    if params.general.debug
+       fprintf(' * Saving full time/frequency results to %s...', results_file);
+    end
+    save( results_file, 'results' );
+    if params.general.debug
+       fprintf('done.\n');
+    end
+    
+end
+
 % Perform statistical analyses
-% results = analyze_timefreq_eeg( params, data, results );
-% 
-% 
+results = analyze_timefreq_subject_eeg( params, data, results );
+
 
 end
 
