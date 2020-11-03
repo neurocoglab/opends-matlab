@@ -108,7 +108,8 @@ for i = 1 : length(subjects)
         %% 2. Load converted time series
         if ok
             
-            flag_file = sprintf('%s/eye_logs_imported.done', flagdir);
+            flag = 'eye_logs_imported.done';
+            flag_file = sprintf('%s/%s', flagdir, flag);
 
             if exist(flag_file,'file') && ~clobber
                 fprintf('\tTimes series for %s already converted; skipping.\n', subject);
@@ -176,7 +177,8 @@ for i = 1 : length(subjects)
 
         if ok
 
-            flag_file = sprintf('%s/eye_blinks.done', flagdir);
+            flag = 'eye_blinks.done';
+            flag_file = sprintf('%s/%s', flagdir, flag);
 
             if exist(flag_file, 'file') && ~clobber
                 fprintf('\tEye blinks for %s already processed; skipping.\n', subject);
