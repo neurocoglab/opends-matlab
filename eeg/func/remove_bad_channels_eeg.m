@@ -23,10 +23,10 @@ function [ data ] = remove_bad_channels_eeg( params, data )
         if ~isempty(T)
             cfg = [];
             cfg.channel = data.eeg.ft.label;
-            idx_rem = [];
+            idx_rem = []; idx_rem2 = [];
             for c = 1 : length(T)
                 idx_rem = [idx_rem find(strcmp(cfg.channel,T{c}))];
-                idx_rem2 = [idx_rem find(strcmp(data.eeg.eeg_channels,T{c}))];
+                idx_rem2 = [idx_rem2 find(strcmp(data.eeg.eeg_channels,T{c}))];
             end
             cfg.channel(idx_rem) = [];
             [~,data.eeg.ft] = evalc('ft_selectdata(cfg, data.eeg.ft);');

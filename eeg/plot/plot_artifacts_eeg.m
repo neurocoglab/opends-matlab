@@ -31,7 +31,7 @@ x_eye = seconds(data.eye.t / 1000);
 N_eye = length(data.eye.t);
 idx_keep = 1 : N_eye;
 
-t_end = data.sim.sim2track.simended_time;
+t_end = data.sim.simended.values.Millis;
 if ~isnan(t_end)
     t_end = seconds((t_end-data.sim.t_start) / 1000);
     idx_keep = find(x_eye <= t_end);

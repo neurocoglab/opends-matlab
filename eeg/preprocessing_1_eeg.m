@@ -151,9 +151,18 @@ for i = 1 : length(subjects)
         end
         
     catch err
-        fprintf('\n== Errors encountered in pre-processing step 1 for subject %s: %s ==\n\n', subject, err.message);
+%         fprintf('\n== Errors encountered in pre-processing step 1 for subject %s: %s ==\n\n', subject, err.message);
+        if params.general.fail_on_error
+            rethrow(err);
+        end
+    
+        if params.general.show_error_stack
+            fprintf(2, '%s\n', getReport(err, 'extended'));
+        else
+            warning on;
+            warning('\nErrors encountered in pre-processing step 1 for subject %s: %s ==\n\n', subject, err.message);
+        end
         ok = false;
-        
     end
 
     close all;
