@@ -45,26 +45,24 @@ for i = 1 : length(subjects)
         outdir = sprintf( '%s/%s', params.io.output_dir, subject );
         figdir = sprintf( '%s/figures', outdir );
         flagdir = sprintf( '%s/flags', outdir );
-
-        flag_done = sprintf( '%s/eeg_preproc_1.done', flagdir );
-
+        
+        flag_done = sprintf('%s/eeg_preproc_1.done', flagdir);
         if ~exist(flag_done, 'file')
             fprintf('\n\tSubject %s has no ICA results! Skipping.\n', subject);
             continue;
         end
+        
+        flag = 'eeg_preproc_2.done';
+        flag_file = sprintf( '%s/%s', flagdir, flag );
 
-        flag_file = sprintf( '%s/eeg_preproc_2.done', flagdir );
-
-        if exist(flag_file, 'file') && ~clobber
+        if ~params.general.clobber && exist(flag_file, 'file')
             fprintf('\n\tICA rejection already performed for subject %s! Skipping.\n', subject);
             continue;
         end
 
-        fprintf('\n\tProcessing subject %s.\n', subject);
+        delete_flags( flag, flagdir );
 
-        if exist(flag_file, 'file')
-            delete( flag_file );
-        end
+        fprintf('\n\tProcessing subject %s.\n', subject);
 
         input_file = sprintf('%s/results_preproc_eeg_1.mat', outdir);
         results_file = sprintf('%s/results_preproc_eeg_2.mat', outdir);
@@ -109,7 +107,14 @@ for i = 1 : length(subjects)
         fprintf('done.\n');
     
     catch err
+        
+        if params.general.fail_on_error
+            rethrow(err);
+        end
         fprintf('\n== Errors encountered in pre-processing step 2 for subject %s: %s ==\n\n', subject, err.message);
+        if params.general.show_error_stack
+            fprintf(2, '%s\n', getReport(err, 'extended'));
+        end
     end
 
 end
@@ -117,3 +122,22 @@ end
 
 fprintf('\n\n==== DONE EEG PRE-PROCESSING STEP 2 ===\n\n');
 
+
+%%
+% Delete this flags and all flags after it
+function delete_flags ( start_flag, flagdir )
+
+    flag_files = [{'eeg_preproc_2.done'}, ...
+                  {'eeg_preproc_3.done'}];
+              
+    idx = find(strcmp(flag_files, start_flag));
+    if ~isempty(idx)
+       for i = idx : length(flag_files)
+           flag_file = sprintf('%s/%s', flagdir, flag_files{i});
+           if exist(flag_file, 'file'), delete(flag_file); end
+       end
+    end
+    
+
+
+end

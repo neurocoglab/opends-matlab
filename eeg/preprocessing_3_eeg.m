@@ -50,8 +50,7 @@ for i = 1 : length(subjects)
     figdir = sprintf( '%s/figures', outdir );
     flagdir = sprintf( '%s/flags', outdir );
 
-    flag_done = sprintf( '%s/eeg_preproc_2.done', flagdir );
-
+    flag_done = sprintf('%s/eeg_preproc_2.done', flagdir);
     if ~exist(flag_done, 'file')
         fprintf('\n\tPreprocessing step 2 has not been completed for subject %s! Skipping.\n', subject);
         continue;
@@ -59,14 +58,18 @@ for i = 1 : length(subjects)
 
     flag_file = sprintf( '%s/eeg_preproc_3.done', flagdir );
 
-    if exist(flag_file, 'file') && ~clobber
+    if ~params.general.clobber && exist(flag_file, 'file')
         fprintf('\n\tPreprocessing step 3 already performed for subject %s! Skipping.\n', subject);
         continue;
     end
 
+    if exist( flag_file, 'file' )
+        delete( flag_file );
+    end
+
     fprintf('\n\tProcessing subject %s...', subject);
     
-%     try
+    try
 
         if exist(flag_file, 'file')
             delete( flag_file );
@@ -96,10 +99,16 @@ for i = 1 : length(subjects)
         close all;
         fprintf('done.\n');
     
-%     catch err
-%         fprintf('\n== Errors encountered in pre-processing step 1 for subject %s: %s ==\n\n', subject, err.message);
-%         ok = false;
-%     end
+    catch err
+        if params.general.fail_on_error
+            rethrow(err);
+        end
+        fprintf('\n== Errors encountered in pre-processing step 3 for subject %s: %s ==\n\n', subject, err.message);
+        if params.general.show_error_stack
+            fprintf(2, '%s\n', getReport(err, 'extended'));
+        end
+        
+    end
     
 end
 

@@ -65,16 +65,15 @@ for i = 1 : length(subjects)
            mkdir(flagdir); 
         end
     
-        flag_file = sprintf( '%s/eeg_preproc_1.done', flagdir );
+        flag = 'eeg_preproc_1.done';
+        flag_file = sprintf( '%s/%s', flagdir, flag );
 
         if ~params.general.clobber && exist(flag_file, 'file')
             fprintf( '\n== Subject %s already processed. Skipping. ==\n\n', subject );
             continue;
         end
 
-        if exist(flag_file, 'file')
-           delete(flag_file); 
-        end
+        delete_flags( flag, flagdir );
 
         ok = true;
 
@@ -172,3 +171,23 @@ end
 
 fprintf('\n\n==== DONE EEG PRE-PROCESSING STEP 1 ===\n\n');
 
+
+%%
+% Delete this flags and all flags after it
+function delete_flags ( start_flag, flagdir )
+
+    flag_files = [{'eeg_preproc_1.done'}, ...
+                  {'eeg_preproc_2.done'}, ...
+                  {'eeg_preproc_3.done'}];
+              
+    idx = find(strcmp(flag_files, start_flag));
+    if ~isempty(idx)
+       for i = idx : length(flag_files)
+           flag_file = sprintf('%s/%s', flagdir, flag_files{i});
+           if exist(flag_file, 'file'), delete(flag_file); end
+       end
+    end
+    
+
+
+end
