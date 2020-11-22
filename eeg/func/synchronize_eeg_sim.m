@@ -18,7 +18,7 @@ clear T;
 
 % Get EEG events, subtract time of zero event
 if data.sim.zero_byte > 0
-    idx0 = find(data.eeg.events.Trigger==data.sim.zero_id, 1);
+    idx0 = find(data.eeg.events.Trigger==data.sim.zero_byte, 1);
 else
     error('\nNo zero serial byte defined for subject %s.', subject);
 end

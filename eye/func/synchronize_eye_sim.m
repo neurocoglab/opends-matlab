@@ -28,7 +28,13 @@ if isempty(idx_sim)
    error('\tNo initial event (log id = %d) found in simulation log!', log_ids(idx_start)); 
 end
 
-data.sim.zero_byte = data.sim.events.values.AdjSerialByte(idx_sim);
+idx_start = find(strcmp(data.sim.events.values.EventType, 'SimulatorStarted'),1);
+if ~isempty(idx_start)
+    data.sim.zero_id = idx_start;
+    data.sim.zero_byte = data.sim.events.values.AdjSerialByte(idx_start);
+else
+    data.sim.zero_byte = data.sim.events.values.AdjSerialByte(idx_sim);
+end
 data.sim.t_start = data.sim.events.values.Millis(idx_sim);
 
 

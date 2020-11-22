@@ -8,6 +8,12 @@ params.eeg.sub_dir = 'eeg';
 %% Input stuff
 params.eeg.convert.format = 'brainvision';
 params.eeg.convert.prefix = 'eeg-';
+params.eeg.convert.suffix = '';
+params.eeg.convert.downsample = [];
+params.eeg.convert.restart_file = [];
+params.eeg.convert.align_sim_triggers = false;
+params.eeg.convert.start_byte = [];
+
 params.eeg.cfg = [];
 params.eeg.cfg.dataset = '';
 params.eeg.cfg.continuous = 'yes';

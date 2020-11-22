@@ -141,8 +141,7 @@ for i = 1 : length(subjects)
         
     %% 3. Convert simulation event log to CSV files & synchronize time series
         if ok
-            
-
+      
             flag = 'sim_logs_converted.done';
             flag_file = sprintf('%s/%s', flagdir, flag);
             
@@ -259,8 +258,7 @@ for i = 1 : length(subjects)
         if exist(flag_file, 'file') && ~clobber
             fprintf('\tLuminance correction for %s already done; skipping.\n', subject);
         else
-            
-            clobber = true;
+
             fprintf('\tProcessing luminance for %s...', subject);
             
             load(results_file);
@@ -272,7 +270,7 @@ for i = 1 : length(subjects)
             if ~isfield(data.eye, 'luminance')
                 warning(' No luminance data found... skipping!');
             else
-                
+                clobber = true;
                 delete_flags( flag, flagdir );
 
                 if data.eye.luminance.deficient
