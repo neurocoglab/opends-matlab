@@ -99,7 +99,7 @@ if params.eeg.convert.align_sim_triggers
     event_file = sprintf('%s/%s/sim/events-All.csv', params.io.output_dir, subject);
     opts = detectImportOptions(event_file);
     opts.VariableTypes = {'double', 'double', 'double', 'char', 'double'};
-    T_events_sim = readtable(event_file);
+    T_events_sim = readtable(event_file, opts);
     
     event_types = T_events_sim.EventType;
     idx_start = find(strcmp(event_types, 'SimulatorStarted'),1);
@@ -145,15 +145,10 @@ else
     
 end
 
-
 times = data.eeg.ft.time{1}(tidx);
 data.eeg.trigger_idx = tidx;
 data.eeg.cfg = cfg;
 data.eeg.events = table(times(:), tidx(:), triggers(:), value(:), type(:));
 data.eeg.events.Properties.VariableNames = {'Time', 'Index', 'Trigger', 'Value', 'Type'};
-
-
-
-    
-
+   
 end
