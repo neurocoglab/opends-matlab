@@ -97,6 +97,8 @@ if params.eeg.convert.align_sim_triggers
     % Align triggers in EEG to simulation log times
     % Use this only if the EEG trigger values are incorrect
     event_file = sprintf('%s/%s/sim/events-All.csv', params.io.output_dir, subject);
+    opts = detectImportOptions(event_file);
+    opts.VariableTypes = {'double', 'double', 'double', 'char', 'double'};
     T_events_sim = readtable(event_file);
     
     event_types = T_events_sim.EventType;
