@@ -42,7 +42,7 @@ function [ data ] = remove_bad_channels_eeg( params, data )
     cfg.badchannel = data.eeg.bad_channels;
     cfg.layout = 'biosemi64.lay';
     cfg_nbr = [];
-    cfg_nbr.method = 'distance';
+    cfg_nbr.method = 'template';
     cfg_nbr.layout = 'biosemi64.lay';
     cfg_nbr.channel = data.eeg.eeg_channels;
     
