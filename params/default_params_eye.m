@@ -123,6 +123,15 @@ params.eye.events.blinks.prepost = [1500 1500];
 % params.eye.events.blinks.baseline = [2000 500];
 params.eye.events.blinks.plots.ylims = [-0.5 0.5];
 
+params.eye.events.fixations.min_duration = 0.5;
+params.eye.events.fixations.max_gap = 0.25;
+params.eye.events.fixations.smooth_span = 0;
+params.eye.events.fixations.max_errant = 0.02;
+% params.eye.events.fixations.zscore = true;
+% params.eye.events.fixations.prepost = [1500 1500];
+% params.eye.events.fixations.plots.ylims = [-0.5 0.5];
+
+
 params.eye.events.random.N = 10;
 
 params.eye.events.alpha = 0.05;

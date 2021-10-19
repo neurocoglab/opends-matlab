@@ -4,13 +4,6 @@ function [ result ] = interpolate_roadsigns_sim( data, roadsign_map, M )
 % Interpolates road sign changes from the matrix M into log times 
 % and maps them to left/right, first/second
 
-sign_ids = data.sim.roadsigns.values.Source;
-messages = data.sim.roadsigns.values.CurrentText;
-rounds = data.sim.roadsigns.values.Sim_Game_Cycle;
-repeats = data.sim.roadsigns.values.Sim_Game_Repeat;
-times = data.sim.roadsigns.values.Millis - data.sim.t_start;
-
-ids = roadsign_map.Id;
 
 result = [];
 result.times = [];
@@ -19,6 +12,22 @@ result.order = [];
 result.names = {};
 result.rounds = [];
 result.repeats = [];
+
+sign_ids = data.sim.roadsigns.values.Source;
+
+if height(sign_ids) == 0
+    warning('No road sign data found');
+   return; 
+end
+
+
+messages = data.sim.roadsigns.values.CurrentText;
+rounds = data.sim.roadsigns.values.Sim_Game_Cycle;
+repeats = data.sim.roadsigns.values.Sim_Game_Repeat;
+times = data.sim.roadsigns.values.Millis - data.sim.t_start;
+
+ids = roadsign_map.Id;
+
 
 % Add all ids to list
 for i = 1 : length(ids)

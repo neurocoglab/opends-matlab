@@ -47,6 +47,39 @@ clobber = params.general.clobber;
 
 ok = true;
 
+%% Select participants
+%
+% Only process participants with full pre-processing done
+% 
+
+subjects_filter = {};
+for i = 1 : length(subjects)
+   
+    subject = subjects{i};
+    flagdir = sprintf( '%s/%s/flags', params.io.output_dir, subject );
+    
+    done = ~params.eye.blinks.apply || exist(sprintf('%s/eye_blinks.done', flagdir), 'file');
+    done = done && ...
+        (~params.eye.saccades.apply || exist(sprintf('%s/eye_saccades.done', flagdir), 'file'));
+    done = done && ...
+        (~params.eye.luminance.apply || exist(sprintf('%s/eye_luminance.done', flagdir), 'file'));
+    done = done && ...
+        (~params.eye.epochs.apply || exist(sprintf('%s/sim_rounds.done', flagdir), 'file'));
+    done = done && ...
+        (~params.eye.events.apply || exist(sprintf('%s/sim_rounds.done', flagdir), 'file'));
+
+    if done
+        subjects_filter = [subjects_filter {subject}];
+    end
+end
+
+fprintf('\nUsing %d / %d subjects with valid pre-processing.\n', ...
+                                length(subjects_filter), ...
+                                length(subjects));             
+
+subjects = subjects_filter;
+
+
 %% Process epochs
 %
 %  Compute averages
@@ -214,6 +247,10 @@ if params.eye.events.apply
 
 
     %% Run statistical analyses
+    if length(subjects) < 2
+       error('Not enough subjects to run statistical analyses (%d)!', length(subjects)); 
+    end
+    
     if ok
         summary = analyze_events_eye( params, summary );
 

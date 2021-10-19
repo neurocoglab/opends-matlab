@@ -20,12 +20,22 @@ if isempty(summary)
     summary.right_change.diffs = {};
     summary.right_change.outcomes = {};
     
+    % Process traffic decision button press events?
     if params.sim.events.traffic_decision.apply
         summary.traffic_decision.tlocked = {};
         summary.traffic_decision.tlocked_bl = {};
         summary.traffic_decision.tlocked_bl2 = {};
         summary.traffic_decision.confidence = {};
         summary.traffic_decision.outcomes = {};
+        
+    end
+    
+    % Process fixation onset events
+    if params.sim.events.fixations.apply
+        summary.fixations.aois = {};
+        summary.fixations.tlocked = {};
+        summary.fixations.tlocked_bl = {};
+        summary.fixations.tlocked_bl2 = {};
         
     end
 

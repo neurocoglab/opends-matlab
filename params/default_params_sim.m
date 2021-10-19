@@ -61,10 +61,9 @@ params.sim.events.traffic_decision.write_to_file = true;
 % Includes road sign changes?
 params.sim.events.roadsign.apply = true;
 
-% Includes saccades to road signs?
-params.sim.events.roadsign_saccades.apply = true;
-
-
+% Includes fixations to areas of interest?
+params.sim.events.fixations.apply = false;
+params.sim.events.fixations.aoi_file = '';
 
 %% Plots
 params.sim.plots.pass_color = [0.9 0.9 0.95];

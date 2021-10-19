@@ -41,7 +41,17 @@ for i = 1 : length(buttons)
         end
         values(j) = button_map_i.Value(idx2);
     end
-    result.(button).values = values(~isnan(values));
+    
+    % Remove rows where value is NaN
+    idx = ~isnan(values);
+    result.(button).times = result.(button).times(idx);
+    result.(button).durations =  result.(button).durations(idx);
+    result.(button).keys = result.(button).keys(idx);
+    result.(button).messages = result.(button).messages(idx);
+    result.(button).rounds = result.(button).rounds(idx);
+    result.(button).repeats = result.(button).repeats(idx);
+    result.(button).serial_byte = result.(button).serial_byte(idx);
+    result.(button).values = values(idx);
   
 end
 

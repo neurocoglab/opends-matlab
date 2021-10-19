@@ -45,12 +45,15 @@ for j = 1 : N_ev
     idx1 = find(roadsigns.rounds==round_i);
     names_i = roadsigns.names(idx1);
     dirs = roadsigns.direction(idx1);
-    idx2 = find(strcmp(names_i,name_i));
+    idx2 = find(strcmp(names_i,name_i), 1);
     dir_chosen(j) = {dir_i};
     dir_corr(j) = {lower(dirs{idx2})};
     correct(j) = strcmpi(dir_i, dir_corr(j));
     idx_c = find(events_c.rounds==round_i & events_c.repeats==repeat_i, 1);
     if ~isempty(idx_c)
+        if idx_c > length(events_c.values)
+           a = 0; 
+        end
         confidence(j) = events_c.values(idx_c);
     end
 end

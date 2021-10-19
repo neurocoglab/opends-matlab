@@ -29,7 +29,7 @@ h.PlotOptions.FileName = 'eye_events_passonset_bl';
 plotlyoffline(h);
 
 if show_plots
-    web(sprintf('file://%s/%s.html', outdir, h.PlotOptions.FileName), '-new', '-notoolbar');
+    web(['file://' h.PlotOptions.FileName '.html'], '-new', '-notoolbar');
 end
 
 % if out2file
@@ -46,7 +46,7 @@ h.PlotOptions.FileName = 'eye_events_passoffset_bl';
 plotlyoffline(h);
 
 if show_plots
-    web(sprintf('file://%s/%s.html', outdir, h.PlotOptions.FileName), '-new', '-notoolbar');
+    web(['file://' h.PlotOptions.FileName '.html'], '-new', '-notoolbar');
 end
 
 % if out2file
@@ -63,7 +63,7 @@ h.PlotOptions.FileName = 'eye_events_overtake_bl';
 plotlyoffline(h);
 
 if show_plots
-    web(sprintf('file://%s/%s.html', outdir, h.PlotOptions.FileName), '-new', '-notoolbar');
+    web(['file://' h.PlotOptions.FileName '.html'], '-new', '-notoolbar');
 end
 
 if out2file
@@ -84,7 +84,7 @@ if params.eye.events.difficulty.apply
     plotlyoffline(h);
 
     if show_plots
-        web(sprintf('file://%s/%s.html', outdir, h.PlotOptions.FileName), '-new', '-notoolbar');
+        web(['file://' h.PlotOptions.FileName '.html'], '-new', '-notoolbar');
     end
 
 
@@ -106,7 +106,7 @@ if params.eye.events.difficulty.apply
     plotlyoffline(h);
 
     if show_plots
-        web(sprintf('file://%s/%s.html', outdir, h.PlotOptions.FileName), '-new', '-notoolbar');
+        web(['file://' h.PlotOptions.FileName '.html'], '-new', '-notoolbar');
     end
 
     % if out2file
@@ -127,7 +127,7 @@ if params.eye.events.difficulty.apply
     plotlyoffline(h);
 
     if show_plots
-        web(sprintf('file://%s/%s.html', outdir, h.PlotOptions.FileName), '-new', '-notoolbar');
+        web(['file://' h.PlotOptions.FileName '.html'], '-new', '-notoolbar');
     end
 
     % if out2file
@@ -148,7 +148,7 @@ if params.eye.events.outcomes.apply
     plotlyoffline(h);
 
     if show_plots
-        web(sprintf('file://%s/%s.html', outdir, h.PlotOptions.FileName), '-new', '-notoolbar');
+        web(['file://' h.PlotOptions.FileName '.html'], '-new', '-notoolbar');
     end
 
     % if out2file
@@ -190,7 +190,7 @@ if params.eye.events.outcomes.apply
     plotlyoffline(h);
 
     if show_plots
-        web(sprintf('file://%s/%s.html', outdir, h.PlotOptions.FileName), '-new', '-notoolbar');
+        web(['file://' h.PlotOptions.FileName '.html'], '-new', '-notoolbar');
     end
 
     % if out2file

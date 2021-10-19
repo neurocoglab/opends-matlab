@@ -338,10 +338,52 @@ for i = 1 : length(subjects)
         end
 
     end
+    
+    %% 8. Process fixation to areas of interest (AOIs)
+
+    if ok && params.sim.events.fixations.apply
+        
+        flag = 'sim_fixation_events.done';
+        flag_file = sprintf('%s/%s', flagdir, flag);
+
+        if exist(flag_file, 'file') && ~clobber
+            fprintf('\tFixation events for %s already processed; skipping.\n', subject);
+        else
+
+            delete_flags( flag, flagdir );
+            
+            clobber = true;  % If this is redone, the rest must also be redone
+
+            load(results_file);
+
+            fprintf('\tProcessing fixation events for %s...', subject);
+            data = process_fixation_events( data, params );
+
+            % Save results and delete previous
+            save(results_file, 'data');
+            
+            if params.sim.rounds.plots.save
+                plot_events_sim( params, data, [{'Rounds'},{'LaneChanges'},{'Baseline'},{'SaccadeRate'},{'Overtakes'}], true );
+            end
+
+            fclose( fopen(flag_file,'w') );
+            fprintf(' done.\n');
+
+            % Plot rounds 
+            if params.general.show_plots
+                h = plot_events_sim( params, data, [{'Rounds'},{'LaneChanges'},{'Baseline'},{'SaccadeRate'},{'Overtakes'}] );
+            end
+            
+            clear data;
+
+        end
+
+    end
 
     catch err
         if params.general.show_error_stack
-            fprintf(2, '%s\n', getReport(err, 'extended'));
+            disp(getReport(err, 'extended'));
+           % fprintf(2, '%s\n', getReport(err, 'extended'));
         else
             warning on;
             warning('\nError encountered while processing %s:\n%s\n', subject, err.message);
@@ -375,7 +417,8 @@ function delete_flags ( start_flag, flagdir )
                   {'eye_blinks.done'}, ...
                   {'eye_saccades.done'}, ...
                   {'eye_luminance.done'}, ...
-                  {'sim_rounds.done'}];
+                  {'sim_rounds.done'}, ...
+                  {'sim_fixation_events.done'}];
               
     idx = find(strcmp(flag_files, start_flag));
     if ~isempty(idx)
