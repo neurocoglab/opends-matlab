@@ -131,6 +131,13 @@ params.eye.events.fixations.max_errant = 0.02;
 % params.eye.events.fixations.prepost = [1500 1500];
 % params.eye.events.fixations.plots.ylims = [-0.5 0.5];
 
+params.eye.events.traffic_decision.zscore = true;
+params.eye.events.traffic_decision.prepost = [5000 2000];
+% params.eye.events.right_change.baseline = [2000 500];
+params.eye.events.traffic_decision.plots.ylims = [-1 1.5];
+params.eye.events.traffic_decision.confidence.apply = true;
+params.eye.events.traffic_decision.correct.apply = true;
+params.eye.events.traffic_decision.min_trials = 3;
 
 params.eye.events.random.N = 10;
 

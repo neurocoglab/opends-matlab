@@ -42,12 +42,8 @@ for j = 1 : N_ev
     names(j) = {name_i};
     dir_i = events_d.keys{i};
     dir_i = dir_i(8:end);
-    
-    % Get road signs matching this round
     idx1 = find(roadsigns.rounds==round_i);
     names_i = roadsigns.names(idx1);
-    
-    % Get correct decision direction (left/right)
     dirs = roadsigns.direction(idx1);
     idx2 = find(strcmp(names_i,name_i), 1);
     dir_chosen(j) = {dir_i};
@@ -55,7 +51,6 @@ for j = 1 : N_ev
     correct(j) = strcmpi(dir_i, dir_corr(j));
     idx_c = find(events_c.rounds==round_i & events_c.repeats==repeat_i, 1);
     if ~isempty(idx_c)
-        % For debug
         if idx_c > length(events_c.values)
            a = 0; 
         end
@@ -85,7 +80,8 @@ if params.sim.events.traffic_decision.write_to_file
 end
 
 % Get time-locked data - Direction dialog
-events = T.Time;
+events = events_d.times;
+events = events(~isnan(events));
 
 [tlocked,tstart] = get_tlocked(signals.pdz, signals.t_pd, events, params.eye.events.traffic_decision);
 clear baseline_stats;
@@ -105,7 +101,7 @@ results.eye.events.traffic_decision.baseline_stats = baseline_stats;
 results.eye.events.traffic_decision.events = events;
 results.eye.events.traffic_decision.tlocked = tlocked;
 results.eye.events.traffic_decision.tlocked_bl = tlocked_bl;
-results.eye.events.traffic_decision.t = -params.eye.events.traffic_decision.prepost(1):params.eye.events.traffic_decision.prepost(2);
+results.eye.events.traffic_decision.t = -params.eye.events.traffic_decision.prepost(1):params.eye.events.left_change.prepost(2);
 results.eye.events.traffic_decision.t = results.eye.events.traffic_decision.t/params.eye.Fs;
 results.eye.events.traffic_decision.diffs = zeros(length(events),1);
 results.eye.events.traffic_decision.outcomes = nan(length(events),1);
@@ -119,25 +115,13 @@ end
 
 for i = 1 : length(events)
     if params.eye.events.traffic_decision.confidence.apply
-        results.eye.events.traffic_decision.confidence(i) = (confidence(i)==3) + 1;
+        results.eye.events.traffic_decision.confidence(i) = confidence(i)==3;
     end
     if params.eye.events.traffic_decision.correct.apply
-        results.eye.events.traffic_decision.correct(i) = (correct(i)) + 1;
+        results.eye.events.traffic_decision.correct(i) = correct(i);
     end
 end
 
-% Get corresponding random time-locked events for statistical comparison
-N_event = length(events);
-N_rand = params.eye.events.random.N;
-events = get_random_events( events, N_rand, ...
-                            [results.eye.events.traffic_decision.t(1) ...
-                            results.eye.events.traffic_decision.t(end)], ...
-                            signals.idx_baseline );
-T = zeros(N_rand,N_event,length(results.eye.events.traffic_decision.t));
-for i = 1 : N_rand
-    T(i,:,:) = get_tlocked(signals.pdz, signals.t_pd, events(:,i), params.eye.events.traffic_decision);
-end
-results.eye.events.traffic_decision.tlocked_bl2 = squeeze(nanmean(T,1));
 
 
 end

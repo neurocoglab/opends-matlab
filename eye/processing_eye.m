@@ -248,7 +248,7 @@ if params.eye.events.apply
 
     %% Run statistical analyses
     if length(subjects) < 2
-       error('Not enough subjects to run statistical analyses (%d)!', length(subjects)); 
+       error('Too few subjects to run statistical analyses (%d)!', length(subjects)); 
     end
     
     if ok

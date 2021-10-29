@@ -66,48 +66,6 @@ if params.sim.events.traffic_decision.apply
     result_file = sprintf('%s/traffic_decisions_means.csv', params.io.results_dir);
     writetable( M_out, result_file );
     
-    [result, timelock_ga] = cluster_ttest_baseline(summary.traffic_decision, summary.subjects, params);
-    if isempty(result)
-       warning('No result for Traffic Decision v. Baseline!'); 
-    else
-        summary.stats.traffic_decision.subjects = result.subjects;
-        summary.stats.traffic_decision.excluded_subjects = result.excluded_subjects;
-        summary.stats.traffic_decision.timelockstats = result.stats;
-        summary.stats.traffic_decision.timelock_avr = timelock_ga;
-    end
-    
-    
-    %% Compare correct v. incorrect
-    params2 = params;
-    params2.eye.events.min_trials=params.eye.events.traffic_decision.min_trials;
-    [result, timelock_ga] = cluster_ttest_twosample(summary.traffic_decision, ...
-                                                    summary.traffic_decision.correct, ...
-                                                    summary.subjects, ...
-                                                    params2);
-    if isempty(result)
-       warning('No result for Traffic Decision Correct v. Incorrect!'); 
-    else
-        summary.stats.traffic_decision.correct.subjects = result.subjects;
-        summary.stats.traffic_decision.correct.excluded_subjects = result.excluded_subjects;
-        summary.stats.traffic_decision.correct.timelockstats = result.stats;
-        summary.stats.traffic_decision.correct.timelock_avr = timelock_ga;
-    end
-    
-    %% Compare high v. low confidence
-    params2 = params;
-    params2.eye.events.min_trials=params.eye.events.traffic_decision.min_trials;
-    [result, timelock_ga] = cluster_ttest_twosample(summary.traffic_decision, ...
-                                                    summary.traffic_decision.confidence, ...
-                                                    summary.subjects, ...
-                                                    params2);
-    if isempty(result)
-       warning('No result for Traffic Decision High v. Low Confidence!'); 
-    else
-        summary.stats.traffic_decision.confidence.subjects = result.subjects;
-        summary.stats.traffic_decision.confidence.excluded_subjects = result.excluded_subjects;
-        summary.stats.traffic_decision.confidence.timelockstats = result.stats;
-        summary.stats.traffic_decision.confidence.timelock_avr = timelock_ga;
-    end
     
     
 end
@@ -395,8 +353,8 @@ end
             trial = event.tlocked_bl{ii}(idx1,:);
             keeprows = sum(isnan(trial),2) == 0;
             trial = trial(keeprows,:);
-            % Only add if both groups have at least min_trials samples
-            if ~isempty(trial) && sum(keeprows) >= min_trials
+            % Only add if both groups have at least one sample
+            if ~isempty(trial) && sum(keeprows) > min_trials
                 for jj = 1 : size(trial,1)
                     data1.trial(end+1) = {squeeze(trial(jj,:))};
                 end

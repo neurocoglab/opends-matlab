@@ -26,7 +26,7 @@ if isempty(summary)
         summary.traffic_decision.tlocked_bl = {};
         summary.traffic_decision.tlocked_bl2 = {};
         summary.traffic_decision.confidence = {};
-        summary.traffic_decision.outcomes = {};
+        summary.traffic_decision.correct = {};
         
     end
     
@@ -288,10 +288,13 @@ results.eye.events.blinks.t = results.eye.events.blinks.t/params.eye.Fs;
 % Traffic decision events
 if params.sim.events.traffic_decision.apply
     
-    results = process_traffic_decision_events( data, results, params );
+    signals = {};
+    signals.pdz = pdz;
+    signals.t_pd = t_pd;
+    signals.t_baselines = t_baselines;
+    signals.idx_baseline = idx_baseline;
     
-    
-
+    results = process_traffic_decision_events( signals, data, results, params );
 end
 
 
@@ -314,16 +317,16 @@ summary.right_change.tlocked_bl2 = [summary.right_change.tlocked_bl2 {results.ey
 summary.right_change.diffs = [summary.right_change.diffs {results.eye.events.right_change.diffs}];
 summary.right_change.outcomes = [summary.right_change.outcomes {results.eye.events.right_change.outcomes}];
 
-% if params.sim.events.traffic_decision.apply
-%     summary.traffic_decision.tlocked = [summary.traffic_decision.tlocked {results.eye.events.traffic_decision.tlocked}];
-%     summary.traffic_decision.tlocked_bl = [summary.traffic_decision.tlocked_bl {results.eye.events.traffic_decision.tlocked_bl}];
-%     summary.traffic_decision.tlocked_bl2 = [summary.traffic_decision.tlocked_bl2 {results.eye.events.traffic_decision.tlocked_bl2}];
-%     summary.traffic_decision.confidence = [summary.traffic_decision.confidence {results.eye.events.traffic_decision.confidence}];
-%     summary.traffic_decision.outcomes = [summary.traffic_decision.outcomes {results.eye.events.traffic_decision.outcomes}];
-% 
-%   
-%     
-% end
+if params.sim.events.traffic_decision.apply
+    summary.traffic_decision.tlocked = [summary.traffic_decision.tlocked {results.eye.events.traffic_decision.tlocked}];
+    summary.traffic_decision.tlocked_bl = [summary.traffic_decision.tlocked_bl {results.eye.events.traffic_decision.tlocked_bl}];
+    summary.traffic_decision.tlocked_bl2 = [summary.traffic_decision.tlocked_bl2 {results.eye.events.traffic_decision.tlocked_bl2}];
+    summary.traffic_decision.confidence = [summary.traffic_decision.confidence {results.eye.events.traffic_decision.confidence}];
+    summary.traffic_decision.correct = [summary.traffic_decision.correct {results.eye.events.traffic_decision.correct}];
+    if ~isfield(summary.traffic_decision, 't')
+        summary.traffic_decision.t = results.eye.events.traffic_decision.t;
+    end
+end
 
 if ~isfield(summary.overtake, 't')
     summary.overtake.t = results.eye.events.overtake.t;
@@ -334,44 +337,7 @@ end
    
 end
 
-function [ tlocked, tstart ] = get_tlocked(pdz, t, events, params)
 
-    tlocked = zeros(length(events),sum(params.prepost)+1);
-    tstart = zeros(length(events),1);
-    N=length(t);
-        
-    for i = 1 : length(events)
-
-        idx = find(t>events(i),1,'first');
-        if isempty(idx)
-            warning('Event %d (%d) is beyond time vector.', i, events(i));
-            break;
-        end
-        pdi = pdz(idx);
-        pre = idx - params.prepost(1);
-        if pre < 1
-            pad0 = 1-pre;
-            pre = 1;
-        else
-            pad0 = 0;
-        end
-        post = idx + params.prepost(2);
-        if post > N
-            pad1 = post-N;
-            post = N;
-        else
-            pad1 = 0;
-        end
-        
-        xx = pdz(pre:post);
-
-        T = [nan(pad0,1);xx;nan(pad1,1)];
-        tlocked(i,:) = T;
-        tstart(i) = t(pre+pad0);
-
-    end
-
-end
 
 % Blink is the center of an interval
 function blink_events = get_blink_events( t, blink_ints )
@@ -388,46 +354,3 @@ function blink_events = get_blink_events( t, blink_ints )
 
 end
 
-function rand_events = get_random_events( events, N_rand, prepost, idx_bl )
-
-    prepost(1) = -prepost(1);
-    N_event = length(events);
-    rand_events = nan(N_event, N_rand);
-
-    for i = 1 : N_event
-       
-        idx_i = events(i);
-        
-        % Find closest baseline interval
-        T = idx_bl(:,1)-idx_i;
-        idx_cl1 = find(T>0,1);
-        T = idx_i-idx_bl(:,2);
-        idx_cl2 = find(T>0,1,'last');
-        
-        if isempty(idx_cl1) && isempty(idx_cl2)
-           warning('No baseline found for events..');
-           return;
-        end
-        
-        if isempty(idx_cl1)
-           idx_cl = idx_cl2;
-        elseif isempty (idx_cl2)
-           idx_cl = idx_cl1;
-        elseif idx_bl(idx_cl1,1)-idx_i > idx_i-idx_bl(idx_cl2,2)
-           idx_cl = idx_cl2;
-        else
-           idx_cl = idx_cl1;
-        end
-        
-        % Assume baseline interval is longer than event window
-        bl_int = idx_bl(idx_cl,:) - prepost;
-        if any(bl_int<0)
-            % ...
-        else
-            rand_events(i,:) = bl_int(1) + randi(bl_int(2),N_rand,1);
-        end
-    end
-
-%     rand_events = nanmean(rand_events,2);
-
-end
