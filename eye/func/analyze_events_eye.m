@@ -2,6 +2,88 @@ function [ summary ] = analyze_events_eye( params, summary )
 % Run statistical analyses on event-related eye data
 %
 
+%% Regression analyses
+if ~isempty(params.eye.events.covariates.glms)
+
+    % Read in covariates
+    % subject column should be read as string
+    metadata_file = sprintf('%s/%s/%s', ...
+                            params.io.input_dir, ...
+                            params.io.metadata_dir, ...   
+                            params.general.subject_metadata_file);
+    opts = detectImportOptions(metadata_file);
+    opts.VariableTypes(1) = {'char'};
+    metadata = readtable( metadata_file, opts );
+    
+    % Analyze each GLM
+    for i = 1 : length(params.eye.events.covariates.glms)
+        
+        glm_i = params.eye.events.covariates.glms{i};
+        subjects_i = {};
+        ivar_i = [];
+        idx_i = [];
+        
+        % Get metadata + uids for this GLM
+        k = 1;
+        has_missing = false;
+        for j = 1 : length(summary.subjects)
+            subject = summary.subjects{j};
+            idx = find(strcmp(metadata.subject, subject));
+            if ~isempty(idx)
+                val = metadata.(glm_i.ivar)(idx);
+                if ~isnan(val)
+                    subjects_i(k) = {subject};
+                    ivar_i(k) = val;
+                    idx_i(k) = j;
+                    k = k + 1;
+                else
+                    has_missing = true;
+                end
+            end
+        end
+        
+        if has_missing
+            warning('GLM "%s": covariate %s has missing values.', glm_i.name, glm_i.ivar);
+        end
+        
+        event_names = {'left_change','right_change'};
+        event_titles = {'Overtake Onset','Overtake Offset'};
+        if params.sim.events.traffic_decision.apply
+            event_names(end+1) = {'traffic_decision'};
+            event_titles(end+1) = {'Traffic Decision'};
+        end
+
+        % Run cluster analyses
+        for j = 1 : length(event_names)
+            event_name = event_names{j};
+            event = summary.(event_name);
+            if has_missing
+                event.tlocked = event.tlocked(idx_i);
+                event.tlocked_bl = event.tlocked_bl(idx_i);
+                event.tlocked_bl2 = event.tlocked_bl2(idx_i);
+                event.diffs = event.diffs(idx_i);
+                event.outcomes = event.outcomes(idx_i);
+            end
+            
+            [result, timelock_ga] = cluster_regression( event, ivar_i, [], ...
+                                                        subjects_i, params );
+
+            glm_result = {};
+            glm_result.timelock_stats = result.stats;
+            glm_result.timelock_ga = timelock_ga;
+            glm_result.glm = glm_i;
+            glm_result.event_title = event_titles{j};
+            glm_result.statistic = sprintf('T statistic (%d df)', (length(subjects_i)-2));
+
+            summary.stats.covariate_glms.(glm_i.name).(event_name) = glm_result;
+            
+        end
+        
+    end
+
+end
+
+
 %% Traffic decisions
 if params.sim.events.traffic_decision.apply
    
@@ -66,15 +148,19 @@ if params.sim.events.traffic_decision.apply
     result_file = sprintf('%s/traffic_decisions_means.csv', params.io.results_dir);
     writetable( M_out, result_file );
     
+    % Analyse versus baseline
     [result, timelock_ga] = cluster_ttest_baseline(summary.traffic_decision, summary.subjects, params);
     if isempty(result)
        warning('No result for Traffic Decision v. Baseline!'); 
     else
         summary.stats.traffic_decision.subjects = result.subjects;
         summary.stats.traffic_decision.excluded_subjects = result.excluded_subjects;
-        summary.stats.traffic_decision.timelockstats = result.stats;
+        summary.stats.traffic_decision.timelock_stats = result.stats;
         summary.stats.traffic_decision.timelock_avr = timelock_ga;
     end
+    
+    % GLM analysis?
+    
     
     
     %% Compare correct v. incorrect
@@ -89,7 +175,7 @@ if params.sim.events.traffic_decision.apply
     else
         summary.stats.traffic_decision.correct.subjects = result.subjects;
         summary.stats.traffic_decision.correct.excluded_subjects = result.excluded_subjects;
-        summary.stats.traffic_decision.correct.timelockstats = result.stats;
+        summary.stats.traffic_decision.correct.timelock_stats = result.stats;
         summary.stats.traffic_decision.correct.timelock_avr = timelock_ga;
     end
     
@@ -105,7 +191,7 @@ if params.sim.events.traffic_decision.apply
     else
         summary.stats.traffic_decision.confidence.subjects = result.subjects;
         summary.stats.traffic_decision.confidence.excluded_subjects = result.excluded_subjects;
-        summary.stats.traffic_decision.confidence.timelockstats = result.stats;
+        summary.stats.traffic_decision.confidence.timelock_stats = result.stats;
         summary.stats.traffic_decision.confidence.timelock_avr = timelock_ga;
     end
     
@@ -122,7 +208,7 @@ if isempty(result)
 end
 summary.stats.left_change.subjects = result.subjects;
 summary.stats.left_change.excluded_subjects = result.excluded_subjects;
-summary.stats.left_change.timelockstats = result.stats;
+summary.stats.left_change.timelock_stats = result.stats;
 summary.stats.left_change.timelock_avr = timelock_ga;
 
 [result, timelock_ga] = cluster_ttest_baseline(summary.overtake, summary.subjects, params);
@@ -131,7 +217,7 @@ if isempty(result)
 end
 summary.stats.overtake.subjects = result.subjects;
 summary.stats.overtake.excluded_subjects = result.excluded_subjects;
-summary.stats.overtake.timelockstats = result.stats;
+summary.stats.overtake.timelock_stats = result.stats;
 summary.stats.overtake.timelock_avr = timelock_ga;
 
 [result, timelock_ga] = cluster_ttest_baseline(summary.right_change, summary.subjects, params);
@@ -140,7 +226,7 @@ if isempty(result)
 end
 summary.stats.right_change.subjects = result.subjects;
 summary.stats.right_change.excluded_subjects = result.excluded_subjects;
-summary.stats.right_change.timelockstats = result.stats;
+summary.stats.right_change.timelock_stats = result.stats;
 summary.stats.right_change.timelock_avr = timelock_ga;
 
 
@@ -152,7 +238,7 @@ if params.eye.events.difficulty.apply
     end
     summary.stats.left_change.diff.subjects = result.subjects;
     summary.stats.left_change.diff.excluded_subjects = result.excluded_subjects;
-    summary.stats.left_change.diff.timelockstats = result.stats;
+    summary.stats.left_change.diff.timelock_stats = result.stats;
     summary.stats.left_change.diff.timelock_avr = timelock_ga;
 
     [result, timelock_ga] = cluster_ttest_twosample(summary.right_change, summary.right_change.diffs, summary.subjects, params);
@@ -161,7 +247,7 @@ if params.eye.events.difficulty.apply
     end
     summary.stats.right_change.diff.subjects = result.subjects;
     summary.stats.right_change.diff.excluded_subjects = result.excluded_subjects;
-    summary.stats.right_change.diff.timelockstats = result.stats;
+    summary.stats.right_change.diff.timelock_stats = result.stats;
     summary.stats.right_change.diff.timelock_avr = timelock_ga;
 
     [result, timelock_ga] = cluster_ttest_twosample(summary.overtake, summary.overtake.diffs, summary.subjects, params);
@@ -170,7 +256,7 @@ if params.eye.events.difficulty.apply
     end
     summary.stats.overtake.diff.subjects = result.subjects;
     summary.stats.overtake.diff.excluded_subjects = result.excluded_subjects;
-    summary.stats.overtake.diff.timelockstats = result.stats;
+    summary.stats.overtake.diff.timelock_stats = result.stats;
     summary.stats.overtake.diff.timelock_avr = timelock_ga;
 
 end
@@ -194,7 +280,7 @@ if params.eye.events.outcomes.apply
     end
     summary.stats.left_change.outcomes.subjects = result.subjects;
     summary.stats.left_change.outcomes.excluded_subjects = result.excluded_subjects;
-    summary.stats.left_change.outcomes.timelockstats = result.stats;
+    summary.stats.left_change.outcomes.timelock_stats = result.stats;
     summary.stats.left_change.outcomes.timelock_avr = timelock_ga;
 
     N = length(summary.right_change.outcomes);
@@ -212,7 +298,7 @@ if params.eye.events.outcomes.apply
     end
     summary.stats.right_change.outcomes.subjects = result.subjects;
     summary.stats.right_change.outcomes.excluded_subjects = result.excluded_subjects;
-    summary.stats.right_change.outcomes.timelockstats = result.stats;
+    summary.stats.right_change.outcomes.timelock_stats = result.stats;
     summary.stats.right_change.outcomes.timelock_avr = timelock_ga;
 
     N = length(summary.overtake.outcomes);
@@ -230,7 +316,7 @@ if params.eye.events.outcomes.apply
     end
     summary.stats.overtake.outcomes.subjects = result.subjects;
     summary.stats.overtake.outcomes.excluded_subjects = result.excluded_subjects;
-    summary.stats.overtake.outcomes.timelockstats = result.stats;
+    summary.stats.overtake.outcomes.timelock_stats = result.stats;
     summary.stats.overtake.outcomes.timelock_avr = timelock_ga;
 
 end
@@ -364,7 +450,8 @@ end
     end
 
 
-
+    % Performs cluster t-test analysis on two dependent samples derived from
+    % subjects. Returns the result and a timelocked grand average
     function [result, timelock_ga] = cluster_ttest_twosample( event, groups, subjects, params )
         
         alpha = params.eye.events.alpha/2;
@@ -401,6 +488,7 @@ end
                     data1.trial(end+1) = {squeeze(trial(jj,:))};
                 end
                 data1.time = repmat({event.t},1,size(trial,1));
+                % Compute average time series for this subject
                 [~,X] = evalc('ft_timelockanalysis(cfg,data1)');
                 idx2 = groups{ii} == 2;
                 trial = event.tlocked_bl{ii}(idx2,:);
@@ -466,6 +554,91 @@ end
   
     end
 
+    % Performs regression t-test analysis on time series and a covariate. Returns 
+    % the result and a timelocked grand average
+    function [result, timelock_ga] = cluster_regression( event, ivar, cvar, subjects, params )
+        
+        alpha = params.eye.events.alpha/2;
+        min_trials = params.eye.events.min_trials;
+        
+        % Build Fieldtrip structure
+        result.subjects = {};
+        result.excluded_subjects = {};
+        N_subj = length(subjects);
+        data = [];
+        data.label = {'Event'};
+        data.trial = {};
+        data.time = {event.t};
+        cfg = [];
+        cfg.channel = 'all';
+        cfg.vartrllength = 0;
+        timelock = cell(N_subj,1);
+        
+        tokeep = [];
+
+        for ii = 1 : N_subj
+            
+            trial = event.tlocked_bl{ii};
+            keeprows = sum(isnan(trial),2) == 0;
+            trial = trial(keeprows,:);
+            data.trial = {};
+            
+            % Only add if both groups have at least min_trials samples
+            if ~isempty(trial) && sum(keeprows) >= min_trials
+                for jj = 1 : size(trial,1)
+                    data.trial(end+1) = {squeeze(trial(jj,:))};
+                end
+                data.time = repmat({event.t},1,size(trial,1));
+                
+                % Compute average time series for this subject
+                [~,X] = evalc('ft_timelockanalysis(cfg,data)');
+                timelock(ii) = {X};
+                tokeep(end+1) = ii;
+                    
+                result.subjects = [result.subjects subjects(ii)];
+            else
+                result.excluded_subjects = [result.excluded_subjects subjects(ii)];
+            end
+        end
+
+        timelock = timelock(tokeep);
+        
+        if isempty(timelock)
+            result = [];
+            timelock_ga = [];
+            warning('Not enough trials to analyze events (min=%d)!', min_trials);
+            return; 
+        end
+        
+        cfg = [];
+        cfg.channel = 'all';
+        [~,timelock_ga] = evalc('ft_timelockgrandaverage(cfg, timelock{:})');
+
+        % Perform statistical analysis
+        cfg = [];
+        cfg.method = 'montecarlo';
+        cfg.statistic = 'ft_statfun_indepsamplesregrT';
+        %cfg.statistic = 'depsamplesT';
+        cfg.correctm = 'cluster';
+        cfg.clusteralpha = 0.05; 
+        cfg.clusterstatistic = 'maxsum';
+        cfg.alpha = alpha;
+        cfg.numrandomization = 1000;
+       
+        if ~isempty(cvar)
+            cfg.design = [ivar,cvar]';
+            cfg.cvar = 2;
+        else
+            cfg.design = ivar;
+        end
+
+        cfg.ivar = 1;
+        cfg.latency = 'all';
+        cfg.spmversion = 'spm12';
+
+        [~,result.stats] = evalc('ft_timelockstatistics(cfg, timelock{:})');
+  
+    end
 
 end
 

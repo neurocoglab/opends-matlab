@@ -1,36 +1,14 @@
-function h = plot_timelocked( params, stats, groups, layout, sig_dims, sig_clr )
-    % Plots time-locked average signals with confidence intervals
-    % and statistically significant clusters
-    
-    plotly_clrs = params.general.plots.plotly_colors;
-    N = length(stats.subjects);
-%     plotly_layouts = load(params.general.plots.plotly_layouts_file);
+function h = plot_timelocked_stats( params, stats, groups, layout, sig_dims, sig_clr )
+    % Plots time-locked statistics
 
-    if length(stats.timelock_avr) == 1
-        x = stats.timelock_avr{1}.time;
-        y = stats.timelock_avr{1}.avg;
-        var = stats.timelock_avr{1}.var;
-        lower = y - 1.96*sqrt(var/N);
-        upper = y + 1.96*sqrt(var/N);
-    else
-        N_s = length(stats.timelock_avr);
-        N_t = length(stats.timelock_avr{1}.time);
-        x = zeros(N_t,N_s);
-        y = zeros(N_t,N_s);
-        var = zeros(N_t,N_s);
-        upper = zeros(N_t,N_s);
-        lower = zeros(N_t,N_s);
-        for ii = 1 : length(stats.timelock_avr)
-            x(:,ii) = stats.timelock_avr{ii}.time;
-            y(:,ii) = stats.timelock_avr{ii}.avg;
-            var(:,ii) = stats.timelock_avr{ii}.var;
-            lower(:,ii) = y(:,ii) - 1.96*sqrt(var(:,ii)/N);
-            upper(:,ii) = y(:,ii) + 1.96*sqrt(var(:,ii)/N);
-        end
-    end
+
+    plotly_clrs = params.general.plots.plotly_colors;
+
+    x = stats.timelock_stats.time;
+    y = stats.timelock_stats.stat;
 
     h = plotlyfig('Visible','off');
-    [data_line,data_shade] = get_plotly_ci_data(x, y, lower, upper, ...
+    [data_line,data_shade] = get_plotly_ci_data(x, y, [], [], ...
                                                 groups, plotly_clrs, ...
                                                 0.1);
 
@@ -114,7 +92,7 @@ function h = plot_timelocked( params, stats, groups, layout, sig_dims, sig_clr )
     end
     
     h.layout = layout;
-    h.layout.yaxis.title = 'PD (normalized to baseline)';
+    h.layout.yaxis.title = stats.statistic;
     h.layout.xaxis.title = 'Time relative to button press (s)';
         
         

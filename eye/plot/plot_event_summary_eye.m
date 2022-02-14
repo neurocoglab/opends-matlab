@@ -252,5 +252,50 @@ if params.sim.events.traffic_decision.apply
     
 end
 
+% Regression analyses
+if ~isempty(params.eye.events.covariates.glms)
+    
+     for i = 1 : length(params.eye.events.covariates.glms)
+        
+        glm_i = params.eye.events.covariates.glms{i};
+        event_types = fieldnames(summary.stats.covariate_glms.(glm_i.name));
+        
+        for j = 1 : length(event_types)
+            event_type = event_types{j};
+            summary_j = summary.stats.covariate_glms.(glm_i.name).(event_type);
+            
+            % Time series
+            h = plot_timelocked_stats(params, summary_j, ...
+                                      {''}, ...
+                                      plotly_layouts.layouts.boxplot, sig_dims, sig_clrs);
+
+            h.layout.title = sprintf('GLM: %s - %s', glm_i.name, summary_j.event_title);
+            h.layout.yaxis.range = params.eye.events.covariates.plots.ylims; % [-0.5 2]; % [min(y(:)) max(y(:))]*1.3;
+%             h.layout.showlegend = true;
+%             h.layout.legend = struct('x', 0.1, 'y', 3.0);
+            
+            h.PlotOptions.SaveFolder = outdir;
+            h.PlotOptions.FileName = sprintf('eye_events_glm_%s_%s', glm_i.name, event_type);
+            plotlyoffline(h);
+
+            if show_plots
+                web(sprintf('file://%s/%s.html', outdir, h.PlotOptions.FileName), '-new', '-notoolbar');
+            end
+
+
+
+
+            % Scatterplots
+    
+        
+        end
+    
+     end
+    
+    
+end
+
+
+
 
 end

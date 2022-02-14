@@ -115,6 +115,8 @@ events = data.sim.sim2track.overtake_times;
 events = events(~isnan(events));
 
 [tlocked,tstart] = get_tlocked(pdz, t_pd, events, params.eye.events.overtake);
+%[slopes,tslopes] = get_slopes(tlocked, params.eye.events.left_change);
+
 clear baseline_stats;
 baseline_stats.mean = nan(length(tstart),1);
 baseline_stats.std = nan(length(tstart),1);
@@ -162,12 +164,12 @@ for i = 1 : N_rand
 end
 results.eye.events.overtake.tlocked_bl2 = squeeze(nanmean(T,1));
 
-
 % Lane change left events
 events = data.sim.sim2track.left_change_times;
 events = events(~isnan(events));
 
 [tlocked,tstart] = get_tlocked(pdz, t_pd, events, params.eye.events.left_change);
+[slopes,tslopes] = get_tlocked_slopes(tlocked, params.eye.events.left_change);
 clear baseline_stats;
 baseline_stats.mean = nan(length(tstart),1);
 baseline_stats.std = nan(length(tstart),1);
@@ -353,4 +355,7 @@ function blink_events = get_blink_events( t, blink_ints )
     end
 
 end
+
+
+
 

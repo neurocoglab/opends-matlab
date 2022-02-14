@@ -86,7 +86,7 @@ params.eye.epochs.plots.show_webplots = true;
 
 
 
-%% Processing - events
+%% Processing/analysis - events
 params.eye.events.zscore = true;
 params.eye.events.smooth = 500;
 
@@ -101,17 +101,26 @@ params.eye.events.overtake.zscore = true;
 params.eye.events.overtake.prepost = [5000 5000];
 % params.eye.events.overtake.baseline = [2000 500];
 params.eye.events.overtake.plots.ylims = [-1 1.5];
+params.eye.events.overtake.slope_min_peak_dist = 500;
+params.eye.events.overtake.slope_min_peak_width = 500;
+params.eye.events.overtake.slope_prepost = [3000 3000];
 
 params.eye.events.left_change.zscore = true;
 params.eye.events.left_change.prepost = [7500 5000];
 % params.eye.events.left_change.baseline = [10000 8000];
 params.eye.events.left_change.plots.ylims = [-1 1.5];
+params.eye.events.left_change.slope_min_peak_dist = 500;
+params.eye.events.left_change.slope_min_peak_width = 500;
+params.eye.events.left_change.slope_prepost = [3000 1500];
 
 params.eye.events.right_change.zscore = true;
 params.eye.events.right_change.prepost = [5000 7500];
 % params.eye.events.right_change.baseline = [2000 500];
 params.eye.events.right_change.plots.ylims = [-1 1.5];
-
+params.eye.events.right_change.slope_min_peak_dist = 500;
+params.eye.events.right_change.slope_min_peak_width = 500;
+params.eye.events.right_change.slope_prepost = [3000 1500];
+    
 params.eye.events.saccades.zscore = true;
 params.eye.events.saccades.vmin = 100;
 params.eye.events.saccades.prepost = [1500 1500];
@@ -144,4 +153,6 @@ params.eye.events.random.N = 10;
 params.eye.events.alpha = 0.05;
 params.eye.events.min_trials = 5;
 
-
+% Specify covariates for regression analyses
+params.eye.events.covariates.glms = {};
+params.eye.events.covariates.plots.ylims = [-5 5];
