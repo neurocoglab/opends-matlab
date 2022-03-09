@@ -70,8 +70,10 @@ end
 %     saveplotlyfig(h, sprintf('%s/timelocked_overtake_bl.svg', outdir));
 % end
 
-%Comparison - Easy vs. Difficult - Passing Onset 
+% Comparison - Easy vs. Difficult 
 if params.eye.events.difficulty.apply
+    
+    % Time series plot - Onset
     h = plot_timelocked(params, summary.stats.left_change.diff, [{'Easy'},{'Difficult'}], ...
                         plotly_layouts.layouts.boxplot, sig_dims, sig_clrs);
     h.layout.title = 'PD Locked to Passing Onset: Difficulty';
@@ -87,13 +89,22 @@ if params.eye.events.difficulty.apply
         web(sprintf('file://%s/%s.html', outdir, h.PlotOptions.FileName), '-new', '-notoolbar');
     end
 
+    % Violin plot parameters (slope/amplitude) - Onset
+    h.layout.title = 'PD Parameters for Passing Onset: Difficulty';
+    
+    h = plot_timelocked_params(params, summary.stats.left_change.diff.parameter_stats, ...
+                              {'Easy','Difficult'});
+    
+    h.PlotOptions.SaveFolder = outdir;
+    h.PlotOptions.FileName = 'eye_events_onset_diff_params';
+    plotlyoffline(h);
 
-    % if out2file
-    %     saveplotlyfig(h, sprintf('%s/timelocked_onset_diff.png', outdir));
-    % end
+    if show_plots
+        web(sprintf('file://%s/%s.html', outdir, h.PlotOptions.FileName), '-new', '-notoolbar');
+    end
+    
 
-    % Comparison - Easy vs. Difficult - Passing Offset
-
+    % Time series plot - Offset
     h = plot_timelocked(params, summary.stats.right_change.diff, [{'Easy'},{'Difficult'}], ...
                         plotly_layouts.layouts.boxplot, sig_dims, sig_clrs);
     h.layout.title = 'PD Locked to Passing Offset: Difficulty';
@@ -109,12 +120,7 @@ if params.eye.events.difficulty.apply
         web(sprintf('file://%s/%s.html', outdir, h.PlotOptions.FileName), '-new', '-notoolbar');
     end
 
-    % if out2file
-    %     saveplotlyfig(h, sprintf('%s/timelocked_offset_diff.png', outdir));
-    % end
-
-    % Comparison - Easy vs. Difficult - Overtake Event
-
+    % Time series plot - Overtake
     h = plot_timelocked(params, summary.stats.overtake.diff, [{'Easy'},{'Difficult'}], ...
                         plotly_layouts.layouts.boxplot, sig_dims, sig_clrs);
     h.layout.title = 'PD Locked to Overtake Event: Difficulty';
@@ -130,9 +136,6 @@ if params.eye.events.difficulty.apply
         web(sprintf('file://%s/%s.html', outdir, h.PlotOptions.FileName), '-new', '-notoolbar');
     end
 
-    % if out2file
-    %     saveplotlyfig(h, sprintf('%s/timelocked_overtake_diff.png', outdir));
-    % end
 end
 
 % Comparison - Positive vs. Negative Outcome - Passing Onset

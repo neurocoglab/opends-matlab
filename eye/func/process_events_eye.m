@@ -115,7 +115,10 @@ events = data.sim.sim2track.overtake_times;
 events = events(~isnan(events));
 
 [tlocked,tstart] = get_tlocked(pdz, t_pd, events, params.eye.events.overtake);
-%[slopes,tslopes] = get_slopes(tlocked, params.eye.events.left_change);
+% if params.eye.events.tlock_params.apply
+%     [tlock_params] = get_tlocked_parameters(mean(tlocked), params.eye.events.overtake);
+%     results.eye.events.overtake.tlock_params = tlock_params;
+% end
 
 clear baseline_stats;
 baseline_stats.mean = nan(length(tstart),1);
@@ -141,8 +144,8 @@ results.eye.events.overtake.outcomes = nan(length(events),1);
 
 for i = 1 : length(events)
     if params.eye.events.difficulty.apply
-    results.eye.events.overtake.diffs(i) = get_difficulty(seq_diff, data.sim.sim2track.matrix, ...
-                                                          events(i), params.sim.lane_dist);
+        results.eye.events.overtake.diffs(i) = get_difficulty(seq_diff, data.sim.sim2track.matrix, ...
+                                                              events(i), params.sim.lane_dist);                                             
     end
     if params.eye.events.outcomes.apply
         idxi = find(results.eye.epochs.overtake_intervals(:,1) <= events(i) & ...
@@ -159,17 +162,32 @@ N_event = length(events);
 events = get_random_events( events, N_rand, [results.eye.events.overtake.t(1) results.eye.events.overtake.t(end)], ...
                             idx_baseline );
 T = zeros(N_rand,N_event,length(results.eye.events.overtake.t));
+T_params = [];
+T_params.slope = zeros(N_rand,N_event);
+T_params.amplitude = zeros(N_rand,N_event);
 for i = 1 : N_rand
-    T(i,:,:) = get_tlocked(pdz, t_pd, events(:,i), params.eye.events.overtake);
+    tlocked = get_tlocked(pdz, t_pd, events(:,i), params.eye.events.overtake);
+%     if params.eye.events.tlock_params.apply
+%         tlock_params = get_tlocked_parameters(tlocked, params.eye.events.overtake);
+%         T_params.slope(i,:) = tlock_params.slopes;
+%         T_params.amplitude(i,:) = tlock_params.amplitudes;
+%     end
+    T(i,:,:) = tlocked;
 end
 results.eye.events.overtake.tlocked_bl2 = squeeze(nanmean(T,1));
+% if params.eye.events.tlock_params.apply
+%     results.eye.events.overtake.tlocked_params_bl2 = T_params;
+% end
 
 % Lane change left events
 events = data.sim.sim2track.left_change_times;
 events = events(~isnan(events));
 
 [tlocked,tstart] = get_tlocked(pdz, t_pd, events, params.eye.events.left_change);
-[slopes,tslopes] = get_tlocked_slopes(tlocked, params.eye.events.left_change);
+% if params.eye.events.tlock_params.apply
+%     tlock_params = get_tlocked_parameters(tlocked, params.eye.events.left_change);
+%     results.eye.events.left_change.tlock_params = tlock_params;
+% end
 clear baseline_stats;
 baseline_stats.mean = nan(length(tstart),1);
 baseline_stats.std = nan(length(tstart),1);
@@ -212,16 +230,32 @@ N_event = length(events);
 events = get_random_events( events, N_rand, [results.eye.events.left_change.t(1) results.eye.events.left_change.t(end)], ...
                             idx_baseline );
 T = zeros(N_rand,N_event,length(results.eye.events.left_change.t));
+T_params = [];
+T_params.slope = zeros(N_rand,N_event);
+T_params.amplitude = zeros(N_rand,N_event);
 for i = 1 : N_rand
-    T(i,:,:) = get_tlocked(pdz, t_pd, events(:,i), params.eye.events.left_change);
+    tlocked = get_tlocked(pdz, t_pd, events(:,i), params.eye.events.left_change);
+%     if params.eye.events.tlock_params.apply
+%         tlock_params = get_tlocked_parameters(tlocked, params.eye.events.left_change);
+%         T_params.slope(i,:) = tlock_params.slopes;
+%         T_params.amplitude(i,:) = tlock_params.amplitudes;
+%     end
+    T(i,:,:) = tlocked;
 end
 results.eye.events.left_change.tlocked_bl2 = squeeze(nanmean(T,1));
+% if params.eye.events.tlock_params.apply
+%     results.eye.events.left_change.tlocked_params_bl2 = T_params;
+% end
                                                  
 % Lane change right events
 events = data.sim.sim2track.right_change_times;
 events = events(~isnan(events));
 
 [tlocked,tstart] = get_tlocked(pdz, t_pd, events, params.eye.events.right_change);
+% if params.eye.events.tlock_params.apply
+%     [tlock_params] = get_tlocked_parameters(tlocked, params.eye.events.right_change);
+%     results.eye.events.right_change.tlock_params = tlock_params;
+% end
 clear baseline_stats;
 baseline_stats.mean = nan(length(tstart),1);
 baseline_stats.std = nan(length(tstart),1);
@@ -264,10 +298,22 @@ N_event = length(events);
 events = get_random_events( events, N_rand, [results.eye.events.right_change.t(1) results.eye.events.right_change.t(end)], ...
                             idx_baseline );
 T = zeros(N_rand,N_event,length(results.eye.events.right_change.t));
+T_params = [];
+T_params.slope = zeros(N_rand,N_event);
+T_params.amplitude = zeros(N_rand,N_event);
 for i = 1 : N_rand
-    T(i,:,:) = get_tlocked(pdz, t_pd, events(:,i), params.eye.events.right_change);
+    tlocked = get_tlocked(pdz, t_pd, events(:,i), params.eye.events.right_change);
+%     if params.eye.events.tlock_params.apply
+%         tlock_params = get_tlocked_parameters(tlocked, params.eye.events.right_change);
+%         T_params.slope(i,:) = tlock_params.slopes;
+%         T_params.amplitude(i,:) = tlock_params.amplitudes;
+%     end
+    T(i,:,:) = tlocked;
 end
 results.eye.events.right_change.tlocked_bl2 = squeeze(nanmean(T,1));
+% if params.eye.events.tlock_params.apply
+%     results.eye.events.right_change.tlocked_params_bl2 = T_params;
+% end
 
 % Saccade offset events
 svel = data.eye.saccades.saccades(:,4);

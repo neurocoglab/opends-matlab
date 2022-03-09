@@ -89,6 +89,7 @@ params.eye.epochs.plots.show_webplots = true;
 %% Processing/analysis - events
 params.eye.events.zscore = true;
 params.eye.events.smooth = 500;
+params.eye.events.tlock_params.apply = true;
 
 params.eye.events.difficulty.apply = true;
 params.eye.events.outcomes.apply = true;
@@ -96,30 +97,34 @@ params.eye.events.outcomes.apply = true;
 params.eye.events.plots.save = true;
 params.eye.events.plots.ylims = [-1.5 1];
 params.eye.events.plots.show_webplots = true;
+params.eye.events.plots.show_params_plots = false;
 
 params.eye.events.overtake.zscore = true;
 params.eye.events.overtake.prepost = [5000 5000];
 % params.eye.events.overtake.baseline = [2000 500];
 params.eye.events.overtake.plots.ylims = [-1 1.5];
-params.eye.events.overtake.slope_min_peak_dist = 500;
-params.eye.events.overtake.slope_min_peak_width = 500;
-params.eye.events.overtake.slope_prepost = [3000 3000];
+params.eye.events.overtake.tlock_params.smooth_span = 600;
+params.eye.events.overtake.tlock_params.min_peak_dist = 500;
+params.eye.events.overtake.tlock_params.min_peak_width = 500;
+params.eye.events.overtake.tlock_params.prepost = [3000 1500];
 
 params.eye.events.left_change.zscore = true;
 params.eye.events.left_change.prepost = [7500 5000];
 % params.eye.events.left_change.baseline = [10000 8000];
 params.eye.events.left_change.plots.ylims = [-1 1.5];
-params.eye.events.left_change.slope_min_peak_dist = 500;
-params.eye.events.left_change.slope_min_peak_width = 500;
-params.eye.events.left_change.slope_prepost = [3000 1500];
+params.eye.events.left_change.tlock_params.smooth_span = 600;
+params.eye.events.left_change.tlock_params.min_peak_dist = 500;
+params.eye.events.left_change.tlock_params.min_peak_width = 300;
+params.eye.events.left_change.tlock_params.prepost = [3000 1500];
 
 params.eye.events.right_change.zscore = true;
 params.eye.events.right_change.prepost = [5000 7500];
 % params.eye.events.right_change.baseline = [2000 500];
 params.eye.events.right_change.plots.ylims = [-1 1.5];
-params.eye.events.right_change.slope_min_peak_dist = 500;
-params.eye.events.right_change.slope_min_peak_width = 500;
-params.eye.events.right_change.slope_prepost = [3000 1500];
+params.eye.events.right_change.tlock_params.smooth_span = 600;
+params.eye.events.right_change.tlock_params.min_peak_dist = 500;
+params.eye.events.right_change.tlock_params.min_peak_width = 500;
+params.eye.events.right_change.tlock_params.prepost = [3000 1500];
     
 params.eye.events.saccades.zscore = true;
 params.eye.events.saccades.vmin = 100;
@@ -147,6 +152,11 @@ params.eye.events.traffic_decision.plots.ylims = [-1 1.5];
 params.eye.events.traffic_decision.confidence.apply = true;
 params.eye.events.traffic_decision.correct.apply = true;
 params.eye.events.traffic_decision.min_trials = 3;
+
+params.eye.events.traffic_decision.tlock_params.smooth_span = 600;
+params.eye.events.traffic_decision.tlock_params.min_peak_dist = 500;
+params.eye.events.traffic_decision.tlock_params.min_peak_width = 500;
+params.eye.events.traffic_decision.tlock_params.prepost = [3000 1500];
 
 params.eye.events.random.N = 10;
 

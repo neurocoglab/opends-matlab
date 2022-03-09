@@ -157,6 +157,7 @@ if params.sim.events.traffic_decision.apply
         summary.stats.traffic_decision.excluded_subjects = result.excluded_subjects;
         summary.stats.traffic_decision.timelock_stats = result.stats;
         summary.stats.traffic_decision.timelock_avr = timelock_ga;
+
     end
     
     % GLM analysis?
@@ -169,6 +170,7 @@ if params.sim.events.traffic_decision.apply
     [result, timelock_ga] = cluster_ttest_twosample(summary.traffic_decision, ...
                                                     summary.traffic_decision.correct, ...
                                                     summary.subjects, ...
+                                                    {'Correct','Incorrect'}, ...
                                                     params2);
     if isempty(result)
        warning('No result for Traffic Decision Correct v. Incorrect!'); 
@@ -177,6 +179,19 @@ if params.sim.events.traffic_decision.apply
         summary.stats.traffic_decision.correct.excluded_subjects = result.excluded_subjects;
         summary.stats.traffic_decision.correct.timelock_stats = result.stats;
         summary.stats.traffic_decision.correct.timelock_avr = timelock_ga;
+        
+        % Analyse slope & amplitude
+        if params.eye.events.tlock_params.apply
+            result = get_timelocked_averages(summary.traffic_decision, ...
+                                         summary.traffic_decision.correct, ...
+                                         summary.subjects, ...
+                                         {'Correct','Incorrect'});
+            summary.stats.traffic_decision.correct.parameter_stats = ...
+                parameter_ttest_twosample( result, ...
+                                        params.eye.events.traffic_decision, ...
+                                        params.eye.events.alpha );
+
+        end
     end
     
     %% Compare high v. low confidence
@@ -185,6 +200,7 @@ if params.sim.events.traffic_decision.apply
     [result, timelock_ga] = cluster_ttest_twosample(summary.traffic_decision, ...
                                                     summary.traffic_decision.confidence, ...
                                                     summary.subjects, ...
+                                                    {'HighConfidence','LowConfidence'}, ...
                                                     params2);
     if isempty(result)
        warning('No result for Traffic Decision High v. Low Confidence!'); 
@@ -193,6 +209,19 @@ if params.sim.events.traffic_decision.apply
         summary.stats.traffic_decision.confidence.excluded_subjects = result.excluded_subjects;
         summary.stats.traffic_decision.confidence.timelock_stats = result.stats;
         summary.stats.traffic_decision.confidence.timelock_avr = timelock_ga;
+        
+        % Analyse slope & amplitude
+        if params.eye.events.tlock_params.apply
+            result = get_timelocked_averages(summary.traffic_decision, ...
+                                             summary.traffic_decision.confidence, ...
+                                             summary.subjects, ...
+                                             {'HighConfidence','LowConfidence'});
+            summary.stats.traffic_decision.confidence.parameter_stats = ...
+                parameter_ttest_twosample( result, ...
+                                        params.eye.events.traffic_decision, ...
+                                        params.eye.events.alpha );
+
+        end
     end
     
     
@@ -220,6 +249,7 @@ summary.stats.overtake.excluded_subjects = result.excluded_subjects;
 summary.stats.overtake.timelock_stats = result.stats;
 summary.stats.overtake.timelock_avr = timelock_ga;
 
+% Analyse slope
 [result, timelock_ga] = cluster_ttest_baseline(summary.right_change, summary.subjects, params);
 if isempty(result)
    warning('No result for Passing Offset v. Baseline!'); 
@@ -229,10 +259,15 @@ summary.stats.right_change.excluded_subjects = result.excluded_subjects;
 summary.stats.right_change.timelock_stats = result.stats;
 summary.stats.right_change.timelock_avr = timelock_ga;
 
+% Analyse slope
 
 % %% Compare Easy v. Difficult
 if params.eye.events.difficulty.apply
-    [result, timelock_ga] = cluster_ttest_twosample(summary.left_change, summary.left_change.diffs, summary.subjects, params);
+    [result, timelock_ga] = cluster_ttest_twosample(summary.left_change, ...
+                                                    summary.left_change.diffs, ...
+                                                    summary.subjects, ...
+                                                    {'Easy','Difficult'}, ...
+                                                    params);
     if isempty(result)
        warning('No result for Passing Onset x Difficulty!'); 
     end
@@ -240,7 +275,20 @@ if params.eye.events.difficulty.apply
     summary.stats.left_change.diff.excluded_subjects = result.excluded_subjects;
     summary.stats.left_change.diff.timelock_stats = result.stats;
     summary.stats.left_change.diff.timelock_avr = timelock_ga;
+    
+    % Analyse slope & amplitude
+    if params.eye.events.tlock_params.apply
+        result = get_timelocked_averages(summary.left_change, ...
+                                         summary.left_change.diffs, ...
+                                         summary.subjects, ...
+                                         {'Easy','Difficult'});
+        summary.stats.left_change.diff.parameter_stats = ...
+            parameter_ttest_twosample( result, ...
+                                       params.eye.events.left_change, ...
+                                       params.eye.events.alpha );
 
+    end
+    
     [result, timelock_ga] = cluster_ttest_twosample(summary.right_change, summary.right_change.diffs, summary.subjects, params);
     if isempty(result)
        warning('No result for Passing Offset x Difficulty!'); 
@@ -249,6 +297,23 @@ if params.eye.events.difficulty.apply
     summary.stats.right_change.diff.excluded_subjects = result.excluded_subjects;
     summary.stats.right_change.diff.timelock_stats = result.stats;
     summary.stats.right_change.diff.timelock_avr = timelock_ga;
+    
+    % Analyse slope & amplitude
+    if params.eye.events.tlock_params.apply
+        result = get_timelocked_averages(summary.right_change, ...
+                                         summary.right_change.diffs, ...
+                                         summary.subjects, ...
+                                         {'Easy','Difficult'});
+        summary.stats.right_change.diff.parameter_stats = ...
+            parameter_ttest_twosample( result, ...
+                                       params.eye.events.right_change, ...
+                                       params.eye.events.alpha );
+
+    end
+    
+    % Analyse slope
+    summary.stats.right_change.diff.parameter_stats = ...
+        parameter_ttest_twosample( result, params.eye.events.right_change, params.eye.events.alpha );
 
     [result, timelock_ga] = cluster_ttest_twosample(summary.overtake, summary.overtake.diffs, summary.subjects, params);
     if isempty(result)
@@ -258,6 +323,19 @@ if params.eye.events.difficulty.apply
     summary.stats.overtake.diff.excluded_subjects = result.excluded_subjects;
     summary.stats.overtake.diff.timelock_stats = result.stats;
     summary.stats.overtake.diff.timelock_avr = timelock_ga;
+    
+    % Analyse slope & amplitude
+    if params.eye.events.tlock_params.apply
+        result = get_timelocked_averages(summary.overtake, ...
+                                         summary.overtake.diffs, ...
+                                         summary.subjects, ...
+                                         {'Easy','Difficult'});
+        summary.stats.overtake.diff.parameter_stats = ...
+            parameter_ttest_twosample( result, ...
+                                       params.eye.events.overtake, ...
+                                       params.eye.events.alpha );
+
+    end
 
 end
 
@@ -274,7 +352,11 @@ if params.eye.events.outcomes.apply
         grpi(outcomesi>0) = 2;
         groups(i) = {grpi};
     end
-    [result, timelock_ga] = cluster_ttest_twosample(summary.left_change, groups, summary.subjects, params);
+    [result, timelock_ga] = cluster_ttest_twosample(summary.left_change, ...
+                                                    groups, ...
+                                                    summary.subjects, ...
+                                                    {'Positive','Negative'}, ...
+                                                    params);
     if isempty(result)
        warning('No result for Passing Onset x Outcome!'); 
     end
@@ -282,6 +364,19 @@ if params.eye.events.outcomes.apply
     summary.stats.left_change.outcomes.excluded_subjects = result.excluded_subjects;
     summary.stats.left_change.outcomes.timelock_stats = result.stats;
     summary.stats.left_change.outcomes.timelock_avr = timelock_ga;
+    
+    % Analyse slope & amplitude
+    if params.eye.events.tlock_params.apply
+        result = get_timelocked_averages(summary.left_change, ...
+                                         groups, ...
+                                         summary.subjects, ...
+                                         {'Positive','Negative'});
+        summary.stats.left_change.outcomes.parameter_stats = ...
+            parameter_ttest_twosample( result, ...
+                                       params.eye.events.left_change, ...
+                                       params.eye.events.alpha );
+
+    end
 
     N = length(summary.right_change.outcomes);
     groups = cell(N,1);
@@ -300,6 +395,19 @@ if params.eye.events.outcomes.apply
     summary.stats.right_change.outcomes.excluded_subjects = result.excluded_subjects;
     summary.stats.right_change.outcomes.timelock_stats = result.stats;
     summary.stats.right_change.outcomes.timelock_avr = timelock_ga;
+    
+    % Analyse slope & amplitude
+    if params.eye.events.tlock_params.apply
+        result = get_timelocked_averages(summary.right_change, ...
+                                         groups, ...
+                                         summary.subjects, ...
+                                         {'Positive','Negative'});
+        summary.stats.right_change.outcomes.parameter_stats = ...
+            parameter_ttest_twosample( result, ...
+                                       params.eye.events.right_change, ...
+                                       params.eye.events.alpha );
+
+    end
 
     N = length(summary.overtake.outcomes);
     groups = cell(N,1);
@@ -318,6 +426,19 @@ if params.eye.events.outcomes.apply
     summary.stats.overtake.outcomes.excluded_subjects = result.excluded_subjects;
     summary.stats.overtake.outcomes.timelock_stats = result.stats;
     summary.stats.overtake.outcomes.timelock_avr = timelock_ga;
+    
+    % Analyse slope & amplitude
+    if params.eye.events.tlock_params.apply
+        result = get_timelocked_averages(summary.overtake, ...
+                                         groups, ...
+                                         summary.subjects, ...
+                                         {'Positive','Negative'});
+        summary.stats.overtake.outcomes.parameter_stats = ...
+            parameter_ttest_twosample( result, ...
+                                       params.eye.events.overtake, ...
+                                       params.eye.events.alpha );
+
+    end
 
 end
 
@@ -348,6 +469,8 @@ end
             [~,X] = evalc('ft_timelockanalysis(cfg,data)');
             timelock(ii) = {X};
         end
+        
+        result.timelock_avg.trials = timelock;
 
         cfg = [];
         cfg.channel = 'all';
@@ -373,13 +496,13 @@ end
         cfg.latency = 'all';
         cfg.spmversion = 'spm12';
 
-        [~,result] = evalc('ft_timelockstatistics(cfg, timelock{:}, timelock0{:})');
+        [~,result.stats] = evalc('ft_timelockstatistics(cfg, timelock{:}, timelock0{:})');
   
     end
 
 
 
-    function [result, timelock_ga] = cluster_ttest_baseline( event, subjects, params )
+    function [result, timelock_ga, timelock_subjects] = cluster_ttest_baseline( event, subjects, params )
         
         alpha = params.eye.events.alpha/2;
         min_trials = params.eye.events.min_trials;
@@ -423,6 +546,10 @@ end
             end
         end
 
+        result.timelock_avg = [];
+        result.timelock_avg.trials = timelock;
+        result.timelock_avg.baseline = timelock_bl;
+        
         cfg = [];
         cfg.channel = 'all';
         [~,timelock_ga1] = evalc('ft_timelockgrandaverage(cfg, timelock{:})');
@@ -452,14 +579,17 @@ end
 
     % Performs cluster t-test analysis on two dependent samples derived from
     % subjects. Returns the result and a timelocked grand average
-    function [result, timelock_ga] = cluster_ttest_twosample( event, groups, subjects, params )
+    function [result, timelock_ga] = cluster_ttest_twosample( event, groups, subjects, labels, params )
         
         alpha = params.eye.events.alpha/2;
         min_trials = params.eye.events.min_trials;
         
         % Build Fieldtrip structure
+        result = [];
+        result.labels = labels;
         result.subjects = {};
         result.excluded_subjects = {};
+        result.groups = groups;
         N_subj = length(subjects);
         data1 = [];
         data1.label = {'Event'};
@@ -494,7 +624,7 @@ end
                 trial = event.tlocked_bl{ii}(idx2,:);
                 keeprows = sum(isnan(trial),2) == 0;
                 trial = trial(keeprows,:);
-                if ~isempty(trial) && sum(keeprows) > min_trials
+                if ~isempty(trial) && sum(keeprows) >= min_trials
                     timelock1(ii) = {X};
                     for jj = 1 : size(trial,1)
                         data2.trial(end+1) = {squeeze(trial(jj,:))};
@@ -521,6 +651,10 @@ end
             warning('Not enough trials to analyze events (min=%d)!', min_trials);
             return; 
         end
+        
+        result.timelock_avg = [];
+        result.timelock_avg.(labels{1}) = timelock1;
+        result.timelock_avg.(labels{2}) = timelock2;
         
         N_kept = length(tokeep);
         timelock_ga = cell(2,1);
@@ -552,6 +686,72 @@ end
 
         [~,result.stats] = evalc('ft_timelockstatistics(cfg, timelock1{:}, timelock2{:})');
   
+    end
+
+    function result = get_timelocked_averages( event, groups, subjects, labels ) 
+       
+        % Build Fieldtrip structure
+        result = [];
+        result.labels = labels;
+        result.subjects = {};
+        result.excluded_subjects = {};
+        result.groups = groups;
+        N_subj = length(subjects);
+        data1 = [];
+        data1.label = {'Event'};
+        data1.trial = {};
+        data1.time = {event.t};
+        data2 = data1;
+        cfg = [];
+        cfg.channel = 'all';
+        cfg.vartrllength = 0;
+        timelock1 = cell(N_subj,1);
+        timelock2 = cell(N_subj,1);
+        
+        tokeep = [];
+
+        for ii = 1 : N_subj
+            data1.trial = {};
+            data2.trial = {};
+            idx1 = groups{ii} == 1;
+            
+            trial = event.tlocked_bl{ii}(idx1,:);
+            keeprows = sum(isnan(trial),2) == 0;
+            trial = trial(keeprows,:);
+            % Only add if both groups have at least min_trials samples
+            if ~isempty(trial) && sum(keeprows) > 0
+                for jj = 1 : size(trial,1)
+                    data1.trial(end+1) = {squeeze(trial(jj,:))};
+                end
+                data1.time = repmat({event.t},1,size(trial,1));
+                % Compute average time series for this subject
+                [~,X] = evalc('ft_timelockanalysis(cfg,data1)');
+                idx2 = groups{ii} == 2;
+                trial = event.tlocked_bl{ii}(idx2,:);
+                keeprows = sum(isnan(trial),2) == 0;
+                trial = trial(keeprows,:);
+                if ~isempty(trial) && sum(keeprows) > 0
+                    timelock1(ii) = {X};
+                    for jj = 1 : size(trial,1)
+                        data2.trial(end+1) = {squeeze(trial(jj,:))};
+                    end
+                    data2.time = repmat({event.t},1,size(trial,1));
+                    [~,X] = evalc('ft_timelockanalysis(cfg,data2)');
+                    timelock2(ii) = {X};
+                    tokeep(end+1) = ii;
+                    result.subjects = [result.subjects subjects(ii)];
+                else
+                    result.excluded_subjects = [result.excluded_subjects subjects(ii)];
+                end
+            else
+                result.excluded_subjects = [result.excluded_subjects subjects(ii)];
+            end
+        end
+
+        result.timelock_avg.(labels{1}) = timelock1(tokeep);
+        result.timelock_avg.(labels{2}) = timelock2(tokeep);
+        
+        
     end
 
     % Performs regression t-test analysis on time series and a covariate. Returns 
@@ -610,6 +810,8 @@ end
             return; 
         end
         
+        result.timelock_avg = timelock;
+        
         cfg = [];
         cfg.channel = 'all';
         [~,timelock_ga] = evalc('ft_timelockgrandaverage(cfg, timelock{:})');
@@ -638,6 +840,68 @@ end
 
         [~,result.stats] = evalc('ft_timelockstatistics(cfg, timelock{:})');
   
+    end
+
+    
+
+    % Performs paired t-test on slope/amplitude of averaged 
+    % timelocked data versus baseline
+    %
+    % result - the result from cluster_ttest_twosample
+    % params - parameters for the analysis
+    function stats = parameter_ttest_baseline( result, params, alpha )
+        
+        if nargin < 3
+           alpha = 0.05; 
+        end
+        
+        timelock_1 = result.timelock_avg.trials;
+        timelock_2 = result.timelock_avg.baseline;
+        
+        tlock_params_1 = get_tlocked_parameters( timelock_1, params );
+        tlock_params_2 = get_tlocked_parameters( timelock_2, params );
+        
+        [stats.slope.h, stats.slope.p, stats.slope.ci, stats.slope.stats] = ...
+                        ttest(tlock_params_1.slopes, tlock_params_2.slopes, 'alpha', alpha);
+        
+        [stats.amplitude.h, stats.amplitude.p, stats.amplitude.ci, stats.amplitude.stats] = ...
+                        ttest(tlock_params_1.amplitudes, tlock_params_2.amplitudes, 'alpha', alpha);
+     
+    end
+
+    % Performs paired t-test on slope/amplitude of averaged 
+    % timelocked data. 
+    %
+    % result - the result from get_timelocked_averages
+    % params - parameters for the analysis
+    function stats = parameter_ttest_twosample( result, params, alpha )
+        
+        if nargin < 3
+           alpha = 0.05; 
+        end
+        
+        timelock_1 = result.timelock_avg.(result.labels{1});
+        timelock_2 = result.timelock_avg.(result.labels{2});
+        
+        tlock_params_1 = get_tlocked_parameters( timelock_1, params );
+        tlock_params_2 = get_tlocked_parameters( timelock_2, params );
+        
+        stats = [];
+        stats.tlock_params = {tlock_params_1,tlock_params_2};
+        
+        is_ok = ~isnan(tlock_params_1.slopes);
+        slopes_1 = tlock_params_1.slopes(is_ok);
+        is_ok = ~isnan(tlock_params_2.slopes);
+        slopes_2 = tlock_params_2.slopes(is_ok);
+        
+        [stats.slope.h, stats.slope.p, stats.slope.ci, stats.slope.stats] = ...
+                        ttest2(slopes_1, slopes_2, 'alpha', alpha);
+                    
+        amplitudes_1 = tlock_params_1.amplitudes(~isnan(tlock_params_1.amplitudes));
+        amplitudes_2 = tlock_params_2.amplitudes(~isnan(tlock_params_2.amplitudes));
+        [stats.amplitude.h, stats.amplitude.p, stats.amplitude.ci, stats.amplitude.stats] = ...
+                        ttest2(amplitudes_1, amplitudes_2, 'alpha', alpha);
+     
     end
 
 end

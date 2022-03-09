@@ -88,6 +88,10 @@ end
 events = T.Time;
 
 [tlocked,tstart] = get_tlocked(signals.pdz, signals.t_pd, events, params.eye.events.traffic_decision);
+% if params.eye.events.tlock_params.apply
+%     tlock_params = get_tlocked_parameters(tlocked, params.eye.events.traffic_decision);
+%     results.eye.events.traffic_decision.tlock_params = tlock_params;
+% end
 clear baseline_stats;
 baseline_stats.mean = nan(length(tstart),1);
 baseline_stats.std = nan(length(tstart),1);
@@ -127,18 +131,28 @@ for i = 1 : length(events)
 end
 
 % Get corresponding random time-locked events for statistical comparison
-N_event = length(events);
-N_rand = params.eye.events.random.N;
-events = get_random_events( events, N_rand, ...
-                            [results.eye.events.traffic_decision.t(1) ...
-                            results.eye.events.traffic_decision.t(end)], ...
-                            signals.idx_baseline );
-T = zeros(N_rand,N_event,length(results.eye.events.traffic_decision.t));
-for i = 1 : N_rand
-    T(i,:,:) = get_tlocked(signals.pdz, signals.t_pd, events(:,i), params.eye.events.traffic_decision);
-end
-results.eye.events.traffic_decision.tlocked_bl2 = squeeze(nanmean(T,1));
-
+% N_event = length(events);
+% N_rand = params.eye.events.random.N;
+% events = get_random_events( events, N_rand, ...
+%                             [results.eye.events.traffic_decision.t(1) ...
+%                             results.eye.events.traffic_decision.t(end)], ...
+%                             signals.idx_baseline );
+% T = zeros(N_rand,N_event,length(results.eye.events.traffic_decision.t));
+% T_params = [];
+% T_params.slope = zeros(N_rand,N_event);
+% T_params.amplitude = zeros(N_rand,N_event);
+% for i = 1 : N_rand
+%     tlocked = get_tlocked(signals.pdz, signals.t_pd, events(:,i), params.eye.events.traffic_decision);
+% %     if params.eye.events.tlock_params.apply
+% %         tlock_params = get_tlocked_parameters(tlocked, params.eye.events.traffic_decision);
+% %         T_params.slope(i,:) = tlock_params.slopes;
+% %         T_params.amplitude(i,:) = tlock_params.amplitudes;
+% %     end
+% end
+% results.eye.events.traffic_decision.tlocked_bl2 = squeeze(nanmean(T,1));
+% if params.eye.events.tlock_params.apply
+%     results.eye.events.traffic_decision.tlocked_params_bl2 = T_params;
+% end
 
 end
 
