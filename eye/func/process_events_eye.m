@@ -27,7 +27,7 @@ if isempty(summary)
         summary.traffic_decision.tlocked_bl2 = {};
         summary.traffic_decision.confidence = {};
         summary.traffic_decision.correct = {};
-        
+        summary.traffic_decision.subjects = {};
     end
     
     % Process fixation onset events
@@ -366,13 +366,16 @@ summary.right_change.diffs = [summary.right_change.diffs {results.eye.events.rig
 summary.right_change.outcomes = [summary.right_change.outcomes {results.eye.events.right_change.outcomes}];
 
 if params.sim.events.traffic_decision.apply
-    summary.traffic_decision.tlocked = [summary.traffic_decision.tlocked {results.eye.events.traffic_decision.tlocked}];
-    summary.traffic_decision.tlocked_bl = [summary.traffic_decision.tlocked_bl {results.eye.events.traffic_decision.tlocked_bl}];
-    summary.traffic_decision.tlocked_bl2 = [summary.traffic_decision.tlocked_bl2 {results.eye.events.traffic_decision.tlocked_bl2}];
-    summary.traffic_decision.confidence = [summary.traffic_decision.confidence {results.eye.events.traffic_decision.confidence}];
-    summary.traffic_decision.correct = [summary.traffic_decision.correct {results.eye.events.traffic_decision.correct}];
-    if ~isfield(summary.traffic_decision, 't')
-        summary.traffic_decision.t = results.eye.events.traffic_decision.t;
+    if ~isempty(results.eye.events.traffic_decision)
+        summary.traffic_decision.tlocked = [summary.traffic_decision.tlocked {results.eye.events.traffic_decision.tlocked}];
+        summary.traffic_decision.tlocked_bl = [summary.traffic_decision.tlocked_bl {results.eye.events.traffic_decision.tlocked_bl}];
+        summary.traffic_decision.tlocked_bl2 = [summary.traffic_decision.tlocked_bl2 {results.eye.events.traffic_decision.tlocked_bl2}];
+        summary.traffic_decision.confidence = [summary.traffic_decision.confidence {results.eye.events.traffic_decision.confidence}];
+        summary.traffic_decision.correct = [summary.traffic_decision.correct {results.eye.events.traffic_decision.correct}];
+        if ~isfield(summary.traffic_decision, 't')
+            summary.traffic_decision.t = results.eye.events.traffic_decision.t;
+        end
+        summary.traffic_decision.subjects = [summary.traffic_decision.subjects {data.subject}];
     end
 end
 

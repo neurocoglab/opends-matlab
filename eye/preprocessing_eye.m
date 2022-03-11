@@ -153,8 +153,8 @@ for i = 1 : length(subjects)
                 fprintf('\tConverting sim log for %s...', subject);
 
                 delete_flags( flag, flagdir );
-
-                ok = convert_log_sim( params, subject );
+                
+                [ok] = convert_log_sim( params, subject );
                 
                 if ok
                     load( results_file );

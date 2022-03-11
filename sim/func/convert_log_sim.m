@@ -1,4 +1,4 @@
-function [ ok ] = convert_log_sim( params, subject )
+function [ ok, score ] = convert_log_sim( params, subject )
 %CONVERT_LOG_SIMLOG Converts an xml-format simulation log to csv files
 
 ok = true;
@@ -43,8 +43,16 @@ end
 if status ~= 0 || contains(result,'Exception')
     warning('Error converting simlog for %s: %s', subject, result);
     ok = false;
-end    
+    return;
+end
 
+% Compile final scores for all subjects
+score = get_subject_score( params, subject );
+
+% Write to file
+fid = fopen(sprintf('%s/final_score.csv', outdir),'w');
+fprintf(fid, '%d', score);
+fclose(fid);
 
 end
 

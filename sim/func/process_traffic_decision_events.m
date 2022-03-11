@@ -7,6 +7,8 @@ events_d = data.sim.sim2track.messagebutton.direction_dialog;
 events_c = data.sim.sim2track.messagebutton.confidence_dialog;
 roadsigns = data.sim.sim2track.roadsigns;
 
+results.eye.events.traffic_decision = [];
+
 N_ev = length(events_d.times);
 
 % Deal with repeats in log...
@@ -21,6 +23,19 @@ for i = 1 : length(ucc)
 end
 idx = sort(idx);
 N_ev = length(idx);
+
+if N_ev == 0
+    warning('Subject %s has no traffic events in the log.', data.subject);
+%     results.eye.events.traffic_decision.baseline_stats = [];
+%     results.eye.events.traffic_decision.events = [];
+%     results.eye.events.traffic_decision.tlocked = [];
+%     results.eye.events.traffic_decision.tlocked_bl = [];
+%     results.eye.events.traffic_decision.t = [];
+%     results.eye.events.traffic_decision.t = [];
+%     results.eye.events.traffic_decision.diffs = [];
+%     results.eye.events.traffic_decision.outcomes = [];
+    return;
+end
 
 ids = repmat({data.subject},1,N_ev);
 
@@ -131,25 +146,21 @@ for i = 1 : length(events)
 end
 
 % Get corresponding random time-locked events for statistical comparison
-% N_event = length(events);
-% N_rand = params.eye.events.random.N;
-% events = get_random_events( events, N_rand, ...
-%                             [results.eye.events.traffic_decision.t(1) ...
-%                             results.eye.events.traffic_decision.t(end)], ...
-%                             signals.idx_baseline );
-% T = zeros(N_rand,N_event,length(results.eye.events.traffic_decision.t));
+N_event = length(events);
+N_rand = params.eye.events.random.N;
+events = get_random_events( events, N_rand, ...
+                            [results.eye.events.traffic_decision.t(1) ...
+                            results.eye.events.traffic_decision.t(end)], ...
+                            signals.idx_baseline );
+T = zeros(N_rand,N_event,length(results.eye.events.traffic_decision.t));
 % T_params = [];
 % T_params.slope = zeros(N_rand,N_event);
 % T_params.amplitude = zeros(N_rand,N_event);
-% for i = 1 : N_rand
-%     tlocked = get_tlocked(signals.pdz, signals.t_pd, events(:,i), params.eye.events.traffic_decision);
-% %     if params.eye.events.tlock_params.apply
-% %         tlock_params = get_tlocked_parameters(tlocked, params.eye.events.traffic_decision);
-% %         T_params.slope(i,:) = tlock_params.slopes;
-% %         T_params.amplitude(i,:) = tlock_params.amplitudes;
-% %     end
-% end
-% results.eye.events.traffic_decision.tlocked_bl2 = squeeze(nanmean(T,1));
+for i = 1 : N_rand
+    tlocked = get_tlocked(signals.pdz, signals.t_pd, events(:,i), params.eye.events.traffic_decision);
+    T(i,:,:) = tlocked;
+end
+results.eye.events.traffic_decision.tlocked_bl2 = squeeze(nanmean(T,1));
 % if params.eye.events.tlock_params.apply
 %     results.eye.events.traffic_decision.tlocked_params_bl2 = T_params;
 % end

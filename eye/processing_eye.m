@@ -21,7 +21,7 @@ metadata_file = sprintf('%s/%s/%s', params.io.input_dir, ...
                                     params.general.subject_metadata_file);
 
 opt = detectImportOptions(metadata_file);
-opt.VariableOptions(1).Name = 'UID';
+opt.VariableOptions(1).Name = 'SubjectID';
 subject_data = readtable(metadata_file, opt);
 
 results_dir = params.io.results_dir;
@@ -78,6 +78,37 @@ fprintf('\nUsing %d / %d subjects with valid pre-processing.\n', ...
                                 length(subjects));             
 
 subjects = subjects_filter;
+
+%% Subject scores
+
+% If no SimScore column is present, add it to the table
+if ~any(strcmp(subject_data.Properties.VariableNames, 'SimScore'))
+
+    subject_data.SimScore = nan(height(subject_data),1);
+
+    for i = 1 : length(subjects)
+
+        subject = subjects{i};
+        scores_file_i = sprintf('%s/%s/%s/final_score.csv', params.io.output_dir, subject, params.sim.sub_dir);
+        if exist(scores_file_i, 'file')
+           fid_i = fopen( scores_file_i, 'r' );
+           tline = fgetl(fid_i);
+           fclose(fid_i);
+           score = str2double(tline);
+
+           idx = find(subject_data.SubjectID == str2double(subject));
+
+           if ~isempty(idx)
+               subject_data.SimScore(idx) = score;
+           end
+
+        end
+
+    end
+    
+    writetable(subject_data, metadata_file);
+    fprintf('\nAdded subject scores to metadata table.\n');
+end
 
 
 %% Process epochs
@@ -217,7 +248,13 @@ if params.eye.events.apply
 
             results_file = sprintf('%s/results_eye.mat', outdir);
             if exist(results_file, 'file')
-                load(results_file);
+                try
+                    load(results_file);
+                catch err
+                    % Corrupt file?
+                    delete(results_file);
+                    results = [];
+                end
             else
                 results = [];
             end

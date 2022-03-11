@@ -19,35 +19,35 @@ if ~isempty(params.eye.events.covariates.glms)
     for i = 1 : length(params.eye.events.covariates.glms)
         
         glm_i = params.eye.events.covariates.glms{i};
-
+        subjects_i = {};
+        ivar_i = [];
+        idx_i = [];
+        
+        % Get metadata + subject ids for this GLM
+        k = 1;
         event_names = {'left_change','right_change'};
         event_titles = {'Overtake Onset','Overtake Offset'};
         subjects = {summary.subjects,summary.subjects};
         if params.sim.events.traffic_decision.apply
             event_names(end+1) = {'traffic_decision'};
             event_titles(end+1) = {'Traffic Decision'};
-            subjects = [subjects {summary.traffic_decision.subjects}];
+            subjects = [subjects;{summary.traffic_decision.subjects}];
         end
 
         % Run cluster analyses
         for j = 1 : length(event_names)
-            
-            % Get metadata + subject ids for this GLM
             has_missing = false;
-            subjects_i = {};
-            ivar_i = [];
-            idx_i = [];
             k = 1;
             subjects_j = subjects{j};
-            for s = 1 : length(subjects_j)
-                subject = subjects_j{s};
+            for l = 1 : length()
+                subject = summary.subjects{l};
                 idx = find(strcmp(metadata.SubjectID, subject));
                 if ~isempty(idx)
                     val = metadata.(glm_i.ivar)(idx);
                     if ~isnan(val)
                         subjects_i(k) = {subject};
                         ivar_i(k) = val;
-                        idx_i(k) = s;
+                        idx_i(k) = l;
                         k = k + 1;
                     else
                         has_missing = true;
@@ -56,17 +56,16 @@ if ~isempty(params.eye.events.covariates.glms)
             end
 
             if has_missing
-                warning('GLM "%s" [%s]: covariate %s has missing values.', event_names{j}, glm_i.name, glm_i.ivar);
+                warning('GLM "%s": covariate %s has missing values.', glm_i.name, glm_i.ivar);
             end
-            
             event_name = event_names{j};
             event = summary.(event_name);
             if has_missing
                 event.tlocked = event.tlocked(idx_i);
                 event.tlocked_bl = event.tlocked_bl(idx_i);
                 event.tlocked_bl2 = event.tlocked_bl2(idx_i);
-%                 event.diffs = event.diffs(idx_i);
-%                 event.outcomes = event.outcomes(idx_i);
+                event.diffs = event.diffs(idx_i);
+                event.outcomes = event.outcomes(idx_i);
             end
             
             [result, timelock_ga] = cluster_regression( event, ivar_i, [], ...
