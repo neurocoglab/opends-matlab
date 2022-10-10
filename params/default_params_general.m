@@ -15,6 +15,7 @@ params.general.clobber = false;
 params.general.show_plots = false;
 params.general.fieldtrip_lib = '../lib/fieldtrip-20190419';
 params.general.subject_metadata_file = '';
+params.general.participant_info_file = '';
 params.general.show_warnings = false;
 params.general.fail_on_error = false;
 params.general.show_error_stack = false;

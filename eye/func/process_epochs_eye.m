@@ -57,10 +57,12 @@ results = [];
 results.subject = data.subject;
 
 % Load sequence difficulty ratings
-seq_diff = readtable(sprintf('%s/%s/%s', params.io.input_dir, ...
-                                         params.io.metadata_dir, ...
-                                         params.sim.difficulty.sequence_file));
-diff_levels = [1 2]; % unique(D);
+if params.sim.epochs.difficulty.apply
+    seq_diff = readtable(sprintf('%s/%s/%s', params.io.input_dir, ...
+                                             params.io.metadata_dir, ...
+                                             params.sim.epochs.difficulty.sequence_file));
+    diff_levels = params.sim.epochs.difficulty.levels; % [1 2]; % unique(D);
+end
 
 % Baseline
 baseline = data.sim.sim2track.baseline;
@@ -163,10 +165,12 @@ for j = 1 : length(left_right)
               passing_cycles(idx1:idx2) = c;
 
               % Assign difficulty to this interval
-              passing_diff(idx1:idx2) = get_difficulty(seq_diff, data.sim.sim2track.matrix, ...
-                                                       mean([this_left this_right]), ...
-                                                       params.sim.lane_dist);
-
+              if params.sim.epochs.difficulty.apply
+                  passing_diff(idx1:idx2) = get_difficulty(seq_diff, data.sim.sim2track.matrix, ...
+                                                           mean([this_left this_right]), ...
+                                                           params.sim.lane_dist);
+              end
+              
               % Assign outcome to this interval
               outcome = get_outcome(data.sim.sim2track, ...
                                                        [this_left this_right]);
@@ -195,8 +199,6 @@ pdz = zscore(pd);
 
 sr = data.eye.saccades.saccade_rate;
 
-results.eye.epochs.diff_levels = diff_levels;
-
 results.eye.epochs.baseline.pupil = pd(idx_baseline);
 results.eye.epochs.nobaseline.pupil = pd(~idx_baseline);
 results.eye.epochs.baseline.saccade_rate = sr(idx_baseline);
@@ -222,26 +224,30 @@ results.eye.epochs.zscore.nobaseline.pupil = pdz(~idx_baseline);
 
 results.eye.epochs.zscore.passing.pupil = pdz(idx_passing);
 
-results.eye.epochs.passing_diff.pupil = cell(length(diff_levels),1);
-results.eye.epochs.zscore.passing_diff.pupil = cell(length(diff_levels),1);
-
-results.eye.epochs.passing_diff.cycles.passing.pupil = cell(length(diff_levels), N_cycles);
-results.eye.epochs.zscore.passing_diff.cycles.passing.pupil = cell(length(diff_levels), N_cycles);
-
-for i = 1 : length(diff_levels)
-    results.eye.epochs.passing_diff.pupil(i) = {pd(passing_diff==diff_levels(i))};
-    results.eye.epochs.zscore.passing_diff.pupil(i) = {pdz(passing_diff==diff_levels(i))};
+if params.sim.epochs.difficulty.apply
+    results.eye.epochs.diff_levels = diff_levels;
     
-    for j = 1 : N_cycles
-        results.eye.epochs.passing_diff.cycles.passing.pupil(i,j) = {pd(idx_passing & passing_cycles==j & passing_diff==diff_levels(i))};
-        results.eye.epochs.zscore.passing_diff.cycles.passing.pupil(i,j) = {pdz(idx_passing & passing_cycles==j & passing_diff==diff_levels(i))};
+    results.eye.epochs.passing_diff.pupil = cell(length(diff_levels),1);
+    results.eye.epochs.zscore.passing_diff.pupil = cell(length(diff_levels),1);
+
+    results.eye.epochs.passing_diff.cycles.passing.pupil = cell(length(diff_levels), N_cycles);
+    results.eye.epochs.zscore.passing_diff.cycles.passing.pupil = cell(length(diff_levels), N_cycles);
+
+    for i = 1 : length(diff_levels)
+        results.eye.epochs.passing_diff.pupil(i) = {pd(passing_diff==diff_levels(i))};
+        results.eye.epochs.zscore.passing_diff.pupil(i) = {pdz(passing_diff==diff_levels(i))};
+
+        for j = 1 : N_cycles
+            results.eye.epochs.passing_diff.cycles.passing.pupil(i,j) = {pd(idx_passing & passing_cycles==j & passing_diff==diff_levels(i))};
+            results.eye.epochs.zscore.passing_diff.cycles.passing.pupil(i,j) = {pdz(idx_passing & passing_cycles==j & passing_diff==diff_levels(i))};
+        end
+
     end
-    
+    results.eye.epochs.passing_diffs = passing_diff;
 end
 
 results.eye.epochs.idx_baseline = idx_baseline;
 results.eye.epochs.idx_passing = idx_passing;
-results.eye.epochs.passing_diffs = passing_diff;
 results.eye.epochs.passing_outcomes = passing_outcomes;
 
 % Outcomes
@@ -286,7 +292,7 @@ end
 
  % Aggregate summary stats
 summary.subjects = [summary.subjects {data.subject}];
-summary.diff_levels = results.eye.epochs.diff_levels;
+
 summary.baseline.subjects.pupil = [summary.baseline.subjects.pupil {results.eye.epochs.baseline.pupil}];
 summary.passing.subjects.pupil = [summary.passing.subjects.pupil {results.eye.epochs.passing.pupil}];
 summary.zscore.baseline.subjects.pupil = [summary.zscore.baseline.subjects.pupil {results.eye.epochs.zscore.baseline.pupil}];
@@ -317,21 +323,27 @@ else
     end
 end
 
-if isempty(summary.passing_diff.pupil)
-    summary.passing_diff.pupil = results.eye.epochs.passing_diff.pupil;
-    summary.zscore.passing_diff.pupil = results.eye.epochs.zscore.passing_diff.pupil;
-else
-    for j = 1 : length(results.eye.epochs.diff_levels)
-        summary.passing_diff.pupil(j) = {[summary.passing_diff.pupil{j};results.eye.epochs.passing_diff.pupil{j}]};
-        summary.zscore.passing_diff.pupil(j) = {[summary.zscore.passing_diff.pupil{j};results.eye.epochs.zscore.passing_diff.pupil{j}]};
+if params.sim.epochs.difficulty.apply
+    summary.diff_levels = results.eye.epochs.diff_levels;
+    
+    if isempty(summary.passing_diff.pupil)
+        summary.passing_diff.pupil = results.eye.epochs.passing_diff.pupil;
+        summary.zscore.passing_diff.pupil = results.eye.epochs.zscore.passing_diff.pupil;
+    else
+        for j = 1 : length(results.eye.epochs.diff_levels)
+            summary.passing_diff.pupil(j) = {[summary.passing_diff.pupil{j};results.eye.epochs.passing_diff.pupil{j}]};
+            summary.zscore.passing_diff.pupil(j) = {[summary.zscore.passing_diff.pupil{j};results.eye.epochs.zscore.passing_diff.pupil{j}]};
+        end
     end
+
+    summary.passing_diffs = [summary.passing_diffs {results.eye.epochs.passing_diffs}];
+
 end
 
 summary.idx_baseline = [summary.idx_baseline {find(results.eye.epochs.idx_baseline)}];
 summary.idx_passing = [summary.idx_passing {find(results.eye.epochs.idx_passing)}];
-summary.passing_diffs = [summary.passing_diffs {results.eye.epochs.passing_diffs}];
-summary.passing_outcomes = [summary.passing_outcomes {results.eye.epochs.passing_outcomes}];
 
+summary.passing_outcomes = [summary.passing_outcomes {results.eye.epochs.passing_outcomes}];
 summary.passing_outcome.positive.subjects.pupil = [summary.passing_outcome.positive.subjects.pupil {results.eye.epochs.passing_outcome.positive.pupil}];
 summary.passing_outcome.negative.subjects.pupil = [summary.passing_outcome.negative.subjects.pupil {results.eye.epochs.passing_outcome.negative.pupil}];
 summary.zscore.passing_outcome.positive.subjects.pupil = [summary.zscore.passing_outcome.positive.subjects.pupil {results.eye.epochs.zscore.passing_outcome.positive.pupil}];

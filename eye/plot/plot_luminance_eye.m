@@ -79,8 +79,9 @@ else
     h = figure;
 end
 h.Color = 'w';
+t = data.eye.t/1000/60;
+plot(t,zscore(datain.diam));
 tmin = data.eye.luminance.ts{idx_offset}/1000/60;
-plot(tmin,zscore(datain.diam(data.eye.luminance.idx_offset{idx_offset})));
 hold on; plot(tmin,zscore(data.eye.luminance.diam{idx_offset}));
 hh = xlabel('Time (min)');
 hh.FontSize = 12;
@@ -96,6 +97,8 @@ if out2file
     xlim([0 3]);
     saveas(h, sprintf('%s/eye_lum_corrected_pd.png', outdir));
     close(h);
+else
+    xlim([0 3]);
 end
 
 

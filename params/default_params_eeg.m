@@ -14,6 +14,8 @@ params.eeg.convert.restart_file = [];
 params.eeg.convert.align_sim_triggers = false;
 params.eeg.convert.start_byte = [];
 
+params.eeg.layout = 'biosemi64.lay'; % 'acticap-64ch-standard2.mat'; 
+
 params.eeg.cfg = [];
 params.eeg.cfg.dataset = '';
 params.eeg.cfg.continuous = 'yes';
@@ -33,6 +35,7 @@ params.eeg.bandpass.cfg.lpfiltord = 6;
 params.eeg.bandpass.cfg.hpfiltord = 6;
 params.eeg.bandpass.cfg.lpfilttype = 'but';
 params.eeg.bandpass.cfg.hpfilttype = 'but';
+params.eeg.bandpass.cfg.hpinstabilityfix = 'reduce';
 
 % Notch
 params.eeg.notch.apply = true;
@@ -53,7 +56,7 @@ params.eeg.ica.plots.save = true;
 params.eeg.ica.plots.cfg = [];
 params.eeg.ica.plots.cfg.colormap = 'jet';
 params.eeg.ica.plots.cfg.component = 1:20;
-params.eeg.ica.plots.cfg.layout    = 'acticap-64ch-standard2.mat'; 
+params.eeg.ica.plots.cfg.layout    = params.eeg.layout;
 params.eeg.ica.plots.cfg.comment   = 'no';
 params.eeg.ica.plots.window_size_topo = [1000 1000];
 params.eeg.ica.plots.window_size_browser = [1500 900];
@@ -97,6 +100,8 @@ params.eeg.trials.windows_file = 'trial_windows_eeg.csv';
 % Hilbert analysis
 params.eeg.hilbert.apply = true;
 params.eeg.hilbert.bands_file = 'hilbert_bands_eeg.csv';
+params.eeg.hilbert.downsample = 250;
+params.eeg.hilbert.save_filtered = false;
 
 params.eeg.hilbert.plots.save = true;
 params.eeg.hilbert.plot.bands = 'all';
@@ -105,6 +110,7 @@ params.eeg.hilbert.plot.scale_pupil = 2;
 params.eeg.hilbert.plot.smooth_pupil = 70;
 params.eeg.hilbert.plot.scale_envelope = 1;
 params.eeg.hilbert.plot.scale_general = 0.2;
+params.eeg.hilbert.plot.xlims = [0 4];
 
 % ERP analysis
 params.eeg.erp.apply = true;

@@ -63,6 +63,7 @@
 			<parameter name="Game:Cycle" />
 			<parameter name="Game:Repeat" />
 			<parameter name="SerialByte" />
+            <parameter name="DriverCar:LaneDistance" />
 		</type>
 		<type name="LaneChange">
 			<parameter name="Source" />

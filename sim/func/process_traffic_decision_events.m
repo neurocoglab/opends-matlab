@@ -2,6 +2,16 @@ function [ results ] = process_traffic_decision_events( signals, data, results, 
 % Processes traffic decision button press events and associated confidence ratings
 %
 
+if ~params.sim.rounds.messagebutton.apply
+    warning('No message button press events processed. Skipping.');
+    return;
+end
+
+if ~params.sim.rounds.roadsign.apply
+    warning('No road sign events processed. Skipping.');
+    return;
+end
+
 % Get times for traffic decision events and associated confidence events
 events_d = data.sim.sim2track.messagebutton.direction_dialog;
 events_c = data.sim.sim2track.messagebutton.confidence_dialog;
@@ -10,6 +20,17 @@ roadsigns = data.sim.sim2track.roadsigns;
 results.eye.events.traffic_decision = [];
 
 N_ev = length(events_d.times);
+N_sign = length(roadsigns.times);
+
+if N_ev == 0
+    warning('Subject %s has no traffic events in the log.', data.subject);
+    return;
+end
+
+if N_sign == 0
+    warning('Subject %s has no road sign information in the log.', data.subject);
+    return;
+end
 
 % Deal with repeats in log...
 cc = cell(N_ev,1);

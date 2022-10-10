@@ -61,7 +61,7 @@ end
 
 
 t_eye = data.eye.t / 60000;
-t_eeg = results.eeg.hilbert.time / 60;
+% t_eeg = results.eeg.hilbert.time / 60;
 
 Ylim_pd = 2 * scale_pd;
 Ylim_env = 2 * scale_env * N_bands;
@@ -143,13 +143,19 @@ yticks = [0];
 ylabels = {};
 
 % Plot envelopes first
-for i = 1 : N_bands
+for i = N_bands : -1 : 1
    
     band = bands.Band{i};
     idx_i = find(strcmp(results.eeg.hilbert.bands.Band, band));
     
-    y = abs(results.eeg.hilbert.envelopes{idx_i});
-    y = mean(y(idx_channels,:)); y = y(:);
+    envelopes_i = results.eeg.hilbert.envelopes{idx_i};
+    y = zeros(length(idx_channels),length(envelopes_i{1}));
+    for j = 1 : length(idx_channels)
+       y(j,:) = abs(envelopes_i{idx_channels(j)});
+    end
+
+    t_eeg = results.eeg.hilbert.time{1}{1};
+    y = mean(y,1); y = y(:);
     y(y>0) = zscore(y(y>0));
     y(y==0) = nan;
     y_offset = Ysep_pd + (i-1) * Ysep_env;
@@ -157,6 +163,7 @@ for i = 1 : N_bands
     yticks = [yticks -y_offset];
     
     hh = plot(t_eeg, y*scale_env);
+    hold on;
     clr = colors{i};
     if clr(1)=='#'
        clr = sscanf(clr(2:end),'%2x%2x%2x',[1 3])/255;
@@ -180,7 +187,7 @@ hh.Color = clr;
 hh.LineWidth = 2;
 
 xlabel('Time (mins)');
-xlim([0 0.5]);
+xlim(params.eeg.hilbert.plot.xlims);
 
 h.Position = [200 200 1500 750];
 h.Color = 'w';
@@ -193,13 +200,15 @@ ylim(Ylim_total);
 
 ax = gca;
 
-ax.YTick = flip(yticks);
-ax.YTickLabel = flip(ylabels);
+[sy,idx] = sort(yticks);
+ax.YTick = sy;
+ax.YTickLabel = ylabels(idx);
 ax.YAxis.FontSize = 16;
 ax.YAxis.FontWeight = 'bold';
 
-box on;
+
 grid on;
+box on;
 
 if out2file
     outdir = sprintf('%s/%s/figures', params.io.output_dir, data.subject);

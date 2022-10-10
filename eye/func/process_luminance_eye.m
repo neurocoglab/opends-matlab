@@ -37,7 +37,7 @@ function [ data ] = process_luminance_eye( data, params )
     % Zero on first simulation event
     t_lum = t_lum - data.eye.t_start_sim;
     
-    % Remove outliers
+    % Remove luminance outliers
     idx_keep = abs(zscore(y_lum))<params.eye.luminance.outlier_lim;
     y_lum = y_lum(idx_keep);
     t_lum = t_lum(idx_keep);
@@ -45,18 +45,24 @@ function [ data ] = process_luminance_eye( data, params )
     
     clear lumtab t_lum y_lum;
 
-    % Remove outliers first
+    % Remove regressor outliers
     idx_keep = abs(zscore(datain.diam))<params.eye.luminance.outlier_lim;
     
     % Resample and match time series
     F = datain.diam(idx_keep & idx_center); % Fun fact: this transposes the vector
     ts_eye = timeseries(F(:), data.eye.t(idx_keep & idx_center));
-%     ts_eye = timeseries(F(:), ...
-%                         double(data.eye.t_start) + data.eye.t(idx_keep & idx_center));
-    if params.eye.luminance.downsample > 1
-        % Downsample by factor (prevents rank deficiency)
-        idx_ds = 1:params.eye.luminance.downsample:length(ts_eye.Time);
+    Fs = 1000/(ts_eye.Time(2)- ts_eye.Time(1));
+    
+    if params.eye.luminance.downsample > 0 && params.eye.luminance.downsample < Fs
+        % Downsample to target frequency (prevents rank deficiency)
+        step = round(Fs/params.eye.luminance.downsample);
+        
+        idx_ds = 1:step:length(ts_eye.Time);
         ts_eye = resample(ts_eye, ts_eye.Time(idx_ds));
+        Fs2 = 1000/(ts_eye.Time(2)- ts_eye.Time(1));
+        if params.general.debug
+            fprintf(' [downsampled from %1.2f to %1.2f Hz]...', Fs, Fs2);
+        end
     end
     
     ts_lum = resample(ts_lum_orig, ts_eye.Time);

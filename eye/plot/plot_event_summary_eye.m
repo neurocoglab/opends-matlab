@@ -147,7 +147,8 @@ if params.eye.events.outcomes.apply
     h.layout.showlegend = true;
     h.layout.legend = struct('x', 0.1, 'y', 0.95);
 
-    h.PlotOptions.FileName = sprintf('%s/eye_events_onset_outcome', outdir);
+     h.PlotOptions.SaveFolder = outdir;
+    h.PlotOptions.FileName = 'eye_events_onset_outcome';
     plotlyoffline(h);
 
     if show_plots

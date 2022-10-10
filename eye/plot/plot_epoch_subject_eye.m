@@ -37,30 +37,34 @@ function [ H ] = plot_epoch_subject_eye ( results, params, out2file )
     end
 
     % By difficulty
-    if out2file
-        h = figure('visible','off');
-    else
-        h = figure;
-    end
-    H = [H h];
-    
-    set(h, 'Color', 'w');
+    if params.sim.epochs.difficulty.apply
+        
+        if out2file
+            h = figure('visible','off');
+        else
+            h = figure;
+        end
+        H = [H h];
 
-    M = [results.eye.epochs.zscore.passing_diff.pupil{1};results.eye.epochs.zscore.passing_diff.pupil{2}];
-    grp = [ones(length(results.eye.epochs.passing_diff.pupil{1}),1)*results.eye.epochs.diff_levels(1); ...
-           ones(length(results.eye.epochs.passing_diff.pupil{2}),1)*results.eye.epochs.diff_levels(2)];
-    boxplot(M,grp,'outliersize',3,'symbol','');
-    ylim(params.eye.epochs.plots.zlims);
-    hh = title('Pupil diameter - Passing difficulty');
-    set (hh,'FontSize',16);
-    set(gca, 'XTickLabel', [{'Easy'},{'Difficult'}]);
-    set (gca,'FontSize',14);
-    hh = ylabel('Pupil diameter (z-score)');
-    set (hh,'FontSize',14);
+        set(h, 'Color', 'w');
 
-    if out2file
-       saveas( h, sprintf('%s/epochs_difficulty_eye.png', figdir) );
-       close(h);
+        M = [results.eye.epochs.zscore.passing_diff.pupil{1};results.eye.epochs.zscore.passing_diff.pupil{2}];
+        grp = [ones(length(results.eye.epochs.passing_diff.pupil{1}),1)*results.eye.epochs.diff_levels(1); ...
+               ones(length(results.eye.epochs.passing_diff.pupil{2}),1)*results.eye.epochs.diff_levels(2)];
+        boxplot(M,grp,'outliersize',3,'symbol','');
+        ylim(params.eye.epochs.plots.zlims);
+        hh = title('Pupil diameter - Passing difficulty');
+        set (hh,'FontSize',16);
+        set(gca, 'XTickLabel', [{'Easy'},{'Difficult'}]);
+        set (gca,'FontSize',14);
+        hh = ylabel('Pupil diameter (z-score)');
+        set (hh,'FontSize',14);
+
+        if out2file
+           saveas( h, sprintf('%s/epochs_difficulty_eye.png', figdir) );
+           close(h);
+        end
+        
     end
 
     % Baselines over time

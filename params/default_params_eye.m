@@ -66,7 +66,7 @@ params.eye.saccades.plots.show_rate = true;
 %% Luminance correction
 params.eye.luminance.apply = true;
 params.eye.luminance.sub_dir = 'luminance';
-params.eye.luminance.downsample = 5;
+params.eye.luminance.downsample = 50; % Target frequency in Hz
 params.eye.luminance.smooth = 0;
 params.eye.luminance.use_offset = 0;
 params.eye.luminance.offsets = -2:0.1:2;
@@ -87,6 +87,7 @@ params.eye.epochs.plots.show_webplots = true;
 
 
 %% Processing/analysis - events
+params.eye.events.apply = true;
 params.eye.events.zscore = true;
 params.eye.events.smooth = 500;
 params.eye.events.tlock_params.apply = true;

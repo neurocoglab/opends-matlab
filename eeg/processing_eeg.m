@@ -67,12 +67,12 @@ if params.eeg.hilbert.apply
     if exist(flag_file, 'file')
        delete( flag_file ); 
     end
-    
+   
     summary = [];
-
+    
     for i = 1 : length( subjects )
         
-        try
+%         try
 
             subject = subjects{i};
         
@@ -86,7 +86,11 @@ if params.eeg.hilbert.apply
 
             flag_file_i = sprintf('%s/eeg_hilbert.done', flagdir);
             if exist(flag_file_i, 'file') && ~clobber
-               fprintf('\tHilbert analysis already performed for subject %s.\n', subject);
+               fprintf('\tHilbert processing already performed for subject %s.\n', subject);
+               
+               % Add to summary
+               load( results_file );
+               summary = update_hilbert_summary_eeg( results, summary );
                continue;
             end
 
@@ -109,43 +113,56 @@ if params.eeg.hilbert.apply
                 plot_hilbert_eeg( params, data, results, true );
             end
             
+            summary = update_hilbert_summary_eeg( results, summary );
+            
             fclose( fopen( flag_file_i, 'w+' ) );
             
             clear data results;
             
             fprintf('done.\n');
         
-        catch err
-            warning on;
-            warning('\nError encountered while processing %s:\n%s\n', subject, err.message);
-
-        end
+%         catch err
+%             warning on;
+%             warning('\nError encountered while processing %s:\n%s\n', subject, err.message);
+% 
+%         end
 
     end
-    
-    fprintf('\nDone Hilbert processing.\n');
+      
+    fprintf('done.\n\nDone Hilbert processing.\n');
     
 end
 
 %% Run statistical analyses on Hilbert output
 
 if params.eeg.hilbert.apply
-    
-    fprintf('\nStarting Hilbert analysis.\n');
-    
-    summary = analyze_hilbert_eeg( params );
 
-    summary_file = sprintf('%s/summary_hilbert_eeg.mat', results_dir);
-    save(summary_file , 'summary', '-v7.3' );
+    if isempty(summary)
+        warning('\nNo subjects have valid Hilbert processing. Skipping.\n');
+    else
 
-    if params.eeg.hilbert.plots.save
-        plot_hilbert_summary_eeg( params, summary, true );
-    end
-
-    fclose( fopen( flag_file, 'w+' ) );
-
-    fprintf('\nDone Hilbert analysis.\n');
+        fprintf('\nStarting Hilbert analysis.\n');
         
+        flag_file = sprintf('%s/flags/hilbert_eeg.done', results_flagdir);
+        
+        if exist(flag_file, 'file')
+            delete(flag_file);
+        end
+        
+        summary = analyse_hilbert_eeg( params, summary );
+
+        summary_file = sprintf('%s/summary_hilbert_eeg.mat', results_dir);
+        save(summary_file , 'summary', '-v7.3' );
+
+        if params.eeg.hilbert.plots.save
+            plot_hilbert_summary_eeg( params, analysis_summary, true );
+        end
+
+        fclose( fopen( flag_file, 'w+' ) );
+
+        fprintf('\nDone Hilbert analysis.\n');
+
+    end
 end
     
 

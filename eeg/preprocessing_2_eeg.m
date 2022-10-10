@@ -81,7 +81,11 @@ for i = 1 : length(subjects)
 
         % Prompt for bad components
         channels = input(sprintf('\tSubject %s: Enter ICA components to remove (space delimited): ',subject), 's');
-        to_rem = cellfun(@str2num, strsplit(channels, ' '));
+        channels = strtrim(channels);
+        to_rem = [];
+        if ~isempty(channels)
+            to_rem = cellfun(@str2num, strsplit(channels, ' '));
+        end
 
         if ~isempty(to_rem)
            fprintf('\n\tRemoving %d components...', length(to_rem));
@@ -97,7 +101,7 @@ for i = 1 : length(subjects)
         % Save result
         save(results_file, 'data', '-v7.3');
         if params.eeg.ica.plots.save
-            saveas(gcf,sprintf('%s/eeg_ica_browser.fig',figdir));
+            %saveas(gcf,sprintf('%s/eeg_ica_browser.fig',figdir));
             saveas(h,sprintf('%s/eeg_ica_topoplot.png',figdir));
         end
 

@@ -1,4 +1,4 @@
-function [ result ] = interpolate_messagebuttons_sim ( data,button_map, M )
+function [ result ] = interpolate_messagebuttons_sim ( data, button_map, M, sim_version )
 % interpolate_messagebuttons_sim 
 %
 % Interpolates message button presses from the matrix M into log times 
@@ -6,7 +6,15 @@ function [ result ] = interpolate_messagebuttons_sim ( data,button_map, M )
 
 presses = data.sim.messagebutton.values.Source;
 for i = 1 : length(presses)
-    presses(i) = {strrep(presses{i},'ButtonPressDialog.','')};
+    press_i = strrep(presses{i},'ButtonPressDialog.','');
+    if compare_versions(sim_version, '1.8.3') < 0
+        % Strip the trailing index for this version
+        idx = strfind(press_i, '_');
+        if ~isempty(idx)
+            press_i = press_i(1:idx(end)-1);
+        end
+    end
+    presses(i) = {press_i};
 end
 times = data.sim.messagebutton.values.Millis - data.sim.t_start;
 

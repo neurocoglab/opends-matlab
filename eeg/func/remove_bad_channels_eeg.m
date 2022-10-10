@@ -19,8 +19,9 @@ function [ data ] = remove_bad_channels_eeg( params, data )
     % Remove bad channels
     if ~isempty(bad_channels)
         T = bad_channels{strcmp(bad_channels.Subject, data.subject),2};
-        data.eeg.bad_channels = T;
         if ~isempty(T)
+            T = strsplit(T{1},',');
+            data.eeg.bad_channels = T';
             cfg = [];
             cfg.channel = data.eeg.ft.label;
             idx_rem = []; idx_rem2 = [];
@@ -40,10 +41,10 @@ function [ data ] = remove_bad_channels_eeg( params, data )
     % Interpolate over bad channels
     cfg = [];
     cfg.badchannel = data.eeg.bad_channels;
-    cfg.layout = 'biosemi64.lay';
+    cfg.layout = params.eeg.layout; % 'biosemi64.lay';
     cfg_nbr = [];
     cfg_nbr.method = 'template';
-    cfg_nbr.layout = 'biosemi64.lay';
+    cfg_nbr.layout = params.eeg.layout; % 'biosemi64.lay';
     cfg_nbr.channel = data.eeg.eeg_channels;
     
     [~,cfg.neighbours] = evalc('ft_prepare_neighbours(cfg_nbr);');

@@ -1,0 +1,110 @@
+function [ T_cycles ] = get_cycle_indices_sim( params, data )
+%GET_CYCLE_INDICES_SIM Get the start and stop trigger events (adjusted 
+% serial bytes) of cycles and repeats for a simulation log
+%
+% Output is a table with trigger bytes for the start and stop of
+%  each cycle/repea
+
+t
+
+T_triggers = data.sim.triggers.values;
+T_resumed = data.sim.resumed.values;
+%T_collision = data.sim.reward.values;
+%T_collision = T_collision(strcmp(T_collision.Type, 'collision'),:);
+
+idx_collision = find(strcmp(data.sim.reward.values.Type, 'collision'));
+T_collision = [];
+is_max_cycle = [];
+
+if ~isempty(idx_collision)
+    T_collision = data.sim.reward.values(idx_collision,:);
+    is_max_cycle = false(length(idx_collision),1);
+    for i = 1 : length(idx_collision)
+        idx = idx_collision(i);
+        if idx < height(data.sim.reward.values)
+            if strcmp(data.sim.reward.values.Type(idx+1), params.sim.log.max_cycle_str)
+                is_max_cycle(i) = true;
+            end
+        end
+    end
+end
+
+[abs_max, idx_max] = max(data.sim.events.values.AdjSerialByte);
+millis_max = data.sim.events.values.Millis(idx_max);
+
+% First round is defined by (SimulatorStart -> iterate-cycle OR 
+%                            iterate-cycle-reset OR
+%                            collision)
+% Subsequent rounds defined by (SimulatorResumed [1st after iterate-cycle] ->
+% iterate-cycle OR reward assessed+'Max cycles reached.' )
+
+hdr = {'Cycle','Repeat','Position','AdjSerialByte','Millis'};
+T_cycles = array2table({1,1,'start',1,data.sim.events.values.Millis(1)});
+T_cycles.Properties.VariableNames = hdr;
+
+idx_iter = find(strcmp(T_triggers.Action, 'iterate-cycle') | ...
+                strcmp(T_triggers.Action, 'iterate-cycle-reset'));
+
+millis = T_triggers.Millis(idx_iter);
+asbs = T_triggers.AdjSerialByte(idx_iter);
+iscollision = false(length(millis),1);
+
+if height(T_collision) > 0
+    asbs = [asbs; T_collision.AdjSerialByte];
+    millis = [millis; T_collision.Millis];
+    is_max_cycle = [iscollision; is_max_cycle];
+    iscollision = [iscollision; true(height(T_collision),1)];
+end
+
+[millis, idx] = sort(millis);
+asbs = asbs(idx);
+iscollision = iscollision(idx);
+is_max_cycle = is_max_cycle(idx);
+            
+c = 1; r = 1;
+for i = 1 : length(millis)
+    mil1 = millis(i);
+    asb1 = asbs(i);
+    T_rows = array2table({c,r,'stop',asb1,mil1}, 'VariableNames', hdr);
+%     T_rows.Properties.VariableNames = hdr;
+    
+    idx_r = find(T_resumed.Millis > mil1, 1);
+    mil2 = T_resumed.Millis(idx_r);
+    asb2 = T_resumed.AdjSerialByte(idx_r);
+    
+    if iscollision(i)
+        % This is a collision
+        if is_max_cycle(i)
+            % Max repeats reached, iterate cycle
+            c = T_resumed.Game_Cycle(idx_r);
+            r = 1;
+        else
+            % Repeat this cycle
+            r = r + 1;
+        end
+    else
+        % No collision
+        c2 = T_resumed.Game_Cycle(idx_r);
+        % Repeats are a shitshow...
+        if c2 > c
+            r = 1;
+        else
+            r = r + 1;
+        end
+        c = c2;
+        %r = T_resumed.Game_Repeat(idx_r);
+    end
+    
+    T_rows = [T_rows; array2table({c,r,'start',asb2,mil2}, 'VariableNames', hdr)];
+%     T_rows.Properties.VariableNames = hdr;
+    T_cycles = [T_cycles; T_rows];
+    
+end
+
+% End of last round is abs_max
+T_rows = array2table({c,r,'stop',abs_max,millis_max});
+T_rows.Properties.VariableNames = hdr;
+T_cycles = [T_cycles; T_rows];
+
+end
+

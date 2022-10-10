@@ -1,4 +1,4 @@
-function [ summary ] = analyze_epochs_eye( summary, subject_data )
+function [ summary ] = analyze_epochs_eye( params, summary, subject_data )
 % Performs statistical analyses on epoch data
 %
 %
@@ -64,8 +64,13 @@ summary.stats.passing_baseline_rounds.lm_round_bl = fitlme(tbl_bl,'PD~Round+(1|S
 summary.stats.passing_baseline_rounds.lm_round_pass = fitlme(tbl_pass,'PD~Round+(1|Subject)+(Round-1|Subject)');
 
 % 3. LM: Passing - Baseline PD Difference v. Performance
-
-id_subs = subject_data.UID;
+ 
+id_subs = subject_data.(params.sim.metadata.uid_field);
+id_subcell = cell(length(id_subs),1);
+for i = 1 : length(id_subs)
+    id_subcell(i) = {sprintf('%d',id_subs(i))}; 
+end
+id_subs = id_subcell;
 subjects = sort(intersect(id_subs, summary.subjects));
 DeltaPD = [];
 PD_passing = [];
@@ -73,7 +78,7 @@ PD_baseline = [];
 Subject = {};
 Scores = [];
 
-X = subject_data.Game_score;
+X = subject_data.(params.sim.metadata.score_field);
 
 for i = 1 : length(subjects)
     subject = subjects{i};
@@ -138,48 +143,74 @@ Outcome = {};
 Difficulty = {};
 Subject = {};
 
-diffs = [1 2];
 outcomes = [-1 1];
-
-str_diffs = [{'Easy'},{'Difficult'}];
 str_outcomes = [{'Negative'},{'Positive'}];
 
-for i = 1 : length(summary.subjects)
-    pd_i = summary.zscore.passing.subjects.pupil{i};
-    passing_diffs = summary.passing_diffs{i}(summary.idx_passing{i});
-    passing_outcomes = summary.passing_outcomes{i}(summary.idx_passing{i});
-    passing_outcomes(isnan(passing_outcomes)) = 0;
-    passing_outcomes(passing_outcomes<0) = -1;
-    passing_outcomes(passing_outcomes>0) = 1;
-    
-    % Difficulty
-    for d = 1 : 2
-        % Outcomes
+if params.sim.epochs.difficulty.apply
+    diffs = params.sim.epochs.difficulty.levels; % [1 2];
+    str_diffs = params.sim.epochs.difficulty.labels; %[{'Easy'},{'Difficult'}];
+
+    for i = 1 : length(summary.subjects)
+        pd_i = summary.zscore.passing.subjects.pupil{i};
+        passing_diffs = summary.passing_diffs{i}(summary.idx_passing{i});
+        passing_outcomes = summary.passing_outcomes{i}(summary.idx_passing{i});
+        passing_outcomes(isnan(passing_outcomes)) = 0;
+        passing_outcomes(passing_outcomes<0) = -1;
+        passing_outcomes(passing_outcomes>0) = 1;
+
+        % Difficulty
+        for d = 1 : 2
+            % Outcomes
+            for o = 1 : 2
+                idx = passing_diffs==diffs(d) & passing_outcomes==outcomes(o);
+                PD(end+1) = mean(pd_i(idx));
+                Outcome(end+1) = str_outcomes(o);
+                Difficulty(end+1) = str_diffs(d);
+                Subject(end+1) = summary.subjects(i);
+            end
+
+        end
+    end
+
+    tbl = table(Subject', double(PD)', Outcome', Difficulty', 'VariableNames', [{'Subject'},{'PD'},{'Outcome'},{'Difficulty'}]);
+    summary.stats.passing_outcome_diff.lm = fitlm(tbl,'PD~Outcome+Difficulty+Outcome*Difficulty');
+    summary.stats.passing_outcome_diff.lme = fitlme(tbl,'PD~Outcome+Difficulty+Outcome*Difficulty+(1|Subject)+(Outcome-1|Subject)+(Difficulty-1|Subject)');
+    summary.stats.passing_outcome_diff.data = tbl;
+    summary.stats.passing_diff.mean.easy = nanmean(tbl(strcmp(tbl.Difficulty,'Easy'),:).PD);
+    summary.stats.passing_diff.mean.difficult = nanmean(tbl(strcmp(tbl.Difficulty,'Difficult'),:).PD);
+    summary.stats.passing_diff.std.easy = nanstd(tbl(strcmp(tbl.Difficulty,'Easy'),:).PD);
+    summary.stats.passing_diff.std.difficult = nanstd(tbl(strcmp(tbl.Difficulty,'Difficult'),:).PD);
+
+else
+    for i = 1 : length(summary.subjects)
+        
+        pd_i = summary.zscore.passing.subjects.pupil{i}; 
+        passing_outcomes = summary.passing_outcomes{i}(summary.idx_passing{i});
+        passing_outcomes(isnan(passing_outcomes)) = 0;
+        passing_outcomes(passing_outcomes<0) = -1;
+        passing_outcomes(passing_outcomes>0) = 1;
+         
+        % Outcomes only
         for o = 1 : 2
-            idx = passing_diffs==diffs(d) & passing_outcomes==outcomes(o);
+            idx = passing_outcomes==outcomes(o);
             PD(end+1) = mean(pd_i(idx));
             Outcome(end+1) = str_outcomes(o);
-            Difficulty(end+1) = str_diffs(d);
             Subject(end+1) = summary.subjects(i);
         end
-        
+
     end
+    
+    tbl = table(Subject', double(PD)', Outcome', 'VariableNames', [{'Subject'},{'PD'},{'Outcome'}]);
+    summary.stats.passing_outcome.lm = fitlm(tbl,'PD~Outcome');
+    summary.stats.passing_outcome.lme = fitlme(tbl,'PD~Outcome+(1|Subject)+(Outcome-1|Subject)');
+    summary.stats.passing_outcome.data = tbl;
+
 end
 
-tbl = table(Subject', double(PD)', Outcome', Difficulty', 'VariableNames', [{'Subject'},{'PD'},{'Outcome'},{'Difficulty'}]);
-summary.stats.passing_outcome_diff.lm = fitlm(tbl,'PD~Outcome+Difficulty+Outcome*Difficulty');
-summary.stats.passing_outcome_diff.lme = fitlme(tbl,'PD~Outcome+Difficulty+Outcome*Difficulty+(1|Subject)+(Outcome-1|Subject)+(Difficulty-1|Subject)');
-summary.stats.passing_outcome_diff.data = tbl;
-
-summary.stats.passing_outcome.mean.positive = nanmean(tbl(strcmp(tbl.Outcome,'Positive'),:).PD);
-summary.stats.passing_outcome.mean.negative = nanmean(tbl(strcmp(tbl.Outcome,'Negative'),:).PD);
 summary.stats.passing_outcome.std.positive = nanstd(tbl(strcmp(tbl.Outcome,'Positive'),:).PD);
 summary.stats.passing_outcome.std.negative = nanstd(tbl(strcmp(tbl.Outcome,'Negative'),:).PD);
-summary.stats.passing_diff.mean.easy = nanmean(tbl(strcmp(tbl.Difficulty,'Easy'),:).PD);
-summary.stats.passing_diff.mean.difficult = nanmean(tbl(strcmp(tbl.Difficulty,'Difficult'),:).PD);
-summary.stats.passing_diff.std.easy = nanstd(tbl(strcmp(tbl.Difficulty,'Easy'),:).PD);
-summary.stats.passing_diff.std.difficult = nanstd(tbl(strcmp(tbl.Difficulty,'Difficult'),:).PD);
-
+summary.stats.passing_outcome.mean.positive = nanmean(tbl(strcmp(tbl.Outcome,'Positive'),:).PD);
+summary.stats.passing_outcome.mean.negative = nanmean(tbl(strcmp(tbl.Outcome,'Negative'),:).PD);
 
 end
 

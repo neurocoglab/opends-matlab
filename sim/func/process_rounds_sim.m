@@ -24,6 +24,29 @@ end
  
 sim_dir = sprintf('%s/%s/%s', params.io.output_dir, data.subject, params.sim.sub_dir);
 
+% Get version info; TODO: better to get this from the sim log itself if available
+info_file = sprintf('%s/%s/%s', params.io.input_dir, ...
+                                    params.io.metadata_dir, ...
+                                    params.general.participant_info_file);
+
+opt = detectImportOptions(info_file);
+opt.VariableNames(1) = {'SubjectID'};
+opt.VariableOptions(1).Name = 'SubjectID';
+opt.VariableTypes(1) = {'char'};
+idx = find(strcmp(opt.VariableNames, 'Version'),1);
+if ~isempty(idx)
+    opt.VariableTypes(idx) = {'char'};
+end
+
+subject_data = readtable(info_file, opt);
+subject_data = subject_data(strcmp(subject_data.SubjectID, data.subject),:);
+if height(subject_data) == 0
+    warning('Subject %s is not in metadata table. Assuming simulator version is %s', data.subject, params.sim.version);
+    sim_version = params.sim.version;
+else
+    sim_version = subject_data.Version{1};
+end
+
 % Load TriggerActuated | LaneChange | IncreaseSpeed events from simulation log
 input_file = sprintf('%s/events-All.csv', sim_dir);
 data.sim.events.values = import_log_sim(input_file, params.sim.log.events_format);
@@ -56,7 +79,7 @@ if params.sim.rounds.roadsign.apply
 end
 
 % Construct trigger table for rounds
-data.sim.rounds.triggers = get_cycle_indices_sim( data );
+data.sim.rounds.triggers = get_cycle_indices_sim( params, data );
 
 % Synch time series
 % Construct matrix with tracker time, linked to event distance and event
@@ -76,7 +99,7 @@ dists = data.sim.triggers.values.Distance;
 
 if lane_dist < 0
     idx = [find(strcmp(types,'iterate-cycle'));find(strcmp(types,'iterate-cycle-reset'))];
-    sort(idx);
+    idx = sort(idx);
     lane_dist = dists(idx(1));
 end
 
@@ -268,7 +291,14 @@ else
     idx = idx(1:end-1); % Last iteration is the end point
 end
 
-sim2track.cycle_times = interpolate_log_times_sim( sim2track.matrix, times(idx) );
+% Stupidness: these versions have max cycle iteration, but no "iterate-cycle*" events
+% are created for these. This uses the SimulatorResumed event instead.
+if any(strcmp(sim_version, {'1.8.1','1.8.2','1.8.3'}))
+    times = data.sim.rounds.triggers.Millis(2:end-1) - data.sim.t_start;
+    sim2track.cycle_times = interpolate_log_times_sim( sim2track.matrix, times );
+else
+    sim2track.cycle_times = interpolate_log_times_sim( sim2track.matrix, times(idx) );
+end
 
 % Rewards
 types = data.sim.reward.values.Type;
@@ -338,7 +368,8 @@ if params.sim.rounds.messagebutton.apply
     message_button_map = readtable( message_button_map_file );
     sim2track.messagebutton = interpolate_messagebuttons_sim( data, ...
                                                               message_button_map, ...
-                                                              sim2track.matrix ); 
+                                                              sim2track.matrix, ...
+                                                              sim_version); 
 end
 
 % Road sign changes
@@ -347,7 +378,8 @@ if params.sim.rounds.roadsign.apply
     roadsign_map = readtable( roadsign_map_file );
     sim2track.roadsigns = interpolate_roadsigns_sim( data, ...
                                                      roadsign_map, ...
-                                                     sim2track.matrix ); 
+                                                     sim2track.matrix, ...
+                                                     sim_version ); 
 end
 
 % Baseline periods - assign to time series

@@ -48,11 +48,12 @@ ypad = abs(diff(yrange))*0.3/2;
 yrange(1) = yrange(1)-ypad;yrange(2) = yrange(2)+ypad;
 h.layout.yaxis.range = yrange;
 
-h.PlotOptions.FileName = sprintf('%s/epochs_boxplots_pd_zscore_pass_baseline', outdir);
+h.PlotOptions.SaveFolder = outdir;
+h.PlotOptions.FileName = 'epochs_boxplots_pd_zscore_pass_baseline'; % sprintf('%s/epochs_boxplots_pd_zscore_pass_baseline', outdir);
 plotlyoffline(h);
 
 if show_plots
-    web(['file://' h.PlotOptions.FileName '.html'], '-new', '-notoolbar');
+    web(sprintf('file://%s/%s.html', outdir, h.PlotOptions.FileName), '-new', '-notoolbar');
 end
 
 % if out2file
@@ -60,44 +61,47 @@ end
 % end
 
 % By difficulty
-tbl = summary.stats.passing_outcome_diff.data;
+if params.sim.epochs.difficulty.apply
+    tbl = summary.stats.passing_outcome_diff.data;
 
-y_easy = tbl.PD(strcmp(tbl.Difficulty,'Easy'),:);
-y_diff = tbl.PD(strcmp(tbl.Difficulty,'Difficult'),:);
+    y_easy = tbl.PD(strcmp(tbl.Difficulty,'Easy'),:);
+    y_diff = tbl.PD(strcmp(tbl.Difficulty,'Difficult'),:);
 
-data = {...
-  struct(...
-    'y', y_easy, ...
-    'name', 'Easy', ...
-    'boxpoints', 'all', ...
-    'jitter', 0.3, ...
-    'pointpos', -1.8, ...
-    'type', 'box'), ...
-  struct(...
-    'y', y_diff, ...
-    'name', 'Difficult', ...
-    'boxpoints', 'all', ...
-    'jitter', 0.3, ...
-    'pointpos', -1.8, ...
-    'type', 'box')
-};
+    data = {...
+      struct(...
+        'y', y_easy, ...
+        'name', 'Easy', ...
+        'boxpoints', 'all', ...
+        'jitter', 0.3, ...
+        'pointpos', -1.8, ...
+        'type', 'box'), ...
+      struct(...
+        'y', y_diff, ...
+        'name', 'Difficult', ...
+        'boxpoints', 'all', ...
+        'jitter', 0.3, ...
+        'pointpos', -1.8, ...
+        'type', 'box')
+    };
 
-h = plotlyfig('Visible','off'); % initalize an empty figure object
-h.data = data;
-h.layout = plotly_layouts.layouts.boxplot;
-h.layout.title = 'Passing Epochs: Easy v. Difficult';
-yrange = [min(min(y_easy,y_diff)) max(max(y_easy,y_diff))];
-ypad = abs(diff(yrange))*0.3/2;
-yrange(1) = yrange(1)-ypad;yrange(2) = yrange(2)+ypad;
-h.layout.yaxis.range = yrange;
+    h = plotlyfig('Visible','off'); % initalize an empty figure object
+    h.data = data;
+    h.layout = plotly_layouts.layouts.boxplot;
+    h.layout.title = 'Passing Epochs: Easy v. Difficult';
+    yrange = [min(min(y_easy,y_diff)) max(max(y_easy,y_diff))];
+    ypad = abs(diff(yrange))*0.3/2;
+    yrange(1) = yrange(1)-ypad;yrange(2) = yrange(2)+ypad;
+    h.layout.yaxis.range = yrange;
 
-%if out2file
-    h.PlotOptions.FileName = sprintf('%s/epochs_boxplots_pd_zscore_pass_difficulty', outdir);
-%end
-plotlyoffline(h);
+    h.PlotOptions.SaveFolder = outdir;
+    h.PlotOptions.FileName = 'epochs_boxplots_pd_zscore_pass_difficulty';
+    plotlyoffline(h);
 
-if show_plots
-    web(['file://' h.PlotOptions.FileName '.html'], '-new', '-notoolbar');
+    if show_plots
+        web(sprintf('file://%s/%s.html', outdir, h.PlotOptions.FileName), '-new', '-notoolbar');
+    end
+else
+    tbl = summary.stats.passing_outcome.data;
 end
 
 % if out2file
@@ -106,6 +110,7 @@ end
 
 
 % By outcome
+
 y_pos = tbl.PD(strcmp(tbl.Outcome,'Positive'),:);
 y_neg = tbl.PD(strcmp(tbl.Outcome,'Negative'),:);
 
@@ -135,13 +140,13 @@ ypad = abs(diff(yrange))*0.3/2;
 yrange(1) = yrange(1)-ypad;yrange(2) = yrange(2)+ypad;
 h.layout.yaxis.range = yrange;
 
-%if out2file
-    h.PlotOptions.FileName = sprintf('%s/epochs_boxplots_pd_zscore_pass_outcome', outdir);
-%end
+h.PlotOptions.SaveFolder = outdir;
+h.PlotOptions.FileName = 'epochs_boxplots_pd_zscore_pass_outcome';
+
 plotlyoffline(h);
 
 if show_plots
-    web(['file://' h.PlotOptions.FileName '.html'], '-new', '-notoolbar');
+    web(sprintf('file://%s/%s.html', outdir, h.PlotOptions.FileName), '-new', '-notoolbar');
 end
 
 % if out2file
@@ -192,17 +197,13 @@ if out2file || params.epochs.plot_scatter
     h.layout.yaxis.range = yrange;
     h.layout.xaxis.ticktext = [{'Baseline'},{'Passing'}];
     
-    h.PlotOptions.FileName = sprintf('%s/epochs_lines_baseline_pass_subjects', outdir);
+    h.PlotOptions.SaveFolder = outdir;
+    h.PlotOptions.FileName = 'epochs_lines_baseline_pass_subjects';
     plotlyoffline(h);
     
     if show_plots
-        web(['file://' h.PlotOptions.FileName '.html'], '-new', '-notoolbar');
+        web(sprintf('file://%s/%s.html', outdir, h.PlotOptions.FileName), '-new', '-notoolbar');
     end
-    
-%     if out2file
-%         saveplotlyfig(h, sprintf('%s/lines_baseline_pass_subjects.png', outdir));
-%     end
-
     
     % Scatterplots (z-score)
     % Plot Overtake & Baseline PD versus Score
@@ -270,23 +271,14 @@ if out2file || params.epochs.plot_scatter
     h.layout.showlegend = true;
     h.layout.legend = struct('x', 0.05, 'y', 0.05);
     
-    h.PlotOptions.FileName = sprintf('%s/epochs_scatter_pdz_X_score', outdir);
+    h.PlotOptions.SaveFolder = outdir;
+    h.PlotOptions.FileName = 'epochs_scatter_pdz_X_score';
     plotlyoffline(h);
     
     if show_plots
-        web(['file://' h.PlotOptions.FileName '.html'], '-new', '-notoolbar');
+        web(sprintf('file://%s/%s.html', outdir, h.PlotOptions.FileName), '-new', '-notoolbar');
     end
     
-%     if out2file
-%         saveplotlyfig(h, sprintf('%s/scatter_pdz_X_score.png', outdir));
-%     end
-    
-    % Plot Difference PD (Overtake - Baseline) versus Score
-%     if out2file
-%         h = figure('visible','off');
-%     else
-%         h = figure;
-%     end 
     
     lm1 = fitlm(scores,diff_bp);
     y1 = [lm1.predict(xrange(1)) lm1.predict(xrange(2))];
@@ -324,16 +316,13 @@ if out2file || params.epochs.plot_scatter
     h.layout.xaxis.title = 'Simulation Score';
     h.layout.yaxis.title = 'Mean PD Difference (Z-score)';
     
-    h.PlotOptions.FileName = sprintf('%s/epochs_scatter_diff_pdz_X_score', outdir);
+    h.PlotOptions.SaveFolder = outdir;
+    h.PlotOptions.FileName = 'epochs_scatter_diff_pdz_X_score';
     plotlyoffline(h);
     
     if show_plots
-        web(['file://' h.PlotOptions.FileName '.html'], '-new', '-notoolbar');
+        web(sprintf('file://%s/%s.html', outdir, h.PlotOptions.FileName), '-new', '-notoolbar');
     end
-    
-%     if out2file
-%         saveplotlyfig(h, sprintf('%s/scatter_diff_pdz_X_score.png', outdir));
-%     end
 
 end
 
@@ -388,13 +377,6 @@ for j = 1 : N_cycles
     
 end
 
-                                    
-% if out2file
-%     h = figure('visible','off');
-% else
-%     h = figure;
-% end
-
 scores = [1:N_cycles; 1:N_cycles]';
 y = [pd_bl_mean,pd_pass_mean];
 lower = [pd_bl_ci(:,1),pd_pass_ci(:,1)]; % / N_subs;
@@ -415,81 +397,79 @@ h.layout.xaxis.title = 'Simulation Round';
 h.layout.showlegend = true;
 h.layout.legend = struct('x', 0.75, 'y', 0.95);
 
-h.PlotOptions.FileName = sprintf('%s/epochs_lines_pdz_rounds', outdir);
+h.PlotOptions.SaveFolder = outdir;
+h.PlotOptions.FileName = 'epochs_lines_pdz_rounds';
 plotlyoffline(h);
 
 if show_plots
-    web(['file://' h.PlotOptions.FileName '.html'], '-new', '-notoolbar');
+    web(sprintf('file://%s/%s.html', outdir, h.PlotOptions.FileName), '-new', '-notoolbar');
 end
-
-% if out2file
-%     saveplotlyfig(h, sprintf('%s/lines_pdz_rounds.png', outdir));
-% end
 
 % Score by round
 
 
 
 % Outcomes v. Difficulty
+if params.sim.epochs.difficulty.apply
+    tbl = summary.stats.passing_outcome_diff.data;
+    idx_diff_pos = find(strcmp(tbl.Difficulty,'Difficult') & strcmp(tbl.Outcome,'Positive'));
+    idx_diff_neg = find(strcmp(tbl.Difficulty,'Difficult') & strcmp(tbl.Outcome,'Negative'));
+    idx_easy_pos = find(strcmp(tbl.Difficulty,'Easy') & strcmp(tbl.Outcome,'Positive'));
+    idx_easy_neg = find(strcmp(tbl.Difficulty,'Easy') & strcmp(tbl.Outcome,'Negative'));
 
-tbl = summary.stats.passing_outcome_diff.data;
-idx_diff_pos = find(strcmp(tbl.Difficulty,'Difficult') & strcmp(tbl.Outcome,'Positive'));
-idx_diff_neg = find(strcmp(tbl.Difficulty,'Difficult') & strcmp(tbl.Outcome,'Negative'));
-idx_easy_pos = find(strcmp(tbl.Difficulty,'Easy') & strcmp(tbl.Outcome,'Positive'));
-idx_easy_neg = find(strcmp(tbl.Difficulty,'Easy') & strcmp(tbl.Outcome,'Negative'));
+    x = [repmat({'Difficult'}, 1, length(idx_diff_pos)),repmat({'Easy'}, 1, length(idx_easy_pos))];
+    % x = [ones(length(idx_diff_pos),1);zeros(length(idx_easy_pos),1)]';
+    y = [tbl.PD(idx_diff_pos);tbl.PD(idx_easy_pos)];
+    data1 = struct(...
+        'x', {x'}, ...
+        'y', y, ...
+        'name', 'Positive', ...
+        'boxpoints', 'all', ...
+        'jitter', 0.3, ...
+        'pointpos', -1.8, ...
+        'type', 'box');
 
-x = [repmat({'Difficult'}, 1, length(idx_diff_pos)),repmat({'Easy'}, 1, length(idx_easy_pos))];
-% x = [ones(length(idx_diff_pos),1);zeros(length(idx_easy_pos),1)]';
-y = [tbl.PD(idx_diff_pos);tbl.PD(idx_easy_pos)];
-data1 = struct(...
-    'x', {x'}, ...
-    'y', y, ...
-    'name', 'Positive', ...
-    'boxpoints', 'all', ...
-    'jitter', 0.3, ...
-    'pointpos', -1.8, ...
-    'type', 'box');
+    maxy=max(y);
 
-maxy=max(y);
+    x = [repmat({'Difficult'}, 1, length(idx_diff_neg)),repmat({'Easy'}, 1, length(idx_easy_neg))];
+    % x = [ones(length(idx_diff_pos),1);zeros(length(idx_easy_pos),1)]';
+    y = [tbl.PD(idx_diff_neg);tbl.PD(idx_easy_neg)];
+    data2 = struct(...
+        'x', {x'}, ...
+        'y', y, ...
+        'name', 'Negative', ...
+        'boxpoints', 'all', ...
+        'jitter', 0.3, ...
+        'pointpos', -1.8, ...
+        'type', 'box');
 
-x = [repmat({'Difficult'}, 1, length(idx_diff_neg)),repmat({'Easy'}, 1, length(idx_easy_neg))];
-% x = [ones(length(idx_diff_pos),1);zeros(length(idx_easy_pos),1)]';
-y = [tbl.PD(idx_diff_neg);tbl.PD(idx_easy_neg)];
-data2 = struct(...
-    'x', {x'}, ...
-    'y', y, ...
-    'name', 'Negative', ...
-    'boxpoints', 'all', ...
-    'jitter', 0.3, ...
-    'pointpos', -1.8, ...
-    'type', 'box');
+    h = plotlyfig('Visible','off');
 
-h = plotlyfig('Visible','off');
+    h.data = {data1,data2};
+    h.layout = plotly_layouts.layouts.boxplot;
+    h.layout.boxmode = 'group';
+    yrange = [min(y) max(maxy, max(y))];
+    ypad = abs(diff(yrange))*0.3/2;
+    yrange(1) = yrange(1)-ypad;yrange(2) = yrange(2)+ypad;
+    h.layout.yaxis.range = yrange;
+    h.layout.yaxis.zeroline = false;
+    h.layout.boxgroupgap = 0.5;
+    h.layout.boxgap = 0.2;
 
-h.data = {data1,data2};
-h.layout = plotly_layouts.layouts.boxplot;
-h.layout.boxmode = 'group';
-yrange = [min(y) max(maxy, max(y))];
-ypad = abs(diff(yrange))*0.3/2;
-yrange(1) = yrange(1)-ypad;yrange(2) = yrange(2)+ypad;
-h.layout.yaxis.range = yrange;
-h.layout.yaxis.zeroline = false;
-h.layout.boxgroupgap = 0.5;
-h.layout.boxgap = 0.2;
+    h.layout.title = 'PD by Difficulty and Outcome';
+    % h.layout.xaxis.title = 'Difficulty';
+    h.layout.showlegend = true;
 
-h.layout.title = 'PD by Difficulty and Outcome';
-% h.layout.xaxis.title = 'Difficulty';
-h.layout.showlegend = true;
+    h.PlotOptions.SaveFolder = outdir;
+    h.PlotOptions.FileName = 'epochs_boxplots_pdz_diff_outcome';
+    plotlyoffline(h);
 
-h.PlotOptions.FileName = sprintf('%s/epochs_boxplots_pdz_diff_outcome', outdir);
-plotlyoffline(h);
+    if show_plots
+        web(sprintf('file://%s/%s.html', outdir, h.PlotOptions.FileName), '-new', '-notoolbar');
+    end
 
-if show_plots
-    web(['file://' h.PlotOptions.FileName '.html'], '-new', '-notoolbar');
 end
 
-% if out2file
-%     saveplotlyfig(h, sprintf('%s/boxplots_pdz_diff_outcome.png', outdir));
-% end
+
 
 end

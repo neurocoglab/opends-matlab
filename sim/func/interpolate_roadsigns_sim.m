@@ -1,4 +1,4 @@
-function [ result ] = interpolate_roadsigns_sim( data, roadsign_map, M )
+function [ result ] = interpolate_roadsigns_sim( data, roadsign_map, M, sim_version )
 % interpolate_roadsigns_sim
 %
 % Interpolates road sign changes from the matrix M into log times 

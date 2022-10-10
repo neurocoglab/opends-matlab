@@ -57,19 +57,27 @@ for i = 1 : length(subjects)
    
     subject = subjects{i};
     flagdir = sprintf( '%s/%s/flags', params.io.output_dir, subject );
+    debug = '';
     
     done = ~params.eye.blinks.apply || exist(sprintf('%s/eye_blinks.done', flagdir), 'file');
+    if isempty(debug) && ~done, debug = 'eye_blinks'; end
     done = done && ...
         (~params.eye.saccades.apply || exist(sprintf('%s/eye_saccades.done', flagdir), 'file'));
+    if isempty(debug) && ~done, debug = 'eye_saccades'; end
     done = done && ...
         (~params.eye.luminance.apply || exist(sprintf('%s/eye_luminance.done', flagdir), 'file'));
+    if isempty(debug) && ~done, debug = 'eye_luminance'; end
     done = done && ...
         (~params.eye.epochs.apply || exist(sprintf('%s/sim_rounds.done', flagdir), 'file'));
+    if isempty(debug) && ~done, debug = 'sim_rounds'; end
     done = done && ...
         (~params.eye.events.apply || exist(sprintf('%s/sim_rounds.done', flagdir), 'file'));
+    if isempty(debug) && ~done, debug = 'sim_rounds'; end
 
     if done
         subjects_filter = [subjects_filter {subject}];
+    elseif params.general.debug
+        fprintf('DEBUG: Subject %s is not fully preprocessed [%s]\n', subject, debug);
     end
 end
 
@@ -96,7 +104,7 @@ if ~any(strcmp(subject_data.Properties.VariableNames, 'SimScore'))
            fclose(fid_i);
            score = str2double(tline);
 
-           idx = find(subject_data.SubjectID == str2double(subject));
+           idx = find(subject_data.(params.sim.metadata.uid_field) == str2double(subject));
 
            if ~isempty(idx)
                subject_data.SimScore(idx) = score;
@@ -174,15 +182,24 @@ if params.eye.epochs.apply
             fprintf('\tFinished subject %s\n', subject);
 
         catch err
-            warning on;
-            warning('\nError encountered while processing %s:\n%s\n', subject, err.message);
-
+             if params.general.fail_on_error
+                rethrow(err);
+            end
+            if params.general.show_error_stack
+                fprintf(2, '%s\n', getReport(err, 'extended'));
+                ok = false;
+                break;
+            else
+                warning on;
+                warning('\nError encountered while processing %s:\n%s\n', subject, err.message);
+            end
         end
 
     end
 
     % Run statistical analyses
-    summary = analyze_epochs_eye( summary, subject_data );
+    fprintf('\n\tPerforming statistical analysis...');
+    summary = analyze_epochs_eye( params, summary, subject_data );
 
     summary_file = sprintf('%s/summary_epochs_eye.mat', results_dir);
     save(summary_file , 'summary', '-v7.3' );
@@ -192,8 +209,8 @@ if params.eye.epochs.apply
     end
 
     fclose( fopen( flag_file, 'w+' ) );
-
-    fprintf('\nDone epochs processing.\n');
+    
+    fprintf('done.\nDone epochs processing.\n');
 
 end
 
@@ -268,12 +285,13 @@ if params.eye.events.apply
             fprintf('\tFinished subject %s\n', subject);
 
         catch err
+            if params.general.fail_on_error
+                rethrow(err);
+            end
             if params.general.show_error_stack
                 fprintf(2, '%s\n', getReport(err, 'extended'));
-                if params.general.fail_on_error
-                    ok = false;
-                    break;
-                end
+                ok = false;
+                break;
             else
                 warning on;
                 warning('\nError encountered while processing %s:\n%s\n', subject, err.message);
@@ -289,6 +307,9 @@ if params.eye.events.apply
     end
     
     if ok
+        
+        fprintf('\n\tPerforming statistical analysis...');
+        
         summary = analyze_events_eye( params, summary );
 
         summary_file = sprintf('%s/summary_events_eye.mat', results_dir);
@@ -300,7 +321,7 @@ if params.eye.events.apply
 
         fclose( fopen( flag_file, 'w+' ) );
 
-        fprintf('\nDone events processing.\n');
+        fprintf('done.\nDone events processing.\n');
     end
 
     
