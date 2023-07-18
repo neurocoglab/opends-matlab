@@ -82,7 +82,7 @@ for i = 1 : length(subjects)
         % Load raw EEG data
         data = load_data_eeg( params, subject );
         if isempty(data)
-            fprintf( '\n== Data could not be loaded for subject %s. Skipping. ==\n\n', subject );
+            fprintf( '\n== Data [%s] could not be loaded for subject %s. Skipping. ==\n\n', params.eeg.convert.format, subject );
             ok = false;
         end
 
@@ -147,6 +147,10 @@ for i = 1 : length(subjects)
             fprintf( '\n== Finished pre-processing step 1 for subject %s ==\n\n', subject );
         else
             fprintf( '\n== Errors encountered in pre-processing step 1 for subject %s ==\n\n', subject );
+            if params.general.fail_on_error
+                ME = MException('preprocessing_1_eeg:ErrorEncountered', 'Termination due to error.');
+                throw(ME);
+            end
         end
         
     catch err

@@ -153,6 +153,7 @@ if params.eye.epochs.apply
             flag_file_i = sprintf('%s/eye_epochs.done', flagdir);
             if exist(flag_file_i, 'file') && ~clobber
                fprintf('\tEpochs already processed for subject %s! Skipping...\n', subject);
+               
                continue;
             end
 

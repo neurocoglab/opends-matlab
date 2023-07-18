@@ -44,10 +44,11 @@ function [ data ] = remove_bad_channels_eeg( params, data )
     cfg.layout = params.eeg.layout; % 'biosemi64.lay';
     cfg_nbr = [];
     cfg_nbr.method = 'template';
-    cfg_nbr.layout = params.eeg.layout; % 'biosemi64.lay';
+    cfg_nbr.layout = params.eeg.layout; % 'biosemi64.lay'
     cfg_nbr.channel = data.eeg.eeg_channels;
     
     [~,cfg.neighbours] = evalc('ft_prepare_neighbours(cfg_nbr);');
+    cfg.elec = params.eeg.electrodes;
     if ~isempty(cfg.badchannel)
         [~,data.eeg.ft] = evalc('ft_channelrepair(cfg, data.eeg.ft);');
     end

@@ -74,6 +74,7 @@ params.sim.events.traffic_decision.write_to_file = true;
 
 % Includes road sign changes?
 params.sim.events.roadsign.apply = true;
+params.sim.rounds.roadsign.maps_file = '';
 
 % Includes fixations to areas of interest?
 params.sim.events.fixations.apply = false;

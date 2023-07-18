@@ -15,6 +15,7 @@ params.eeg.convert.align_sim_triggers = false;
 params.eeg.convert.start_byte = [];
 
 params.eeg.layout = 'biosemi64.lay'; % 'acticap-64ch-standard2.mat'; 
+params.eeg.electrodes = 'standard_1020.elc';
 
 params.eeg.cfg = [];
 params.eeg.cfg.dataset = '';

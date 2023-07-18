@@ -152,6 +152,7 @@ params.eye.events.traffic_decision.prepost = [5000 2000];
 params.eye.events.traffic_decision.plots.ylims = [-1 1.5];
 params.eye.events.traffic_decision.confidence.apply = true;
 params.eye.events.traffic_decision.correct.apply = true;
+params.eye.events.traffic_decision.order.apply = true;
 params.eye.events.traffic_decision.min_trials = 3;
 
 params.eye.events.traffic_decision.tlock_params.smooth_span = 600;

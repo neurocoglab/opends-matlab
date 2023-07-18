@@ -253,6 +253,37 @@ if params.sim.events.traffic_decision.apply
         web(sprintf('file://%s/%s.html', outdir, h.PlotOptions.FileName), '-new', '-notoolbar');
     end
     
+    % 1-/2-back
+    h = plot_timelocked(params, summary.stats.traffic_decision.order, {'Two-Back','One-Back'}, ...
+                        plotly_layouts.layouts.boxplot, sig_dims, sig_clrs);
+    h.layout.title = 'PD Locked to Traffic Decision: One- vs. Two-Back';
+    h.layout.yaxis.range = params.eye.events.traffic_decision.plots.ylims; % [-0.5 2]; % [min(y(:)) max(y(:))]*1.3;
+    h.layout.showlegend = true;
+    h.layout.legend = struct('x', 0.1, 'y', 0.95);
+
+    h.PlotOptions.SaveFolder = outdir;
+    h.PlotOptions.FileName = 'eye_events_traffic_decision_order';
+    plotlyoffline(h);
+
+    if show_plots
+        web(sprintf('file://%s/%s.html', outdir, h.PlotOptions.FileName), '-new', '-notoolbar');
+    end
+    
+    % High/Low confidence
+    h = plot_timelocked(params, summary.stats.traffic_decision.confidence, {'Low','High'}, ...
+                        plotly_layouts.layouts.boxplot, sig_dims, sig_clrs);
+    h.layout.title = 'PD Locked to Traffic Decision: Confidence';
+    h.layout.yaxis.range = params.eye.events.traffic_decision.plots.ylims; % [-0.5 2]; % [min(y(:)) max(y(:))]*1.3;
+    h.layout.showlegend = true;
+    h.layout.legend = struct('x', 0.1, 'y', 0.95);
+
+    h.PlotOptions.SaveFolder = outdir;
+    h.PlotOptions.FileName = 'eye_events_traffic_decision_confidence';
+    plotlyoffline(h);
+
+    if show_plots
+        web(sprintf('file://%s/%s.html', outdir, h.PlotOptions.FileName), '-new', '-notoolbar');
+    end
     
 end
 

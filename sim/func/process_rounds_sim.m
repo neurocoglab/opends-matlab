@@ -30,18 +30,20 @@ info_file = sprintf('%s/%s/%s', params.io.input_dir, ...
                                     params.general.participant_info_file);
 
 opt = detectImportOptions(info_file);
+opt.VariableNamingRule = 'preserve';
 opt.VariableNames(1) = {'SubjectID'};
 opt.VariableOptions(1).Name = 'SubjectID';
 opt.VariableTypes(1) = {'char'};
 idx = find(strcmp(opt.VariableNames, 'Version'),1);
-if ~isempty(idx)
+has_version = ~isempty(idx);
+if has_version
     opt.VariableTypes(idx) = {'char'};
 end
 
 subject_data = readtable(info_file, opt);
 subject_data = subject_data(strcmp(subject_data.SubjectID, data.subject),:);
-if height(subject_data) == 0
-    warning('Subject %s is not in metadata table. Assuming simulator version is %s', data.subject, params.sim.version);
+if height(subject_data) == 0 || ~has_version
+    warning('Subject %s is has no version info. Assuming version is %s.', data.subject, params.sim.version);
     sim_version = params.sim.version;
 else
     sim_version = subject_data.Version{1};
@@ -365,7 +367,7 @@ sim2track.right_change_times = sim2track.right_change_times(~isnan(sim2track.rig
 % Message button presses
 if params.sim.rounds.messagebutton.apply
     message_button_map_file = sprintf('%s/%s/%s', params.io.input_dir, params.io.metadata_dir, params.sim.rounds.messagebutton.maps_file );
-    message_button_map = readtable( message_button_map_file );
+    message_button_map = readtable( message_button_map_file, 'VariableNamingRule', 'preserve' );
     sim2track.messagebutton = interpolate_messagebuttons_sim( data, ...
                                                               message_button_map, ...
                                                               sim2track.matrix, ...
@@ -375,7 +377,7 @@ end
 % Road sign changes
 if params.sim.rounds.roadsign.apply
     roadsign_map_file = sprintf('%s/%s/%s', params.io.input_dir, params.io.metadata_dir, params.sim.rounds.roadsign.maps_file );
-    roadsign_map = readtable( roadsign_map_file );
+    roadsign_map = readtable( roadsign_map_file, 'VariableNamingRule', 'preserve' );
     sim2track.roadsigns = interpolate_roadsigns_sim( data, ...
                                                      roadsign_map, ...
                                                      sim2track.matrix, ...
@@ -384,7 +386,7 @@ end
 
 % Baseline periods - assign to time series
 baseline_intervals_file = sprintf('%s/%s/%s', params.io.input_dir, params.io.metadata_dir, params.sim.baseline.intervals_file);
-baseline_intervals = readtable(baseline_intervals_file);
+baseline_intervals = readtable(baseline_intervals_file, 'VariableNamingRule', 'preserve');
 sim2track.baseline = interpolate_baseline_intervals_sim( baseline_intervals, ...
                                                          data.eye.tgap, ...
                                                          sim2track.matrix );

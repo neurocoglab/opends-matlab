@@ -87,7 +87,7 @@ for i = 1 : length(subjects)
                    
                otherwise
                    % Fail outright
-                   error('\tEye tracker type "%s" is invalid!', params.eye.convert.format)
+                   error('\tEye tracker type "%s" is unsupported!', params.eye.convert.format)
 
            end
           

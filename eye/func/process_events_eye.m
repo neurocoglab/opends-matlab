@@ -27,6 +27,7 @@ if isempty(summary)
         summary.traffic_decision.tlocked_bl2 = {};
         summary.traffic_decision.confidence = {};
         summary.traffic_decision.correct = {};
+        summary.traffic_decision.order = {};
         summary.traffic_decision.subjects = {};
     end
     
@@ -235,27 +236,16 @@ T_params.slope = zeros(N_rand,N_event);
 T_params.amplitude = zeros(N_rand,N_event);
 for i = 1 : N_rand
     tlocked = get_tlocked(pdz, t_pd, events(:,i), params.eye.events.left_change);
-%     if params.eye.events.tlock_params.apply
-%         tlock_params = get_tlocked_parameters(tlocked, params.eye.events.left_change);
-%         T_params.slope(i,:) = tlock_params.slopes;
-%         T_params.amplitude(i,:) = tlock_params.amplitudes;
-%     end
     T(i,:,:) = tlocked;
 end
 results.eye.events.left_change.tlocked_bl2 = squeeze(nanmean(T,1));
-% if params.eye.events.tlock_params.apply
-%     results.eye.events.left_change.tlocked_params_bl2 = T_params;
-% end
                                                  
 % Lane change right events
 events = data.sim.sim2track.right_change_times;
 events = events(~isnan(events));
 
 [tlocked,tstart] = get_tlocked(pdz, t_pd, events, params.eye.events.right_change);
-% if params.eye.events.tlock_params.apply
-%     [tlock_params] = get_tlocked_parameters(tlocked, params.eye.events.right_change);
-%     results.eye.events.right_change.tlock_params = tlock_params;
-% end
+
 clear baseline_stats;
 baseline_stats.mean = nan(length(tstart),1);
 baseline_stats.std = nan(length(tstart),1);
@@ -303,17 +293,10 @@ T_params.slope = zeros(N_rand,N_event);
 T_params.amplitude = zeros(N_rand,N_event);
 for i = 1 : N_rand
     tlocked = get_tlocked(pdz, t_pd, events(:,i), params.eye.events.right_change);
-%     if params.eye.events.tlock_params.apply
-%         tlock_params = get_tlocked_parameters(tlocked, params.eye.events.right_change);
-%         T_params.slope(i,:) = tlock_params.slopes;
-%         T_params.amplitude(i,:) = tlock_params.amplitudes;
-%     end
     T(i,:,:) = tlocked;
 end
 results.eye.events.right_change.tlocked_bl2 = squeeze(nanmean(T,1));
-% if params.eye.events.tlock_params.apply
-%     results.eye.events.right_change.tlocked_params_bl2 = T_params;
-% end
+
 
 % Saccade offset events
 svel = data.eye.saccades.saccades(:,4);
@@ -365,6 +348,7 @@ summary.right_change.tlocked_bl2 = [summary.right_change.tlocked_bl2 {results.ey
 summary.right_change.diffs = [summary.right_change.diffs {results.eye.events.right_change.diffs}];
 summary.right_change.outcomes = [summary.right_change.outcomes {results.eye.events.right_change.outcomes}];
 
+% Traffic decisions
 if params.sim.events.traffic_decision.apply
     if ~isempty(results.eye.events.traffic_decision)
         summary.traffic_decision.tlocked = [summary.traffic_decision.tlocked {results.eye.events.traffic_decision.tlocked}];
@@ -372,6 +356,7 @@ if params.sim.events.traffic_decision.apply
         summary.traffic_decision.tlocked_bl2 = [summary.traffic_decision.tlocked_bl2 {results.eye.events.traffic_decision.tlocked_bl2}];
         summary.traffic_decision.confidence = [summary.traffic_decision.confidence {results.eye.events.traffic_decision.confidence}];
         summary.traffic_decision.correct = [summary.traffic_decision.correct {results.eye.events.traffic_decision.correct}];
+         summary.traffic_decision.order = [summary.traffic_decision.order {results.eye.events.traffic_decision.order}];
         if ~isfield(summary.traffic_decision, 't')
             summary.traffic_decision.t = results.eye.events.traffic_decision.t;
         end

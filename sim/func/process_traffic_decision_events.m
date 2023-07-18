@@ -47,20 +47,14 @@ N_ev = length(idx);
 
 if N_ev == 0
     warning('Subject %s has no traffic events in the log.', data.subject);
-%     results.eye.events.traffic_decision.baseline_stats = [];
-%     results.eye.events.traffic_decision.events = [];
-%     results.eye.events.traffic_decision.tlocked = [];
-%     results.eye.events.traffic_decision.tlocked_bl = [];
-%     results.eye.events.traffic_decision.t = [];
-%     results.eye.events.traffic_decision.t = [];
-%     results.eye.events.traffic_decision.diffs = [];
-%     results.eye.events.traffic_decision.outcomes = [];
+
     return;
 end
 
 ids = repmat({data.subject},1,N_ev);
 
 correct = false(N_ev,1);
+orders = zeros(N_ev,1);
 dir_corr = cell(N_ev,1);
 dir_chosen = cell(N_ev,1);
 names = cell(N_ev,1);
@@ -82,6 +76,7 @@ for j = 1 : N_ev
     % Get road signs matching this round
     idx1 = find(roadsigns.rounds==round_i);
     names_i = roadsigns.names(idx1);
+    positions_i = roadsigns.order(idx1);
     
     % Get correct decision direction (left/right)
     dirs = roadsigns.direction(idx1);
@@ -89,6 +84,7 @@ for j = 1 : N_ev
     dir_chosen(j) = {dir_i};
     dir_corr(j) = {lower(dirs{idx2})};
     correct(j) = strcmpi(dir_i, dir_corr(j));
+    orders(j) = positions_i(idx2);
     idx_c = find(events_c.rounds==round_i & events_c.repeats==repeat_i, 1);
     if ~isempty(idx_c)
         % For debug
@@ -101,10 +97,10 @@ end
 
 C = [ids(:), num2cell(events_d.times(idx)),names(:),dir_chosen(:),dir_corr(:), ...
      num2cell(correct(:)),num2cell(confidence(:)),num2cell(events_d.durations(idx)), ...
-     num2cell(rounds(:))];
+     num2cell(rounds(:)),num2cell(orders(:))];
 
 T = cell2table(C,'VariableNames',[{'Subject'},{'Time'},{'Name'},{'Direction'},{'Dir_corr'}, ...
-                                  {'Correct'},{'Confidence'},{'RT'},{'Round'}]);
+                                  {'Correct'},{'Confidence'},{'RT'},{'Round'},{'Order'}]);
 
 % Output as CSV table
 results.sim.events.traffic_decision.values = T;
@@ -124,10 +120,7 @@ end
 events = T.Time;
 
 [tlocked,tstart] = get_tlocked(signals.pdz, signals.t_pd, events, params.eye.events.traffic_decision);
-% if params.eye.events.tlock_params.apply
-%     tlock_params = get_tlocked_parameters(tlocked, params.eye.events.traffic_decision);
-%     results.eye.events.traffic_decision.tlock_params = tlock_params;
-% end
+
 clear baseline_stats;
 baseline_stats.mean = nan(length(tstart),1);
 baseline_stats.std = nan(length(tstart),1);
@@ -156,6 +149,9 @@ end
 if params.eye.events.traffic_decision.correct.apply
     results.eye.events.traffic_decision.correct = nan(length(events),1);
 end
+if params.eye.events.traffic_decision.order.apply
+    results.eye.events.traffic_decision.order = nan(length(events),1);
+end
 
 for i = 1 : length(events)
     if params.eye.events.traffic_decision.confidence.apply
@@ -163,6 +159,9 @@ for i = 1 : length(events)
     end
     if params.eye.events.traffic_decision.correct.apply
         results.eye.events.traffic_decision.correct(i) = (correct(i)) + 1;
+    end
+    if params.eye.events.traffic_decision.order.apply
+        results.eye.events.traffic_decision.order(i) = orders(i);
     end
 end
 
@@ -174,17 +173,13 @@ events = get_random_events( events, N_rand, ...
                             results.eye.events.traffic_decision.t(end)], ...
                             signals.idx_baseline );
 T = zeros(N_rand,N_event,length(results.eye.events.traffic_decision.t));
-% T_params = [];
-% T_params.slope = zeros(N_rand,N_event);
-% T_params.amplitude = zeros(N_rand,N_event);
+
 for i = 1 : N_rand
     tlocked = get_tlocked(signals.pdz, signals.t_pd, events(:,i), params.eye.events.traffic_decision);
     T(i,:,:) = tlocked;
 end
 results.eye.events.traffic_decision.tlocked_bl2 = squeeze(nanmean(T,1));
-% if params.eye.events.tlock_params.apply
-%     results.eye.events.traffic_decision.tlocked_params_bl2 = T_params;
-% end
+
 
 end
 
