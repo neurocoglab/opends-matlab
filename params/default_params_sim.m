@@ -16,6 +16,7 @@ params.sim.convert.exec = 'simlog2csv';
 params.sim.rounds.plots.save = true;
 params.sim.rounds.fix_repeats = true;
 params.sim.rounds.plots.color = [0.8 0.8 0.9];
+params.sim.rounds.max_cycles = Inf;
 
 params.sim.log.trigger_format = '%d64 %f %d %q %q %q %q %f %f %d %d %d %d';
 params.sim.log.lanechange_format = '%d64 %f %d %q %q %q %q %q %d %f %d %d %f %d %d';
@@ -59,13 +60,15 @@ params.sim.epochs.difficulty.levels = [1 2];
 params.sim.epochs.difficulty.labels = {'Easy','Difficult'};
 params.sim.epochs.outcomes.apply = true;
 params.sim.epochs.outcomes.levels = [-1 1];
+params.sim.epochs.outcomes.labels = {'Negative','Positive'};
 
 %% Process events
 params.sim.events.difficulty.apply = true;
 params.sim.events.difficulty.levels = [1 2];
+params.sim.events.difficulty.labels = {'Easy','Difficult'};
 params.sim.events.outcomes.apply = true;
 params.sim.events.outcomes.levels = [-1 1];
-params.sim.events.difficulty.labels = {'Easy','Difficult'};
+params.sim.events.outcomes.labels = {'Negative','Positive'};
 params.sim.events.button_presses.apply = true;
 
 % Includes traffic decision button presses?

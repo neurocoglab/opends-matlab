@@ -32,7 +32,6 @@ fprintf('\n\n==== START OF EYE/SIM PRE-PROCESSING ===\n\n');
 
 fprintf('\nFound %d subjects.\n', length(subjects));
 
-
 %% For each subject
 for i = 1 : length(subjects)
     

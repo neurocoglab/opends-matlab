@@ -84,6 +84,8 @@ for i = 1 : length(subjects)
         data.eye = T.data.eye;
         clear T;
 
+        data.subject = subject;
+
         data = remove_artifacts_eeg( params, data );
 
         % Save result

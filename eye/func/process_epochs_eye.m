@@ -88,14 +88,14 @@ idx_baseline = false(N,1);
 baseline_intervals = zeros(0,2);
 baseline_cycles = zeros(N,1);
 
-for i = 1 : size(baseline,1)
+for i = 1 : height(baseline)
    
     % Map baseline times to ts indexes
-    ti = baseline(i,1);
+    ti = baseline.Start(i);
     c = find(data.sim.sim2track.cycle_times > ti, 1);
     if isempty(c); c = length(data.sim.sim2track.cycle_times)+1; end
     idx1 = find(t_eye < ti,1,'last');
-    idx2 = idx1 + find(t_eye(idx1+1:end) > baseline(i,2),1,'first');
+    idx2 = idx1 + find(t_eye(idx1+1:end) > baseline.End(i),1,'first');
     
     if idx2 > idx1
         idx_baseline(idx1:idx2) = true;
@@ -263,7 +263,7 @@ results.eye.epochs.intervals.baseline.pupil = cell(size(baseline_intervals,1),1)
 results.eye.epochs.intervals.baseline.saccade_rate = cell(size(baseline_intervals,1),1);
 results.eye.epochs.zscore.intervals.baseline.pupil = cell(size(baseline_intervals,1),1);
 for i = 1 : size(baseline_intervals,1)
-    results.eye.epochs.intervals.baseline.times(i) = mean(baseline(i,:));
+    results.eye.epochs.intervals.baseline.times(i) = mean([baseline.Start(i),baseline.End(i)]);
     results.eye.epochs.intervals.baseline.pupil(i) = ...
         {pd(baseline_intervals(i,1):baseline_intervals(i,2))};    
     results.eye.epochs.zscore.intervals.baseline.pupil(i) = ...
@@ -306,20 +306,28 @@ summary.zscore.cycles.passing.subjects.pupil = [summary.zscore.cycles.passing.su
 summary.baseline.subjects.saccade_rate = [summary.baseline.subjects.saccade_rate {results.eye.epochs.baseline.saccade_rate}];
 summary.passing.subjects.saccade_rate = [summary.passing.subjects.saccade_rate {results.eye.epochs.passing.saccade_rate}];
 
-N_cycles = length(data.sim.sim2track.cycle_times)+1;
+N_cycles = params.sim.rounds.max_cycles; % length(data.sim.sim2track.cycle_times)+1;
+N_cycles_subj = length(data.sim.sim2track.cycle_times)+1;
 
 if isempty(summary.cycles.baseline.pupil)
-    summary.cycles.baseline.pupil = results.eye.epochs.cycles.baseline.pupil;
-    summary.zscore.cycles.baseline.pupil = results.eye.epochs.zscore.cycles.baseline.pupil;
-    summary.cycles.passing.pupil = results.eye.epochs.cycles.passing.pupil;
-    summary.zscore.cycles.passing.pupil = results.eye.epochs.zscore.cycles.passing.pupil;
-else
-    N_cycles = min(N_cycles, length(summary.cycles.baseline.pupil));
-    for j = 1 : N_cycles
+    summary.cycles.baseline.pupil = cell(N_cycles,1);
+    summary.zscore.cycles.baseline.pupil = cell(N_cycles,1);
+    summary.cycles.passing.pupil = cell(N_cycles,1);
+    summary.zscore.cycles.passing.pupil = cell(N_cycles,1);
+
+end
+
+for j = 1 : N_cycles
+    if j <= N_cycles_subj
         summary.cycles.baseline.pupil(j) = {[summary.cycles.baseline.pupil{j};results.eye.epochs.cycles.baseline.pupil{j}]};
         summary.zscore.cycles.baseline.pupil(j) = {[summary.zscore.cycles.baseline.pupil{j};results.eye.epochs.zscore.cycles.baseline.pupil{j}]};
         summary.cycles.passing.pupil(j) = {[summary.cycles.passing.pupil{j};results.eye.epochs.cycles.passing.pupil{j}]};
         summary.zscore.cycles.passing.pupil(j) = {[summary.zscore.cycles.passing.pupil{j};results.eye.epochs.zscore.cycles.passing.pupil{j}]};
+    else
+        summary.cycles.baseline.pupil(j) = {[summary.cycles.baseline.pupil{j};{}]};
+        summary.zscore.cycles.baseline.pupil(j) = {[summary.zscore.cycles.baseline.pupil{j};{}]};
+        summary.cycles.passing.pupil(j) = {[summary.cycles.passing.pupil{j};{}]};
+        summary.zscore.cycles.passing.pupil(j);
     end
 end
 

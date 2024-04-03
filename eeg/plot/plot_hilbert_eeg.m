@@ -64,7 +64,7 @@ t_eye = data.eye.t / 60000;
 % t_eeg = results.eeg.hilbert.time / 60;
 
 Ylim_pd = 2 * scale_pd;
-Ylim_env = 2 * scale_env * N_bands;
+Ylim_env = 2 * N_bands;
 Ylim_total = scale_g / 2 * [-Ylim_pd - Ylim_env, Ylim_pd];
 
 Ysep_pd = scale_g * Ylim_pd / 2;
@@ -148,21 +148,25 @@ for i = N_bands : -1 : 1
     band = bands.Band{i};
     idx_i = find(strcmp(results.eeg.hilbert.bands.Band, band));
     
-    envelopes_i = results.eeg.hilbert.envelopes{idx_i};
-    y = zeros(length(idx_channels),length(envelopes_i{1}));
+    envelopes_i = results.eeg.hilbert.envelopes.zscore{idx_i};
+    y = nan(length(idx_channels),length(envelopes_i{1}));
     for j = 1 : length(idx_channels)
-       y(j,:) = abs(envelopes_i{idx_channels(j)});
+       yj = envelopes_i{idx_channels(j)};
+       if ~isempty(yj)
+           y(j,:) = abs(yj);
+       end
     end
 
-    t_eeg = results.eeg.hilbert.time{1}{1};
-    y = mean(y,1); y = y(:);
-    y(y>0) = zscore(y(y>0));
+    t_eeg = results.eeg.hilbert.envelopes.time/60000; % Seconds to minutes
+    y = mean(y,1,"omitmissing"); y = y(:);
     y(y==0) = nan;
+    y(~isnan(y)) = zscore(y(~isnan(y)));
+    
     y_offset = Ysep_pd + (i-1) * Ysep_env;
-    y = y - y_offset;
+    y = y*scale_env - y_offset;
     yticks = [yticks -y_offset];
     
-    hh = plot(t_eeg, y*scale_env);
+    hh = plot(t_eeg, y);
     hold on;
     clr = colors{i};
     if clr(1)=='#'

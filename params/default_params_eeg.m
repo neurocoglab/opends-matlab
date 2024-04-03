@@ -51,6 +51,7 @@ params.eeg.notch.cfg.bsfilttype = 'but';
 
 % ICA
 params.eeg.ica.apply = true;
+params.eeg.ica.use_existing = false;
 params.eeg.ica.cfg = [];
 params.eeg.ica.cfg.method = 'runica';
 params.eeg.ica.plots.save = true;
@@ -78,6 +79,8 @@ params.eeg.artifacts.zscore.cfg = cfg;
 
 params.eeg.artifacts.minaccepttim = 0.7;
 
+params.eeg.artifacts.remove_channels = {};
+
 % Interpolation
 params.eeg.artifacts.interpolate.apply = true;
 cfg = [];
@@ -104,7 +107,10 @@ params.eeg.hilbert.bands_file = 'hilbert_bands_eeg.csv';
 params.eeg.hilbert.downsample = 250;
 params.eeg.hilbert.save_filtered = false;
 
+params.eeg.hilbert.outlier_zscore = 3;
+
 params.eeg.hilbert.plots.save = true;
+params.eeg.hilbert.plot.show_plots = true;
 params.eeg.hilbert.plot.bands = 'all';
 params.eeg.hilbert.plot.channels = 'all';
 params.eeg.hilbert.plot.scale_pupil = 2;
@@ -112,6 +118,11 @@ params.eeg.hilbert.plot.smooth_pupil = 70;
 params.eeg.hilbert.plot.scale_envelope = 1;
 params.eeg.hilbert.plot.scale_general = 0.2;
 params.eeg.hilbert.plot.xlims = [0 4];
+params.eeg.hilbert.plot.topo.baseline_overtake.clim = [-3 3];
+params.eeg.hilbert.plot.topo.baseline_overtake.colormap = 'RdBu';
+
+params.eeg.hilbert.analysis.p_crit = 0.01;
+params.eeg.hilbert.analysis.p_crit_fdr = 0.05;
 
 % ERP analysis
 params.eeg.erp.apply = true;

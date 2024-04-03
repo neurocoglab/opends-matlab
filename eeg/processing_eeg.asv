@@ -22,8 +22,6 @@ end
 addpath(params.general.fieldtrip_lib);
 ft_defaults;
 
-addpath(params.general.plotly_lib);
-
 subjects = strsplit(strtrim(fileread(sprintf('%s/%s/%s', params.io.input_dir, ...
                                                          params.io.metadata_dir, ...
                                                          params.general.subjects_file))));
@@ -53,13 +51,6 @@ end
 
 clobber = params.general.clobber;
 
-try
-    plotlyoffline;
-catch ex
-    fprintf('\nAttempting to fetch plotlyoffline dependencies...');
-    getplotlyoffline(params.general.plotly_url);
-end
-
 fprintf('\n\n==== START OF EEG PROCESSING ===\n\n');
                                              
 fprintf('\nFound %d subjects.\n', length(subjects));
@@ -81,7 +72,7 @@ if params.eeg.hilbert.apply
     
     for i = 1 : length( subjects )
         
-        try
+%         try
 
             subject = subjects{i};
         
@@ -93,13 +84,13 @@ if params.eeg.hilbert.apply
             
             results_file = sprintf('%s/results_hilbert_eeg.mat', outdir);
 
-            flag_file_i = sprintf('%s/eeg_hilbert_processing.done', flagdir);
+            flag_file_i = sprintf('%s/eeg_hilbert.done', flagdir);
             if exist(flag_file_i, 'file') && ~clobber
                fprintf('\tHilbert processing already performed for subject %s.\n', subject);
                
                % Add to summary
                load( results_file );
-               summary = update_hilbert_summary_eeg( params, results, summary );
+               summary = update_hilbert_summary_eeg( results, summary );
                continue;
             end
 
@@ -130,20 +121,14 @@ if params.eeg.hilbert.apply
             
             fprintf('done.\n');
         
-        catch err
-            warning on;
-            warning('\nError encountered while processing %s:\n%s\n', subject, err.message);
-
-        end
+%         catch err
+%             warning on;
+%             warning('\nError encountered while processing %s:\n%s\n', subject, err.message);
+% 
+%         end
 
     end
       
-    summary_output_file = sprintf('%s/summary_hilbert_eeg.mat', results_dir);
-    save(summary_output_file, 'summary', '-v7.3');
-
-    flag_file = sprintf('%s/eeg_hilbert_processing.done', results_flagdir);
-    fclose( fopen( flag_file_i, 'w+' ) );
-
     fprintf('done.\n\nDone Hilbert processing.\n');
     
 end
@@ -152,13 +137,13 @@ end
 
 if params.eeg.hilbert.apply
 
-    flag_file = sprintf('%s/eeg_hilbert_processing.done', results_flagdir);
+    flag_file_i = sprintf('%s/eeg_hilbert.done', flagdir);
     
-    if ~exist('summary', 'var') || isempty(summary) && exist(flag_file, 'file')
-        summary_output_file = sprintf('%s/summary_hilbert_eeg.mat', results_dir);
-        load( summary_output_file );
-        % summary = update_hilbert_summary_eeg( params, results, [] );
-        fprintf('\nNote: loaded existing Hilbert results from file.\n');
+
+    if isempty(summary) && exist(flag_file_i, 'file')
+        results_file = sprintf('%s/results_hilbert_eeg.mat', outdir);
+        load( results_file );
+        
     end
 
     if isempty(summary)
@@ -167,19 +152,19 @@ if params.eeg.hilbert.apply
 
         fprintf('\nStarting Hilbert analysis.\n');
         
-        flag_file = sprintf('%s/eeg_hilbert_analysis.done', results_flagdir);
+        flag_file = sprintf('%s/flags/hilbert_eeg.done', results_flagdir);
         
         if exist(flag_file, 'file')
             delete(flag_file);
         end
         
-        analysis_summary = analyze_hilbert_eeg( params, summary );
+        summary = analyze_hilbert_eeg( params, summary );
 
-        summary_file = sprintf('%s/analysis_hilbert_eeg.mat', results_dir);
-        save(summary_file , 'analysis_summary', '-v7.3' );
+        summary_file = sprintf('%s/summary_hilbert_eeg.mat', results_dir);
+        save(summary_file , 'summary', '-v7.3' );
 
         if params.eeg.hilbert.plots.save
-            plot_hilbert_analysis_eeg( params, analysis_summary );
+            plot_hilbert_summary_eeg( params, analysis_summary, true );
         end
 
         fclose( fopen( flag_file, 'w+' ) );

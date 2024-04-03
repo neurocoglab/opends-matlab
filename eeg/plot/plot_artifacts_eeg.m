@@ -59,18 +59,18 @@ for i = 1 : length(intervals)
     hold on;
 end
 
-% for i = 1 : length(data.eye.blinks.blink_ints)
-%     ints_i = data.eye.blinks.blink_ints{i};
-%     ints_i = ints_i(~any(ints_i>max(idx_keep),2),:);
-%     for j = 1 : size(ints_i,1)
-%         xs = [x_eye(ints_i(j,1)) x_eye(ints_i(j,1)+ints_i(j,2))];
-%         hh = fill([xs(1) xs(1) xs(2) xs(2)],[-1000 1000 1000 -1000],[0.1 0.1 0.5]);     
-%         hh.EdgeColor = 'none';
-%         alpha(hh, 0.3);
-%         hold on;
-%     end
-% end
-    
+intervals = data.eye.blinks.intervals;
+intervals = intervals(~any(intervals>max(idx_keep),2),:);
+
+for i = 1 : length(intervals)
+    xs = [x_eye(intervals(i,1)) x_eye(intervals(i,2))];
+    hh = fill([xs(1) xs(1) xs(2) xs(2)],[-1000 1000 1000 -1000],[0.1 0.1 0.5]);     
+    hh.EdgeColor = 'none';
+    alpha(hh, 0.3);
+    hold on;
+end
+
+
 L = 0;
 lens = zeros(length(data.eeg.ft.time),1);
 for c = 1 : length(data.eeg.ft.time)

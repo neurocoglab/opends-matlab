@@ -1,0 +1,61 @@
+function [ h ] = plot_hilbert_summary_eeg(params, summary)
+%PLOT_HILBERT_SUMMARY_EEG Plots Hilbert summary statistics. Requires that
+% analyze_hilbert_eeg.m has already been run.
+
+N_subj = length(summary.subjects);
+N_channels = length(summary.channels);
+N_bands = height(summary.bands);
+stats.mean.baseline.all = zeros(N_subj,N_bands,N_channels);
+stats.mean.overtake.all = zeros(N_subj,N_bands,N_channels);
+
+if params.sim.epochs.difficulty.apply
+    stats.mean.overtake.difficulty = zeros(N_subj,N_bands,N_channels,size(summary.epochs.stats.overtake.difficulty.mean{1},3));
+end
+if params.sim.epochs.outcomes.apply
+    stats.mean.overtake.outcomes = zeros(N_subj,N_bands,N_channels,size(summary.epochs.stats.overtake.outcomes.mean{1},3));
+end 
+
+for i = 1 : N_subj
+    stats.mean.baseline.all(i,:,:) = summary.epochs.stats.baseline.mean{i};
+    stats.mean.overtake.all(i,:,:) = summary.epochs.stats.overtake.mean{i};
+    stats.mean.baseline.cycles(i,:,:,:) = summary.epochs.stats.baseline.cycles.mean{i};
+    if params.sim.epochs.difficulty.apply
+        stats.mean.overtake.difficulty(i,:,:,:) = summary.epochs.stats.overtake.difficulty.mean{i};
+    end
+    if params.sim.epochs.outcomes.apply
+        stats.mean.overtake.outcomes(i,:,:,:) = summary.epochs.stats.overtake.outcomes.mean{i};
+    end 
+end
+
+% 1. Epochs
+%    Does Hilbert envelope magnitude (z-scored) differ between epochs? 
+% Strategy: compute paired t-test stats for each electrode
+%           correct for FWE with FDR < 0.05
+band = summary.bands.Band{bb};
+stats.ttest.(band) = [];
+
+%    1.1. Passing vs. baseline
+
+data = cell(N_bands,1);
+
+% Boxplots groups by frequency band
+for bb = 1 : N_bands
+    result = stats.ttest.grand_mean.(band).baseline_overtakes;
+    x1 = cell(size(result.data,1),1);
+    x1{:} = result.groups{1};
+    x2 = cell(size(result.data,1),2);
+    x2{:} = result.groups{2};
+    x = [x1;x2];
+    data_bb = struct( ...
+        'y', result.data(:), ...
+        'x', x, ...
+        name = );
+    
+    data(bb) = data_bb;
+
+end
+
+
+
+end
+

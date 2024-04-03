@@ -199,7 +199,7 @@ for bb = 1 : N_bands
 
         % Overtake - outcomes
         if params.sim.epochs.outcomes.apply
-            results.eeg.hilbert.epochs.overtake.outcome = overtake_info.outcomes;
+            results.eeg.hilbert.epochs.overtake.outcome = overtake_info.o;
             for k = 1 : length(params.sim.epochs.outcomes.levels)
                 level = params.sim.epochs.outcomes.levels(k);
                 results.eeg.hilbert.epochs.stats.overtake.outcomes.mean(bb,cc,k) = ...

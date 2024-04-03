@@ -27,6 +27,8 @@ subjects = strsplit(strtrim(fileread(sprintf('%s/%s/%s', params.io.input_dir, ..
                                                          params.io.metadata_dir, ...
                                                          params.general.subjects_file))));
 
+results_table_file = sprintf('%s/eeg_ica_removed.csv', params.io.results_dir);
+
 fprintf('\n\n==== START OF EEG PRE-PROCESSING STEP 2 ===\n\n');
                                              
 fprintf('\nFound %d subjects.\n', length(subjects));
@@ -54,18 +56,35 @@ for i = 1 : length(subjects)
         
         flag = 'eeg_preproc_2.done';
         flag_file = sprintf( '%s/%s', flagdir, flag );
+        input_file = sprintf('%s/results_preproc_eeg_1.mat', outdir);
+        results_file = sprintf('%s/results_preproc_eeg_2.mat', outdir);
 
-        if ~params.general.clobber && exist(flag_file, 'file')
-            fprintf('\n\tICA rejection already performed for subject %s! Skipping.\n', subject);
-            continue;
+        if exist(flag_file, 'file')
+            if ~params.general.clobber
+                fprintf('\n\tICA rejection already performed for subject %s! Skipping.\n', subject);
+                continue;
+            elseif params.eeg.ica.use_existing && exist(results_file, 'file')
+                % Reuse existing ICA components
+                load(results_file, 'data');
+                to_rem = data.eeg.ica.removed;
+                load( input_file, 'data' );
+                cfg = [];
+                cfg.component = to_rem;
+                [~,data.eeg.ft] = evalc('ft_rejectcomponent(cfg, data.eeg.ica, data.eeg.ft)');
+                data.eeg.ica.removed = to_rem;
+                save(results_file, 'data', '-v7.3');
+                fclose( fopen(flag_file,'w+') );
+                close all;
+
+                fprintf('\n\tReused existing ICA component rejections for %s.\n', subject);
+                continue;
+            end
         end
 
         delete_flags( flag, flagdir );
 
         fprintf('\n\tProcessing subject %s.\n', subject);
 
-        input_file = sprintf('%s/results_preproc_eeg_1.mat', outdir);
-        results_file = sprintf('%s/results_preproc_eeg_2.mat', outdir);
         load( input_file, 'data' );
 
         cfg = params.eeg.ica.plots.cfg;
@@ -104,6 +123,25 @@ for i = 1 : length(subjects)
             %saveas(gcf,sprintf('%s/eeg_ica_browser.fig',figdir));
             saveas(h,sprintf('%s/eeg_ica_topoplot.png',figdir));
         end
+
+        % Save channels to CSV table
+        row = cell2table({subject,channels}, "VariableNames", {'Subject','ComponentsRemoved'});
+        if ~exist(results_table_file, 'file')
+            table = row;
+        else
+            opts = detectImportOptions(results_table_file, 'Delimiter', ',');
+            opts.VariableTypes{1} = 'char';
+            opts.VariableNamingRule = 'preserve';
+            opts.Delimiter = ',';
+            table = readtable(results_table_file, opts);
+            % Remove any existing records
+            idx = find(strcmp(table.Subject,subject));
+            if ~isempty(idx)
+                table(idx,:) = [];
+            end
+            table = [table;row];
+        end
+        writetable(table, results_table_file);
 
         fclose( fopen(flag_file,'w+') );
 

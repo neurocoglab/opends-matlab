@@ -1,4 +1,4 @@
-function [ T ] = interpolate_baseline_intervals_sim( intervals, tgaps, M )
+function [ btable ] = interpolate_baseline_intervals_sim( intervals, tgaps, M )
 %
 % Interpolates baseline intervals from the matrix M into log times. Returns
 % an M x 2 matrix defining the intervals as start and end log times
@@ -16,7 +16,8 @@ cycle = 1;
 % cycles = cell2mat(M(:,idx_cycle));
 cycles = M.Cycle;
 N_cycles = max(cycles);
-T = zeros(0,2);
+T=zeros(0,2);
+CR=zeros(0,2);
 
 while cycle <= N_cycles
 
@@ -46,10 +47,14 @@ while cycle <= N_cycles
                break;
            end
            
+           % This deals with cases where start distance is outside 
+           % round distances (edge cases)
            d1 = find(dists<=d_start,1,'last');
+           if isempty(d1), d1=1; end
            d2 = find(dists>=d_start,1,'first');
+           if d2 < d1, d2=d1; end
            
-           if ~(isempty(d1) || isempty(d2)) 
+           if ~isempty(d2)
            
                if d1 == d2
                   ratio = 0; 
@@ -73,6 +78,7 @@ while cycle <= N_cycles
                else
                    d1 = find(dists<=d_end,1,'last');
                    d2 = find(dists>=d_end,1,'first');
+                   if isempty(d2), d2=length(dists); end
 
                    if d1 == d2
                       ratio = 0; 
@@ -89,7 +95,11 @@ while cycle <= N_cycles
                
                T(end+1,:) = [t1 t2];
            
+           else
+               a=0;
+               T(end+1,:) = [nan nan];
            end
+           CR(end+1,:) = [cycle repeat];
            
         end
         
@@ -98,4 +108,10 @@ while cycle <= N_cycles
     
     cycle = cycle + 1;
 end
+
+btable = table;
+btable.Cycle = CR(:,1);
+btable.Repeat = CR(:,2);
+btable.Start = T(:,1);
+btable.End = T(:,2);
 

@@ -85,7 +85,6 @@ params.eye.epochs.plots.scatter = false;
 params.eye.epochs.plots.show_webplots = true;
 
 
-
 %% Processing/analysis - events
 params.eye.events.apply = true;
 params.eye.events.zscore = true;

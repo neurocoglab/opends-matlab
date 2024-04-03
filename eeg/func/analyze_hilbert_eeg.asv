@@ -408,9 +408,6 @@ for i = 1 : length(subjects)
     % PD for this subject
     Xi = X(S==i);
 
-    % Baseline/overtake epoch indices
-    idx = [summary.epochs.index.baseline{i};summary.epochs.index.overtake{i}];
-
     Rho = nan(N_bands,N_channels,2);
     Pvals = nan(N_bands,N_channels,2);
     
@@ -419,9 +416,8 @@ for i = 1 : length(subjects)
             % Hilbert for this band/channel
             Yibj = Y{bb,j}(S==i);
             
-            for k = 1 : 2
-                 [Rho(bb,j),Pvals(bb,j)] = corr(Xi(idx(:,k)),Yibj(:,k));
-            end
+            % Baseline
+            stats.corr.eye.diam.baseline.rho = 
         end
     end
 

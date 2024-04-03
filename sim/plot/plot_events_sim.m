@@ -56,9 +56,9 @@ function [ h ] = plot_events_sim( params, data, events, out2file )
         
        intervals = data.sim.sim2track.baseline;
        
-       for j = 1 : size(intervals,1)
-          x1 = intervals(j,1) / 60000;
-          x2 = intervals(j,2) / 60000;
+       for j = 1 : height(intervals)
+          x1 = intervals.Start(j) / 60000;
+          x2 = intervals.End(j) / 60000;
           
           if x2 > x1
           rectangle('Position',[x1 -500 x2-x1 1000], ...

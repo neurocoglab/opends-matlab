@@ -38,6 +38,15 @@ results_flagdir = sprintf('%s/flags', results_dir);
 if ~exist(results_flagdir, 'dir')
    mkdir( results_flagdir ); 
 end
+
+addpath(params.general.plotly_lib);
+try
+    plotlyoffline;
+catch ex
+    addpath([params.general.plotly_lib '/..']);
+    fprintf('\nAttempting to fetch plotlyoffline dependencies...');
+    plotlysetup_offline(params.general.plotly_url);
+end
                                                      
 fprintf('\n\n==== START OF PROCESSING ===\n\n');
                                              

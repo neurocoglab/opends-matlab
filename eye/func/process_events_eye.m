@@ -93,14 +93,14 @@ t = data.eye.t;
 baseline = data.sim.sim2track.baseline;
 idx_baseline = zeros(0,2);
 t_baselines = [];
-for i = 1 : size(baseline,1)
+for i = 1 : height(baseline)
    
     % Map baseline times to ts indexes
-    ti = baseline(i,1);
+    ti = baseline.Start(i);
 %     c = find(data.sim.sim2track.cycle_times > ti, 1);
 %     if isempty(c); c = length(data.sim.sim2track.cycle_times)+1; end
     idx1 = find(t_pd < ti,1,'last');
-    idx2 = idx1 + find(t_pd(idx1+1:end) > baseline(i,2),1,'first');
+    idx2 = idx1 + find(t_pd(idx1+1:end) > baseline.End(i),1,'first');
     
     if idx2 > idx1
         idx_baseline(end+1,:) = [idx1,idx2];

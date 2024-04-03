@@ -42,10 +42,18 @@ if params.eeg.artifacts.zscore.apply
    
    cfgz = params.eeg.artifacts.zscore.cfg;
    cfgz.artfctdef.zvalue.channel = data.eeg.eeg_channels;
+   to_keep = [];
+   for ii = 1 : length(cfgz.artfctdef.zvalue.channel)
+       if ~any(strcmp(params.eeg.artifacts.remove_channels, cfgz.artfctdef.zvalue.channel{ii}))
+           to_keep = [to_keep ii];
+       end
+   end
+   cfgz.artfctdef.zvalue.channel = cfgz.artfctdef.zvalue.channel(to_keep);
    
    [~, ~, artifacts] = evalc('ft_artifact_zvalue(cfgz, data.eeg.ft);');
    
    cfg.artfctdef.zvalue.artifact = artifacts;
+   data.eeg.z_artifacts = artifacts;
     
 end
 
@@ -66,6 +74,8 @@ if params.eeg.artifacts.interpolate.apply
     cfg.feedback = 'no';
     [~, data.eeg.ft] = evalc('ft_interpolatenan_corrected(cfg, data.eeg.ft);');
 end
+
+a=1;
 
 
 end
