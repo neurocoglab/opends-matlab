@@ -3,6 +3,7 @@
 
 %% I/O parameters
 params.io.input_dir = '';
+params.io.original_dir = '';
 params.io.output_dir = '';
 params.io.metadata_dir = 'metadata';
 params.io.results_dir = '';

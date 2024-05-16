@@ -3,7 +3,7 @@ function [ ok, score ] = convert_log_sim( params, subject )
 
 ok = true;
 
-subj_dir = sprintf('%s/%s/%s', params.io.input_dir, params.sim.sub_dir, subject);
+subj_dir = sprintf('%s/%s/%s', params.io.original_dir, params.sim.sub_dir, subject);
 log_file = sprintf('%s/%s%s.log', subj_dir, params.sim.convert.prefix, subject);
 exec = fullfile(params.general.matlab_dir, 'bin', params.sim.convert.exec);
 outdir = sprintf('%s/%s/%s', params.io.output_dir, subject, params.sim.sub_dir);
@@ -47,7 +47,7 @@ if status ~= 0 || contains(result,'Exception')
 end
 
 % Compile final scores for all subjects
-score = get_subject_score( params, subject );
+score = get_subject_score( params, subject, log_file );
 
 % Write to file
 fid = fopen(sprintf('%s/final_score.csv', outdir),'w');

@@ -3,7 +3,7 @@ function [ ok ] = convert_eyelog_eyelink( subject, params )
 %                       (or multiple logs) to CSV files
 %
 
-subj_dir = sprintf('%s/%s/%s', params.io.input_dir, params.eye.sub_dir, subject);
+subj_dir = sprintf('%s/%s/%s', params.io.original_dir, params.eye.sub_dir, subject);
 output_dir = sprintf('%s/%s/%s', params.io.output_dir, subject, params.eye.sub_dir);
 temp_dir = sprintf('%s/tmp', output_dir);
 

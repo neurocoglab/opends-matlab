@@ -1,4 +1,4 @@
-function [ T, hdr ] = import_samples( csv_file )
+function [ T, hdr ] = import_samples_eye( csv_file )
 
 fileString = fixLineEndings(fileread(csv_file));
 fileString = regexprep(fileString, '"[^"]*"','""');

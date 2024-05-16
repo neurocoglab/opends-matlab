@@ -66,11 +66,11 @@ summary.stats.passing_baseline_rounds.lm_round_pass = fitlme(tbl_pass,'PD~Round+
 % 3. LM: Passing - Baseline PD Difference v. Performance
  
 id_subs = subject_data.(params.sim.metadata.uid_field);
-id_subcell = cell(length(id_subs),1);
-for i = 1 : length(id_subs)
-    id_subcell(i) = {sprintf('%d',id_subs(i))}; 
-end
-id_subs = id_subcell;
+% id_subcell = cell(length(id_subs),1);
+% for i = 1 : length(id_subs)
+%     id_subcell(i) = {sprintf('%d',id_subs(i))}; 
+% end
+% id_subs = id_subcell;
 subjects = sort(intersect(id_subs, summary.subjects));
 DeltaPD = [];
 PD_passing = [];

@@ -5,6 +5,8 @@ function [ h ] = plot_events_sim( params, data, events, out2file )
     end
 
     time_min = data.eye.t / 60000;
+    mint = time_min(1); 
+    maxt = time_min(end);
             
     round_clr = params.sim.rounds.plots.color;
     round_line_color = [1 0 0];
@@ -149,14 +151,16 @@ function [ h ] = plot_events_sim( params, data, events, out2file )
     end
     plot(time_min, pdiam, 'Color', noisy_colour);
     xsm = smooth(pdiam,250,'sgolay');
+    xsm(xsm==0) = nan;
     plot(time_min, xsm, 'b');
     
     % Really smooth
     xxsm = smooth(pdiam,20000,'moving');
+    xxsm(xxsm==0) = nan;
     plot(time_min, xxsm, 'Color', [.3 .3 .3], 'LineWidth', 1.5);
-    
-    minx = min(xsm); maxx = max(xsm);
-    minx = minx-minx*0.1; maxx = maxx+maxx*0.1;
+
+    miny = min(pdiam); maxy = max(pdiam);
+    miny = miny-miny*0.1; maxy = maxy+maxy*0.1;
     
     ymax = max(xsm);
     
@@ -173,7 +177,7 @@ function [ h ] = plot_events_sim( params, data, events, out2file )
     if any(strcmp(events,'Rounds'))
         
         % First cycle
-        hh = text(0.05, double(maxx-0.01*maxx),'1.1');
+        hh = text(0.05, double(maxy-0.01*maxy),'1.1');
             set(hh,'Color', round_line_color);
             set(hh,'FontWeight', 'bold');
         
@@ -186,7 +190,7 @@ function [ h ] = plot_events_sim( params, data, events, out2file )
                  'Color', round_line_color, ...
                  'LineWidth', 1.5);
            
-            hh = text((x1+0.05), double(maxx-0.01*maxx),sprintf('%d.1',j+1));
+            hh = text((x1+0.05), double(maxy-0.01*maxy),sprintf('%d.1',j+1));
             set(hh,'Color', round_line_color);
             set(hh,'FontWeight', 'bold');
              
@@ -209,7 +213,7 @@ function [ h ] = plot_events_sim( params, data, events, out2file )
                  'LineStyle', '--', ...
                  'LineWidth', 1.5);
            
-           hh = text((x1+0.05), double(maxx-0.01*maxx),sprintf('%d.%d',cycle,repeat));
+           hh = text((x1+0.05), double(maxy-0.01*maxy),sprintf('%d.%d',cycle,repeat));
            set(hh,'Color', round_line_color);
            set(hh,'FontWeight', 'bold');
            
@@ -247,7 +251,7 @@ function [ h ] = plot_events_sim( params, data, events, out2file )
 
 %     grid on;
     
-    hh = title('Pupil diameter with simulation events');
+    hh = title(sprintf('Pupil diameter with simulation events: Subject %s', data.subject));
     set (hh, 'FontSize', 16);
     
     hh = xlabel('Time (min)');
@@ -255,7 +259,8 @@ function [ h ] = plot_events_sim( params, data, events, out2file )
     hh = ylabel('Pupil diameter (mm)');
     set (hh, 'FontSize', 14);
     
-    ylim([minx,maxx]);
+    ylim([miny,maxy]);
+    xlim([mint,maxt]);
     h.Position=([400 400 1500 500]);
 %     resize_window(h, [1500 500], [400 400]);
     

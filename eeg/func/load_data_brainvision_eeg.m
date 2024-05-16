@@ -10,7 +10,7 @@ ok = true;
 % Check that data exists; unzip if necessary
 data = [];
 
-subj_dir = sprintf('%s/%s/%s', params.io.input_dir, params.eeg.sub_dir, subject);
+subj_dir = sprintf('%s/%s/%s', params.io.original_dir, params.eeg.sub_dir, subject);
 
 cfg = params.eeg.cfg;
 cfg.headerfile = sprintf('%s/%s-eeg/%s.vhdr', subj_dir, subject, subject);

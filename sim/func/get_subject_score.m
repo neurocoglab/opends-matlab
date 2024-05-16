@@ -1,8 +1,8 @@
-function [ score ] = get_subject_score( params, subject )
+function [ score ] = get_subject_score( params, subject, log_file )
 
 % Open subject simlog
-subj_dir = sprintf('%s/%s/%s', params.io.input_dir, params.sim.sub_dir, subject);
-log_file = sprintf('%s/%s%s.log', subj_dir, params.sim.convert.prefix, subject);
+% subj_dir = sprintf('%s/%s/%s', params.io.input_dir, params.sim.sub_dir, subject);
+% log_file = sprintf('%s/%s%s.log', subj_dir, params.sim.convert.prefix, subject);
 if ~exist(log_file, 'file')
    score = nan;
    return;

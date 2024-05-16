@@ -154,7 +154,7 @@ end
 % end
 
 
-if out2file || params.epochs.plot_scatter
+if out2file || params.eye.epochs.scatter
 
     % Subject score versus pupil dilation
     subjects = summary.stats.passing_baseline_dscore.data.Subject;

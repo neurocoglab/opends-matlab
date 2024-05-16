@@ -21,12 +21,13 @@ for j = 1 : size(data.eye.blinks.intervals,1)
    x1 = time_sec(data.eye.blinks.intervals(j,1));
    try
    x2 = time_sec(data.eye.blinks.intervals(j,2));
-   catch
-       a=0;
-   end
+   
    hr = rectangle('Position',[x1 -500 x2-x1 1000], ...
                   'EdgeColor','w', ...
                   'FaceColor', blink_clr); 
+   catch
+       a=0;
+   end
 end
 
 % for j = 1 : length(data.eye.blinks.blink_ints)

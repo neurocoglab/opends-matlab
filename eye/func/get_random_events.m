@@ -1,5 +1,6 @@
 function rand_events = get_random_events( events, N_rand, prepost, idx_bl )
 
+    window_width = diff(prepost);
     prepost(1) = -prepost(1);
     N_event = length(events);
     rand_events = nan(N_event, N_rand);
@@ -30,11 +31,21 @@ function rand_events = get_random_events( events, N_rand, prepost, idx_bl )
         end
         
         % Assume baseline interval is longer than event window
-        bl_int = idx_bl(idx_cl,:) - prepost;
+        if diff(idx_bl(idx_cl,:)) < window_width
+            % Edge case
+            bl_int = [idx_bl(idx_cl,2)-window_width;idx_bl(idx_cl,2)];
+        else
+            bl_int = idx_bl(idx_cl,:) - prepost;
+        end
+
         if any(bl_int<0)
             % ...
         else
-            rand_events(i,:) = bl_int(1) + randi(bl_int(2),N_rand,1);
+            try
+            rand_events(i,:) = randi(bl_int,N_rand,1);
+            catch ex
+                a=0;
+            end
         end
     end
     

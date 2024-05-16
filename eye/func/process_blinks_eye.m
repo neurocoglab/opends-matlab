@@ -2,7 +2,7 @@
 % Finds and removes eye blinks in eye tracking data.eye
 %
 % Author: Andrew Reid
-% Copyright (c) Andrew Reid, Univeristy of Nottingham, 2018
+% Copyright (c) Andrew Reid, Tilburg University, 2024
 %
 % Inputs:
 %   data.eye:     A struct containing the pupil data.eye, with fields:
@@ -24,11 +24,11 @@
 %                       reopening.
 %                interval: Defines the time interval over which to interpolate across the
 %                          eyeblink events. interval(1) is time before onset and 
-%                          interval(2) is time after reopening.
+%                          interval(2) is time after reopening. Specified in ms.
 %                window: Time window for computing the blink rate as a moving average.
 %                        Specified in ms.
 %                maxblink: Maximal duration of a blink event; blinks longer than this will 
-%                          be ignored.
+%                          be ignored. Specified in ms.
 % 
 % Outputs:
 %
@@ -47,9 +47,11 @@
 function [ data ] = process_blinks_eye ( data, params )
        
 x = data.eye.(params.eye.blinks.criterion);  % Usually, pupil diameter
+x(isnan(x)) = 0;
 N = length(x);
 
 delta_t = 1 / data.eye.Fs * 1000;
+max_blink = params.eye.blinks.maxblink * delta_t;
 
 data.eye.blinks = [];
 data.eye.blinks.blinks = zeros(N,1);
@@ -99,7 +101,7 @@ for j = 1 : size(data.eye.tgap,1) + 1
        % end case
        data.eye.blinks.pos_x(idx) = data.eye.pos_x(idx);
        data.eye.blinks.pos_y(idx) = data.eye.pos_y(idx);
-       data.eye.blinks.diam(idx) = data.eye.diam(idx);
+       data.eye.blinks.diam(idx) = x(idx);
    end
    
    idx = idx2 + 1;
@@ -146,10 +148,12 @@ end
 data = get_blink_rate( data );
 
 % patch up nans if necessary
-idx = find(isnan(data.eye.blinks.pos_x));
-data.eye.blinks.pos_x(idx) = data.eye.pos_x(idx-1);
-data.eye.blinks.pos_y(idx) = data.eye.pos_y(idx-1);
-data.eye.blinks.diam(idx) = data.eye.diam(idx-1);
+% idx = find(isnan(data.eye.blinks.pos_x));
+% if ~isempty(idx)
+%     data.eye.blinks.pos_x(idx) = data.eye.pos_x(idx-1);
+%     data.eye.blinks.pos_y(idx) = data.eye.pos_y(idx-1);
+%     data.eye.blinks.diam(idx) = data.eye.diam(idx-1);
+% end
 
     function [ blinks, blink_ints, intervals, pct_fixed, d_x, data_seg_out ] = ...
                                                 process_segment( seg, data_seg, seg_idx )
@@ -178,7 +182,7 @@ data.eye.blinks.diam(idx) = data.eye.diam(idx-1);
                 ismax = false;
                 while i <= Ns && d_x(i) < params.eye.blinks.thres(2) && ~ismax
                     i = i + 1;
-                    ismax = (i - i_b0) > params.eye.blinks.maxblink;
+                    ismax = (i - i_b0) > max_blink;
                 end
 
 				if ~ismax

@@ -18,17 +18,24 @@ for i = 1 : length(presses)
 end
 times = data.sim.messagebutton.values.Millis - data.sim.t_start;
 
-buttons = unique(button_map.Source);
+
+[buttons,idx_b] = unique(button_map.Source);
+if any(strcmp(button_map.Properties.VariableNames, 'Name'))
+    button_names = button_map.Name(idx_b);
+else
+    button_names = buttons;
+end
 result = [];
 result.buttons = buttons;
 
-for i = 1 : length(buttons)
+for i = 1 : length(button_names)
 
     button = buttons{i};
+    button_name = button_names{i};
     idx = find(strcmp(button_map.Source,button));
     button_map_i = button_map(idx,:);
     
-    idx = find(strcmp(presses, button));
+    idx = find(strcmp(presses, button_name));
     result.(button).times = interpolate_log_times_sim( M, times(idx) );
     idx2 = ~isnan(result.(button).times);
     idx = idx(idx2);

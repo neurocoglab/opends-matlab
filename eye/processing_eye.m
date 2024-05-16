@@ -21,7 +21,8 @@ metadata_file = sprintf('%s/%s/%s', params.io.input_dir, ...
                                     params.general.subject_metadata_file);
 
 opt = detectImportOptions(metadata_file);
-opt.VariableOptions(1).Name = 'SubjectID';
+opt.VariableOptions(1).Name = params.sim.metadata.uid_field;
+opt.VariableTypes(1) = {'char'};
 subject_data = readtable(metadata_file, opt);
 
 results_dir = params.io.results_dir;
@@ -39,10 +40,9 @@ if ~exist(results_flagdir, 'dir')
    mkdir( results_flagdir ); 
 end
 
-addpath(params.general.plotly_lib);
-try
-    plotlyoffline;
-catch ex
+addpath(genpath(params.general.plotly_lib));
+
+if isempty(which('plotlyoffline'))
     addpath([params.general.plotly_lib '/..']);
     fprintf('\nAttempting to fetch plotlyoffline dependencies...');
     plotlysetup_offline(params.general.plotly_url);
@@ -101,7 +101,7 @@ subjects = subjects_filter;
 % If no SimScore column is present, add it to the table
 if ~any(strcmp(subject_data.Properties.VariableNames, 'SimScore'))
 
-    subject_data.SimScore = nan(height(subject_data),1);
+    subject_data.(params.sim.metadata.score_field) = nan(height(subject_data),1);
 
     for i = 1 : length(subjects)
 
@@ -113,10 +113,10 @@ if ~any(strcmp(subject_data.Properties.VariableNames, 'SimScore'))
            fclose(fid_i);
            score = str2double(tline);
 
-           idx = find(subject_data.(params.sim.metadata.uid_field) == str2double(subject));
+           idx = find(strcmp(subject_data.(params.sim.metadata.uid_field), subject));
 
            if ~isempty(idx)
-               subject_data.SimScore(idx) = score;
+               subject_data.(params.sim.metadata.score_field)(idx) = score;
            end
 
         end
@@ -197,8 +197,8 @@ if params.eye.epochs.apply
             end
             if params.general.show_error_stack
                 fprintf(2, '%s\n', getReport(err, 'extended'));
-                ok = false;
-                break;
+                % ok = false;
+                % break;
             else
                 warning on;
                 warning('\nError encountered while processing %s:\n%s\n', subject, err.message);
@@ -213,6 +213,11 @@ if params.eye.epochs.apply
 
     summary_file = sprintf('%s/summary_epochs_eye.mat', results_dir);
     save(summary_file , 'summary', '-v7.3' );
+
+    % Save epochs table
+    epochs_table = sortrows(summary.epochs_table, [1 4]);
+    table_file = sprintf('%s/all_epochs_eye.csv', results_dir);
+    writetable(epochs_table, table_file);
 
     if params.eye.epochs.plots.save
         plot_epoch_summary_eye( params, summary, true );

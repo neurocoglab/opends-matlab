@@ -9,6 +9,12 @@ function [ results, summary ] = process_epochs_eye( params, data, summary )
 % Data:     pupil diameter, saccade rate, blink rate
 %
 
+hdr_epochs = {'SubjectID','EpochID','EpochType','TimeStart','TimeEnd','Cycle','MeanPupil','Outcome'};
+
+if params.sim.epochs.difficulty.apply
+    hdr_epochs = [hdr_epochs;{'Difficulty'}];
+end
+
 if isempty(summary)
     summary.subjects = [];
     summary.baseline.pupil = [];
@@ -50,11 +56,16 @@ if isempty(summary)
 
     summary.baseline.subjects.saccade_rate = [];
     summary.passing.subjects.saccade_rate = [];
+
+    summary.epochs_table = [];
     
 end
 
 results = [];
 results.subject = data.subject;
+
+epochs_table = cell2table(cell(0,length(hdr_epochs)), 'VariableNames', hdr_epochs);
+current_epoch = 1;
 
 % Load sequence difficulty ratings
 if params.sim.epochs.difficulty.apply
@@ -83,6 +94,15 @@ else
     end
 end
 
+pd = pd(:);
+idx_nan = isnan(pd);
+pdz = pd;
+pdz(idx_nan) = mean(pdz(~idx_nan));
+pdz = zscore(pdz);
+pdz(idx_nan) = nan;
+
+sr = data.eye.saccades.saccade_rate;
+
 N = length(t_eye);
 idx_baseline = false(N,1);
 baseline_intervals = zeros(0,2);
@@ -105,6 +125,15 @@ for i = 1 : height(baseline)
         catch
            a=0; 
         end
+        % Append to table
+        cycle = get_cycle(data.sim.sim2track, data.eye.t(idx1));
+        row_data = {data.subject, current_epoch, 'Baseline', data.eye.t(idx1), data.eye.t(idx2), cycle, mean(pdz(idx1:idx2)), ''};
+        if params.sim.epochs.difficulty.apply
+            row_data = [row_data {''}];
+        end
+        row = cell2table(row_data, 'VariableNames', hdr_epochs);
+        epochs_table = [epochs_table;row];
+        current_epoch = current_epoch + 1;
     end
     
 end
@@ -172,13 +201,22 @@ for j = 1 : length(left_right)
               end
               
               % Assign outcome to this interval
-              outcome = get_outcome(data.sim.sim2track, ...
-                                                       [this_left this_right]);
+              outcome = get_outcome(data.sim.sim2track, [this_left this_right]);
+              cycle = get_cycle(data.sim.sim2track, this_left);
 
               passing_outcomes(idx1:idx2) = repmat(outcome,idx2-idx1+1,1);
 
               results.eye.epochs.overtake_outcomes(end+1) = outcome;
           
+              % Append to table
+              row_data = {data.subject, current_epoch, 'Passing', data.eye.t(idx1), data.eye.t(idx2), cycle, mean(pdz(idx1:idx2)), outcome};
+              if params.sim.epochs.difficulty.apply
+                  row_data = [row_data {passing_diff(idx1)}];
+              end
+              row = cell2table(row_data, 'VariableNames', hdr_epochs);
+              epochs_table = [epochs_table;row];
+              current_epoch = current_epoch + 1;
+
           end
                                                
       end
@@ -194,10 +232,7 @@ end
 % else
 %     pd = data.eye.diam_left;
 % end
-pd = pd(:);
-pdz = zscore(pd);
 
-sr = data.eye.saccades.saccade_rate;
 
 results.eye.epochs.baseline.pupil = pd(idx_baseline);
 results.eye.epochs.nobaseline.pupil = pd(~idx_baseline);
@@ -292,6 +327,8 @@ end
 
  % Aggregate summary stats
 summary.subjects = [summary.subjects {data.subject}];
+
+summary.epochs_table = [summary.epochs_table;epochs_table];
 
 summary.baseline.subjects.pupil = [summary.baseline.subjects.pupil {results.eye.epochs.baseline.pupil}];
 summary.passing.subjects.pupil = [summary.passing.subjects.pupil {results.eye.epochs.passing.pupil}];

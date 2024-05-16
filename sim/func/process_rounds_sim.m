@@ -29,24 +29,30 @@ info_file = sprintf('%s/%s/%s', params.io.input_dir, ...
                                     params.io.metadata_dir, ...
                                     params.general.participant_info_file);
 
-opt = detectImportOptions(info_file);
-opt.VariableNamingRule = 'preserve';
-opt.VariableNames(1) = {'SubjectID'};
-opt.VariableOptions(1).Name = 'SubjectID';
-opt.VariableTypes(1) = {'char'};
-idx = find(strcmp(opt.VariableNames, 'Version'),1);
-has_version = ~isempty(idx);
-if has_version
-    opt.VariableTypes(idx) = {'char'};
-end
+if exist(info_file, 'file')
 
-subject_data = readtable(info_file, opt);
-subject_data = subject_data(strcmp(subject_data.SubjectID, data.subject),:);
-if height(subject_data) == 0 || ~has_version
-    warning('Subject %s is has no version info. Assuming version is %s.', data.subject, params.sim.version);
-    sim_version = params.sim.version;
+    opt = detectImportOptions(info_file);
+    opt.VariableNamingRule = 'preserve';
+    opt.VariableNames(1) = {'SubjectID'};
+    opt.VariableOptions(1).Name = 'SubjectID';
+    opt.VariableTypes(1) = {'char'};
+    idx = find(strcmp(opt.VariableNames, 'Version'),1);
+    has_version = ~isempty(idx);
+    if has_version
+        opt.VariableTypes(idx) = {'char'};
+    end
+    
+    subject_data = readtable(info_file, opt);
+    subject_data = subject_data(strcmp(subject_data.SubjectID, data.subject),:);
+    if height(subject_data) == 0 || ~has_version
+        warning('Subject %s is has no version info. Assuming version is %s.', data.subject, params.sim.version);
+        sim_version = params.sim.version;
+    else
+        sim_version = subject_data.Version{1};
+    end
 else
-    sim_version = subject_data.Version{1};
+    warning('No subject information found. Assuming version is %s.', params.sim.version);
+    sim_version = params.sim.version;
 end
 
 % Load TriggerActuated | LaneChange | IncreaseSpeed events from simulation log
@@ -278,7 +284,10 @@ end
 types = data.sim.triggers.values.Action;
 times = data.sim.triggers.values.Millis - data.sim.t_start;
 
-idx = find(strcmp(types,'iterate-cycle') | strcmp(types,'iterate-cycle-reset'));
+idx = find(strcmp(types,'iterate-cycle') | ...
+           strcmp(types,'iterate-cycle-reset') | ...
+           strcmp(types,'simulation-end'));
+
 if n_rounds > 0
     if length(idx) == n_rounds - 1
         % Don't remove last index; simulation was likely terminated
@@ -351,7 +360,15 @@ sim2track.reward_magnitudes = magnitudes(idx);
 sim2track.reward_magnitudes = sim2track.reward_magnitudes(idx);
 
 % SimulationEnded event
-sim2track.simended_time = interpolate_log_times_sim( sim2track.matrix, data.sim.simended.values.Millis - data.sim.t_start, true );
+
+if height(data.sim.simended.values) == 0
+    % No SimulationEnded event (warning will have already been given)
+    % Use last event instead
+    t_sim_ended = data.sim.events.values(end,:).Millis;
+else
+    t_sim_ended = data.sim.simended.values.Millis;
+end
+sim2track.simended_time = interpolate_log_times_sim( sim2track.matrix, t_sim_ended - data.sim.t_start, true );
 
 % Lane changes
 times = data.sim.lane_change.values.Millis - data.sim.t_start;

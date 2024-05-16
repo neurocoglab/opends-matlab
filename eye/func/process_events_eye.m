@@ -19,6 +19,12 @@ if isempty(summary)
     summary.right_change.tlocked_bl2 = {};
     summary.right_change.diffs = {};
     summary.right_change.outcomes = {};
+
+    summary.brake.tlocked = {};
+    summary.brake.tlocked_bl = {};
+    summary.brake.tlocked_bl2 = {};
+    summary.brake.diffs = {};
+    summary.brake.outcomes = {};
     
     % Process traffic decision button press events?
     if params.sim.events.traffic_decision.apply
@@ -76,14 +82,28 @@ end
 if params.eye.events.zscore
     pdz = zscore(pd);
     pdz_raw = zscore(data.eye.diam);
+
+    pd = pd(:);
+    idx_nan = isnan(pd);
+    pdz = pd;
+    pdz(idx_nan) = mean(pdz(~idx_nan));
+    pdz = zscore(pdz);
+    pdz(idx_nan) = nan;
+
+    pd_raw = data.eye.diam(:);
+    idx_nan = isnan(pd_raw);
+    pdz_raw = pd_raw;
+    pdz_raw(idx_nan) = mean(pdz_raw(~idx_nan));
+    pdz_raw = zscore(pdz_raw);
+    pdz_raw(idx_nan) = nan;
 else
     pdz = pd;
     pdz_raw = data.eye.diam;
 end
 
 if params.eye.events.smooth > 0
-   pdz = smooth(pdz, params.eye.events.smooth);
-   pdz_raw = smooth(pdz_raw, params.eye.events.smooth);
+   pdz = smoothdata(pdz, 1,'movmean', params.eye.events.smooth);
+   pdz_raw = smoothdata(pdz_raw, 1,'movmean', params.eye.events.smooth);
 end
 
 pdz = pdz(:);
@@ -114,6 +134,7 @@ N_rand = params.eye.events.random.N;
 % Overtake events
 events = data.sim.sim2track.overtake_times;
 events = events(~isnan(events));
+events = unique(events);
 
 [tlocked,tstart] = get_tlocked(pdz, t_pd, events, params.eye.events.overtake);
 % if params.eye.events.tlock_params.apply

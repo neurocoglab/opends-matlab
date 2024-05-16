@@ -18,11 +18,12 @@ params.eye.Fs = 500;
 %% Gap detection
 params.eye.gaps.apply = true;
 params.eye.gaps.criterion = 'diam';
-params.eye.gaps.gapmin = 10;
+params.eye.gaps.gapmin = 100;
 params.eye.gaps.gapthres = 5;
 params.eye.gaps.gapmerge = 400;
 params.eye.gaps.plots.color = [0.9 0.8 0.8];
 params.eye.gaps.buffer = 0;
+params.eye.gaps.repair_max = 20;
 
 %% Blink detection
 params.eye.blinks.apply = true;

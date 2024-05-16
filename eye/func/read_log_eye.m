@@ -40,12 +40,16 @@ for j = 1 : length(input_files)
     data_i.eye.pos_y = single(data_i.eye.pos_y);
     data_i.eye.diam = single(data_i.eye.diam);
 
-    % Make data compatible
+    % Make data units compatible (time = ms, pupil = mm)
     if strcmp(params.eye.convert.format, 'smi')
         data_i.eye.t = data_i.eye.t / 1000;
     end
     if strcmp(params.eye.convert.format, 'eyelink')
         data_i.eye.diam = data_i.eye.diam / 100;
+    end
+    if strcmp(params.eye.convert.format, 'tobii')
+        % data_i.eye.diam = data_i.eye.diam * 10;
+        data_i.eye.t = data_i.eye.t / 1000;
     end
     
     % Record start time
@@ -114,8 +118,15 @@ messages = [num2cell(messages{:,1}),num2cell(messages{:,2}), ...
                num2cell(messages{:,3}),num2cell(messages{:,4})];
 messages = cell2table(messages, 'VariableNames', hdr);
 
+messages.Time = single(messages.Time);
+
+% Make data units compatible (time = ms, pupil = mm)
 if strcmp(params.eye.convert.format, 'smi')
-    % Convert SMI (microseconds) to milliseconds
+    % SMI time is microseconds
+    messages.Time = messages.Time / 1000;
+end
+if strcmp(params.eye.convert.format, 'tobii')
+    % Tobii time is microseconds
     messages.Time = messages.Time / 1000;
 end
 

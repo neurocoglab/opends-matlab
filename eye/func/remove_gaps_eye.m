@@ -9,6 +9,8 @@ N = length(data.eye.t);
 isgap = zeros(N,1);
 
 x = data.eye.(params.eye.gaps.criterion);
+idx_subthr = isnan(x) | x < params.eye.gaps.gapthres;
+x(isnan(x)) = -Inf;
 
 tstep = 1/data.eye.Fs*1000;
 
@@ -39,7 +41,7 @@ while i < N
          i = min(N,i+buffer);
          
          isgap(i_start : i) = 1;
-         
+
       end
       
    end
@@ -47,8 +49,33 @@ while i < N
   i = i + 1;
 end
 
-% Merge gaps
+% Repair small gaps
+idx_subthr(isgap>0) = 0;
+idx_subthr = diff(idx_subthr);
+idx_start = find(idx_subthr==1);
+idx_stop = find(idx_subthr==-1);
+idx_repair = zeros(length(isgap),1);
 
+vars = {'pos_x', 'pos_y', 'diam'};
+for j = 1 : length(vars)
+    v = data.eye.(vars{j});
+    for i = 1 : length(idx_start)
+        w_i = (idx_stop(i) - idx_start(i)) + 1;
+        w_t =  (w_i-1) * tstep;
+        if w_i > 1 && w_t < params.eye.gaps.repair_max
+            idx_repair(idx_start:idx_stop) = 1;
+            % Linearly interpolate over gap
+            v(idx_start(i):idx_stop(i)) = linterp([1 w_i], ...
+                                                  [v(idx_start(i)) v(idx_stop(i)+1)], ...
+                                                  1:w_i);
+        else
+            a=0; % debug breakpoint
+        end
+    end
+    data.eye.(vars{j}) = v;
+end
+
+% Merge gaps
 dt = diff(data.eye.t);
 tgaps = dt > tstep * params.eye.gaps.gapmin;
 tgaps = [tgaps;0];
@@ -111,52 +138,12 @@ if params.eye.gaps.buffer > 0
     end
 end
 
-x = x(~isgap);
-
 % Remove gaps from time series
 data.eye.t = data.eye.t(~isgap);
 data.eye.pos_x = data.eye.pos_x(~isgap);
 data.eye.pos_y = data.eye.pos_y(~isgap);
 data.eye.diam = data.eye.diam(~isgap);
   
-
-% dt = diff(data.eye.t);
-% idx = dt > tstep + 1;
-% dt = dt(idx);
-% tgap = find(idx);
-% 
-% isgap = zeros(length(x),1);
-% for i = 1 : length(tgap)
-%     idx = tgap(i) + 1;
-%     while idx < N && x(idx) < params.eye.gaps.gapthres
-%         isgap(idx) = 1;
-%         idx = idx + 1;
-%     end
-%     idx = tgap(i);
-%     while idx > 0 && x(idx) < params.eye.gaps.gapthres
-%         isgap(idx) = 1;
-%         idx = idx - 1;
-%     end
-% end
-% 
-% for i = 1 : length(tgap)
-%     idx = tgap(i) + 1;
-%     while idx < N && x(idx) > params.eye.gaps.gapmax
-%         isgap(idx) = 1;
-%         idx = idx + 1;
-%     end
-%     idx = tgap(i);
-%     while idx > 0 && x(idx) > params.eye.gaps.gapmax
-%         isgap(idx) = 1;
-%         idx = idx - 1;
-%     end
-% end
-% 
-% data.eye.t = data.eye.t(~isgap);
-% data.eye.pos_x = data.eye.pos_x(~isgap);
-% data.eye.pos_y = data.eye.pos_y(~isgap);
-% data.eye.diam = data.eye.diam(~isgap);
-
 dt = diff(data.eye.t);
 idx = dt > tstep * params.eye.gaps.gapmin;
 dt = dt(idx);

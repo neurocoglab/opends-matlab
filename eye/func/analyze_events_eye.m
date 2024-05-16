@@ -70,7 +70,8 @@ if ~isempty(params.eye.events.covariates.glms)
             end
             
             [result, timelock_ga] = cluster_regression( event, ivar_i, [], ...
-                                                        subjects_i, params );
+                                                        subjects_i, params, ...
+                                                        event_name );
 
             glm_result = {};
             glm_result.timelock_stats = result.stats;
@@ -161,7 +162,10 @@ if params.sim.events.traffic_decision.apply
     writetable( M_out, result_file );
     
     % Analyse versus baseline
-    [result, timelock_ga] = cluster_ttest_baseline(summary.traffic_decision, summary.traffic_decision.subjects, params);
+    [result, timelock_ga] = cluster_ttest_baseline(summary.traffic_decision, ...
+                                                   summary.traffic_decision.subjects, ...
+                                                   params, ...
+                                                   'Traffic Decision v. Baseline');
     if isempty(result)
        warning('No result for Traffic Decision v. Baseline!'); 
     else
@@ -183,7 +187,8 @@ if params.sim.events.traffic_decision.apply
                                                         summary.traffic_decision.correct, ...
                                                         summary.traffic_decision.subjects, ...
                                                         {'Correct','Incorrect'}, ...
-                                                        params2);
+                                                        params2, ...
+                                                        'Traffic Correct v. Incorrect');
         if isempty(result)
            warning('No result for Traffic Decision Correct v. Incorrect!'); 
         else
@@ -215,7 +220,8 @@ if params.sim.events.traffic_decision.apply
                                                         summary.traffic_decision.confidence, ...
                                                         summary.traffic_decision.subjects, ...
                                                         {'HighConfidence','LowConfidence'}, ...
-                                                        params2);
+                                                        params2, ...
+                                                        'Traffic High v. Low Confidence');
         if isempty(result)
            warning('No result for Traffic Decision High v. Low Confidence!'); 
         else
@@ -233,7 +239,8 @@ if params.sim.events.traffic_decision.apply
                 summary.stats.traffic_decision.confidence.parameter_stats = ...
                     parameter_ttest_twosample( result, ...
                                             params.eye.events.traffic_decision, ...
-                                            params.eye.events.alpha );
+                                            params.eye.events.alpha, ...
+                                            'Traffic High v. Low Confidence');
     
             end
         end
@@ -248,7 +255,8 @@ if params.sim.events.traffic_decision.apply
                                                         summary.traffic_decision.order, ...
                                                         summary.traffic_decision.subjects, ...
                                                         {'TwoBack','OneBack'}, ...
-                                                        params2);
+                                                        params2, ...
+                                                        'Traffic 1 v. 2-Back');
         if isempty(result)
            warning('No result for Traffic Decision 1- vs. 2-back!'); 
         else
@@ -266,7 +274,8 @@ if params.sim.events.traffic_decision.apply
                 summary.stats.traffic_decision.order.parameter_stats = ...
                     parameter_ttest_twosample( result, ...
                                             params.eye.events.traffic_decision, ...
-                                            params.eye.events.alpha );
+                                            params.eye.events.alpha, ...
+                                            'Traffic 1 v. 2-Back');
     
             end
         end
@@ -280,7 +289,10 @@ end
 %% Compare left-change, overtake, and right-change to zero
 %  Using cluster-based inference
 
-[result, timelock_ga] = cluster_ttest_baseline(summary.left_change, summary.subjects, params);
+[result, timelock_ga] = cluster_ttest_baseline(summary.left_change, ...
+                                               summary.subjects, ...
+                                               params, ...
+                                               'Left Change v. Baseline');
 if isempty(result)
    warning('No result for Passing Onset v. Baseline!'); 
 end
@@ -289,7 +301,10 @@ summary.stats.left_change.excluded_subjects = result.excluded_subjects;
 summary.stats.left_change.timelock_stats = result.stats;
 summary.stats.left_change.timelock_avr = timelock_ga;
 
-[result, timelock_ga] = cluster_ttest_baseline(summary.overtake, summary.subjects, params);
+[result, timelock_ga] = cluster_ttest_baseline(summary.overtake, ...
+                                               summary.subjects, ...
+                                               params, ...
+                                               'Overtake v. Baseline');
 if isempty(result)
    warning('No result for Overtake v. Baseline!'); 
 end
@@ -299,7 +314,10 @@ summary.stats.overtake.timelock_stats = result.stats;
 summary.stats.overtake.timelock_avr = timelock_ga;
 
 % Analyse slope
-[result, timelock_ga] = cluster_ttest_baseline(summary.right_change, summary.subjects, params);
+[result, timelock_ga] = cluster_ttest_baseline(summary.right_change, ...
+                                               summary.subjects, ...
+                                               params, ...
+                                               'Right Change v. Baseline');
 if isempty(result)
    warning('No result for Passing Offset v. Baseline!'); 
 end
@@ -316,7 +334,8 @@ if params.eye.events.difficulty.apply
                                                     summary.left_change.diffs, ...
                                                     summary.subjects, ...
                                                     {'Easy','Difficult'}, ...
-                                                    params);
+                                                    params, ...
+                                                    'Left Change Easy v. Difficult' );
     if isempty(result)
        warning('No result for Passing Onset x Difficulty!'); 
     end
@@ -334,7 +353,8 @@ if params.eye.events.difficulty.apply
         summary.stats.left_change.diff.parameter_stats = ...
             parameter_ttest_twosample( result, ...
                                        params.eye.events.left_change, ...
-                                       params.eye.events.alpha );
+                                       params.eye.events.alpha, ...
+                                       'Left Change Easy v. Difficult' );
 
     end
     
@@ -342,7 +362,8 @@ if params.eye.events.difficulty.apply
                                                     summary.right_change.diffs, ...
                                                     summary.subjects, ...
                                                     {'Easy','Difficult'}, ...
-                                                    params);
+                                                    params, ...
+                                                    'Right Change Easy v. Difficult');
     if isempty(result)
        warning('No result for Passing Offset x Difficulty!'); 
     end
@@ -360,7 +381,8 @@ if params.eye.events.difficulty.apply
         summary.stats.right_change.diff.parameter_stats = ...
             parameter_ttest_twosample( result, ...
                                        params.eye.events.right_change, ...
-                                       params.eye.events.alpha );
+                                       params.eye.events.alpha, ...
+                                       'Right Change Easy v. Difficult' );
 
     end
     
@@ -372,7 +394,8 @@ if params.eye.events.difficulty.apply
                                                     summary.overtake.diffs, ...
                                                     summary.subjects, ...
                                                     {'Easy','Difficult'}, ...
-                                                    params);
+                                                    params, ...
+                                                    'Overtake Easy v. Difficult');
     if isempty(result)
        warning('No result for Overtake x Difficulty!'); 
     end
@@ -390,7 +413,8 @@ if params.eye.events.difficulty.apply
         summary.stats.overtake.diff.parameter_stats = ...
             parameter_ttest_twosample( result, ...
                                        params.eye.events.overtake, ...
-                                       params.eye.events.alpha );
+                                       params.eye.events.alpha, ...
+                                       'Overtake Easy v. Difficult' );
 
     end
 
@@ -413,7 +437,8 @@ if params.eye.events.outcomes.apply
                                                     groups, ...
                                                     summary.subjects, ...
                                                     {'Positive','Negative'}, ...
-                                                    params);
+                                                    params, ...
+                                                    'Left Change Positive v. Negative');
     if isempty(result)
        warning('No result for Passing Onset x Outcome!'); 
     end
@@ -431,7 +456,8 @@ if params.eye.events.outcomes.apply
         summary.stats.left_change.outcomes.parameter_stats = ...
             parameter_ttest_twosample( result, ...
                                        params.eye.events.left_change, ...
-                                       params.eye.events.alpha );
+                                       params.eye.events.alpha, ...
+                                       'Left Change Positive v. Negative' );
 
     end
 
@@ -448,7 +474,8 @@ if params.eye.events.outcomes.apply
                                                     groups, ...
                                                     summary.subjects, ...
                                                     {'Positive','Negative'}, ...
-                                                    params);
+                                                    params, ...
+                                                    'Right Change Positive v. Negative');
     if isempty(result)
        warning('No result for Passing Offset x Outcome!'); 
     end
@@ -466,7 +493,8 @@ if params.eye.events.outcomes.apply
         summary.stats.right_change.outcomes.parameter_stats = ...
             parameter_ttest_twosample( result, ...
                                        params.eye.events.right_change, ...
-                                       params.eye.events.alpha );
+                                       params.eye.events.alpha, ...
+                                       'Right Change Positive v. Negative' );
 
     end
 
@@ -483,7 +511,8 @@ if params.eye.events.outcomes.apply
                                                     groups, ...
                                                     summary.subjects, ...
                                                     {'Positive','Negative'}, ...
-                                                    params);
+                                                    params, ...
+                                                    'Overtake Positive v. Negative');
     if isempty(result)
        warning('No result for Overtake x Outcome!'); 
     end
@@ -501,13 +530,14 @@ if params.eye.events.outcomes.apply
         summary.stats.overtake.outcomes.parameter_stats = ...
             parameter_ttest_twosample( result, ...
                                        params.eye.events.overtake, ...
-                                       params.eye.events.alpha );
+                                       params.eye.events.alpha, ...
+                                       'Overtake Positive v. Negative' );
 
     end
 
 end
 
-    function [result, timelock_ga] = cluster_ttest_onesample( event, subjects, params )
+    function [result, timelock_ga] = cluster_ttest_onesample( event, subjects, params, event_name )
         
         alpha = params.eye.events.alpha/2;
         min_trials = params.eye.events.min_trials;
@@ -527,12 +557,20 @@ end
             trial = event.tlocked_bl{ii};
             keeprows = sum(isnan(trial),2) == 0;
             trial = trial(keeprows,:);
-            for jj = 1 : size(trial,1)
-                data.trial(end+1) = {squeeze(trial(jj,:))};
+            if size(trial,1) > min_trials
+                for jj = 1 : size(trial,1)
+                    data.trial(end+1) = {squeeze(trial(jj,:))};
+                end
+                data.time = repmat({event.t},1,size(trial,1));
+                [~,X] = evalc('ft_timelockanalysis(cfg,data)');
+                timelock(ii) = {X};
+            else
+
             end
-            data.time = repmat({event.t},1,size(trial,1));
-            [~,X] = evalc('ft_timelockanalysis(cfg,data)');
-            timelock(ii) = {X};
+        end
+
+        if N_keep < N_subj
+            warning('T-test [%s]: %d subjects excluded because N_trials < min_trials (%d)', event_name, N_subj-N_keep, min_trials);
         end
         
         result.timelock_avg.trials = timelock;
@@ -567,7 +605,7 @@ end
 
 
 
-    function [result, timelock_ga, timelock_subjects] = cluster_ttest_baseline( event, subjects, params )
+    function [result, timelock_ga, timelock_subjects] = cluster_ttest_baseline( event, subjects, params, event_name )
         
         alpha = params.eye.events.alpha/2;
         min_trials = params.eye.events.min_trials;
@@ -586,6 +624,7 @@ end
         cfg.vartrllength = 0;
         timelock = {}; % cell(N_subj,1);
         timelock_bl = {}; % cell(N_subj,1);
+        idx_keep = [];
         for ii = 1 : N_subj
             data.trial = {};
             data_bl.trial = {};
@@ -606,9 +645,15 @@ end
                 [~,X] = evalc('ft_timelockanalysis(cfg,data_bl)');
                 timelock_bl = [timelock_bl {X}];
                 result.subjects = [result.subjects subjects(ii)];
+                idx_keep = [idx_keep;ii];
             else
                 result.excluded_subjects = [result.excluded_subjects subjects(ii)];
             end
+        end
+
+        N_keep = length(idx_keep);
+        if N_keep < N_subj
+            warning('T-test [%s]: %d subjects excluded because N_trials < min_trials (%d)', event_name, N_subj-N_keep, min_trials);
         end
 
         result.timelock_avg = [];
@@ -629,9 +674,9 @@ end
         cfg.clusterstatistic = 'maxsum';
         cfg.alpha = alpha;
         cfg.numrandomization = 1000;
-        subs = 1:N_subj;
+        subs = idx_keep';
         subs = [subs,subs]';
-        cfg.design = [subs,[ones(N_subj,1);ones(N_subj,1)*2]]';
+        cfg.design = [subs,[ones(N_keep,1);ones(N_keep,1)*2]]';
         cfg.uvar = 1;
         cfg.ivar = 2;
         cfg.latency = 'all';
@@ -644,7 +689,7 @@ end
 
     % Performs cluster t-test analysis on two dependent samples derived from
     % subjects. Returns the result and a timelocked grand average
-    function [result, timelock_ga] = cluster_ttest_twosample( event, groups, subjects, labels, params )
+    function [result, timelock_ga] = cluster_ttest_twosample( event, groups, subjects, labels, params, event_name )
         
         alpha = params.eye.events.alpha/2;
         min_trials = params.eye.events.min_trials;
@@ -677,6 +722,7 @@ end
             trial = event.tlocked_bl{ii}(idx1,:);
             keeprows = sum(isnan(trial),2) == 0;
             trial = trial(keeprows,:);
+
             % Only add if both groups have at least min_trials samples
             if ~isempty(trial) && sum(keeprows) >= min_trials
                 for jj = 1 : size(trial,1)
@@ -705,6 +751,11 @@ end
             else
                 result.excluded_subjects = [result.excluded_subjects subjects(ii)];
             end
+        end
+
+        N_keep = length(tokeep);
+        if N_keep < N_subj
+            warning('T-test2 [%s]: %d subjects excluded because N_trials < min_trials (%d)', event_name, N_subj-N_keep, min_trials);
         end
 
         timelock1 = timelock1(tokeep);
@@ -821,7 +872,7 @@ end
 
     % Performs regression t-test analysis on time series and a covariate. Returns 
     % the result and a timelocked grand average
-    function [result, timelock_ga] = cluster_regression( event, ivar, cvar, subjects, params )
+    function [result, timelock_ga] = cluster_regression( event, ivar, cvar, subjects, params, event_name )
         
         alpha = params.eye.events.alpha/2;
         min_trials = params.eye.events.min_trials;
@@ -875,7 +926,7 @@ end
         if isempty(timelock)
             result = [];
             timelock_ga = [];
-            warning('Not enough trials to analyze events (min=%d)!', min_trials);
+            warning('Regression [%s]: Not enough trials to analyze events (min=%d)!', event_name, min_trials);
             return; 
         end
         
@@ -918,7 +969,7 @@ end
     %
     % result - the result from cluster_ttest_twosample
     % params - parameters for the analysis
-    function stats = parameter_ttest_baseline( result, params, alpha )
+    function stats = parameter_ttest_baseline( result, params, alpha, event_name )
         
         if nargin < 3
            alpha = 0.05; 
@@ -943,7 +994,7 @@ end
     %
     % result - the result from get_timelocked_averages
     % params - parameters for the analysis
-    function stats = parameter_ttest_twosample( result, params, alpha )
+    function stats = parameter_ttest_twosample( result, params, alpha, event_name )
         
         if nargin < 3
            alpha = 0.05; 

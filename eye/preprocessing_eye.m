@@ -83,6 +83,9 @@ for i = 1 : length(subjects)
                    
                case 'eyelink'
                    ok = convert_eyelog_eyelink( subject, params );
+
+               case 'tobii'
+                   ok = convert_eyelog_tobii( subject, params );
                    
                otherwise
                    % Fail outright
